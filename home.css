@@ -399,3 +399,7 @@ p, li, a {
   .dropdown:hover .dropdown-content {
     display: block;
   }
+  *{
+    padding: 0;
+    margin: 0;
+}
