@@ -9,9 +9,7 @@ nav {
   background-size: 1200px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
-body {
-  font-family: 'Poppins', sans-serif; /* Apply to the whole page */
-}
+
 h1, h2, h3 {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;

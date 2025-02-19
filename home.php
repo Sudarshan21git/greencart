@@ -1,12 +1,10 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nursery Website</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-    <link rel="stylesheet" type="text/css" href="home.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
+	<title>Nursery Website</title>
+	<link rel="stylesheet" type="text/css" href="home.css">
+  <link rel="stylesheet" type="text/css" href="reset.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="..." crossorigin="anonymous" />
 
   <body>
 	<nav>

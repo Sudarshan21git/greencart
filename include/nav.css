@@ -13,6 +13,8 @@ nav {
     display: flex;
     align-items: center;
     margin-left: 50px;
+    font-family: none !important;
+
   }
   .logo img {
     height: 40px;
