@@ -1,6 +1,3 @@
-<?php
-session_start();
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +11,7 @@ session_start();
 
 <nav>
     <div class="logo">
-        <img src="img/logo.png" alt="Nature's Nursery">
+        <img src="../img/logo.png" alt="Nature's Nursery">
         <div class="logo-text">
             <span class="green">Nature's</span> <span class="white">Nursery</span>
         </div>
@@ -22,7 +19,7 @@ session_start();
     <ul class="menu">
         <li><a href="home.php">Home</a></li>
         <li><a href="product.php">Product</a></li>
-        <li><a href="Blog/blog.php">Blog</a></li>
+        <li><a href="blog.php">Blog</a></li>
 
         <?php
         if (isset($_SESSION['id'])) {

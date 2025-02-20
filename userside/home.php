@@ -2,14 +2,13 @@
 <html>
 <head>
 	<title>Nursery Website</title>
-	<link rel="stylesheet" type="text/css" href="home.css">
-  <link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="../css/home.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="..." crossorigin="anonymous" />
 
   <body>
 	<nav>
     <div class="logo">
-      <img src="logo.png" alt="Nature's Nursery">
+      <img src="../img/logo.png" alt="Nature's Nursery">
       <div class="logo-text">
         <span class="green">Nature's</span> <span class="white">Nursery</span>
       </div>
@@ -17,12 +16,12 @@
     <ul class="menu">
       <li><a href="#">Home</a></li>
       <li><a href="product.php">Product</a></li>
-      <li><a href="Blog\blog.php">Blog</a></li>
+      <li><a href="blog.php">Blog</a></li>
       <!-- <li><a href="login page\login.php" class="login-btn">Login</a></li> -->
       <?php
         session_start();
         if (isset($_SESSION['username'])) {
-          echo "<li><a href='cart\cart.php'>Cart</a></li>";
+          echo "<li><a href='./cart.php'>Cart</a></li>";
             echo '<div class="dropdown">';
             echo '<a href="#" class="dropbtn">My Profile</a>';
             echo '<div class="dropdown-content">';
@@ -58,19 +57,19 @@
 
 <div class="image-grid">
   <div class="image-box">
-    <img src="img\Black rose.jpg" alt="Image 1">
+    <img src="..\img\Black rose.jpg" alt="Image 1">
     <div class="image-text">Black Rose</div>
   </div>
   <div class="image-box">
-    <img src="img\sakura.jpg" alt="Image 2">
+    <img src="..\img\sakura.jpg" alt="Image 2">
     <div class="image-text"> sakura</div>
   </div>
   <div class="image-box">
-    <img src="img\blue rose.jpg" alt="Image 3">
+    <img src="..\img\blue rose.jpg" alt="Image 3">
     <div class="image-text">Blue Rose </div>
   </div>
   <div class="image-box">
-    <img src="img\jacaranda.jpg" alt="Image 4">
+    <img src="..\img\jacaranda.jpg" alt="Image 4">
     <div class="image-text">Jacaranda</div>
   </div>
 </div>

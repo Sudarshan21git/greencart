@@ -5,7 +5,7 @@ nav {
   padding: 20px;
   background-color: #00561e;
   opacity: 90%;
-  background-image: url(./img/navbarbg.jpg);
+  background-image: url(../img/navbarbg.jpg);
   background-size: 1200px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -131,7 +131,7 @@ p, li, a {
 /*******************************hero section**********************************/
 
 .hero {
-  background-image: url(./img/herobg.jpg);
+  background-image: url(../img/herobg.jpg);
 
 
   background-size: cover;
@@ -252,7 +252,7 @@ p, li, a {
   /*******************************footer**********************************/
 
   footer {
-    background-image: url(./img/footer.jpg);
+    background-image: url(../img/footer.jpg);
     background-size: cover;
     background-position: center;
     color: #000000;

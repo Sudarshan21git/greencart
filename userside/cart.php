@@ -1,7 +1,7 @@
 <?php
 session_start();
 $userId = $_SESSION['id'];
-@include '../db.php';
+include '../include/db.php';
 
 if (isset($_POST['update_update_btn'])) {
    $update_value = $_POST['update_quantity'];
@@ -30,15 +30,12 @@ if (isset($_GET['delete_all'])) {
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Cart</title>
-   <link rel="stylesheet" href="cart.css">
-   <link rel="stylesheet" href="reset.css">
-   <link rel="stylesheet" href="carts.css">
-
+   <link rel="stylesheet" href="../css/carts.css">
+   <link rel="stylesheet" type="text/css" href="../include/nav.css">
 
 </head>
-
 <body>
-<?php include "./include/nav.php"; ?>
+<?php include "../include/nav.php"; ?>
    <div class="container">
 
       <section class="shopping-cart">
@@ -98,7 +95,7 @@ if (isset($_GET['delete_all'])) {
                
                ?>
                <tr class="table-bottom">
-                  <td><a href="../Product page/product.php" class="option-btn" style="margin-top: 0;">continue Shopping</a></td>
+                  <td><a href="./product.php" class="option-btn" style="margin-top: 0;">continue Shopping</a></td>
                   <td colspan="4">grand total</td>
                   <td>Rs.<?php echo (floatval($grand_total)); ?>/-</td>
                   <td><a href="cart.php?delete_all" onclick="return confirm('are you sure you want to delete all?');" class="delete-btn"> delete all </a></td>

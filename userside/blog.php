@@ -1,9 +1,13 @@
 
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Blog</title>
-    <link rel="stylesheet" type="text/css" href="blog.css">
+    <link rel="stylesheet" type="text/css" href="../css/blog.css">
     <link rel="stylesheet" type="text/css" href="../include/nav.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="..." crossorigin="anonymous" />
 <body>

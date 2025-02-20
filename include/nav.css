@@ -14,7 +14,6 @@ nav {
     align-items: center;
     margin-left: 50px;
     font-family: none !important;
-
   }
   .logo img {
     height: 40px;
@@ -97,3 +96,55 @@ nav {
       margin: 20px auto 0;
     }
   }
+  /* drop down */
+  
+  /* Dropdown button */
+  .dropdown .dropbtn {
+    font-size: 13x;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 8px 12px;
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+  }
+
+  .navbar a:hover,
+  .dropdown:hover .dropbtn {
+    background-color: none;
+  }
+
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+
+
+  .dropdown-content a {
+    float: none;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+  }
+
+
+  .dropdown-content a:hover {
+    background-color: rgb(15, 227, 51);
+  }
+
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  *{
+    padding: 0;
+    margin: 0;
+}

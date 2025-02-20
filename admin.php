@@ -43,7 +43,7 @@
 <body>
     <!-- Include header -->
     <?php include('header.php')?>
-    <?php include('db.php')?>
+    <?php include('../include/db.php')?>
   
 
     <!-- Form section -->
