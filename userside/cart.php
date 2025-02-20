@@ -56,8 +56,8 @@ if (isset($_GET['delete_all'])) {
 
             <tbody>
                <?php
-               include '../db.php';
-
+              include '../include/db.php';
+  
                // Getting cart details
                $select_cart = mysqli_query($conn, "SELECT * FROM `cart` WHERE userId=$userId");
                $grand_total = 0;
