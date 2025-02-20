@@ -39,28 +39,11 @@ include '../include/db.php';
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Login Page</title>
 	<link rel="stylesheet" type="text/css" href="../css/login.css">
+  <link rel="stylesheet" type="text/css" href="../include/nav.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <nav>
-        <div class="logo">
-          <img src="../img/logo.png" alt="Nature's Nursery">
-          <div class="logo-text">
-            <span class="green">Nature's</span> <span class="white">Nursery</span>
-          </div>
-        </div>
-        <ul class="menu">
-          <li><a href="./home.php">Home</a></li>
-          <li><a href="./product.php">Product</a></li>
-          <li><a href="./blog.php">Blog</a></li>
-          <li><a href="#" class="login-btn">Login</a></li>
-        </ul>
-        <div class="hamburger-menu">
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-        </div>
-      </nav>
+  <?php include "../include/nav.php"; ?>
 
 	<div class="background-image">
 	<div class="login-box Login">

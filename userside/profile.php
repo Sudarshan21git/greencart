@@ -19,42 +19,12 @@ $uaddress = $row["address"];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
     <link rel="stylesheet" href="../css/profile.css">
+    <link rel="stylesheet" type="text/css" href="../include/nav.css">
 
 
 </head>
 <body>
-<nav>
-    <div class="logo">
-        <img src="../img/logo.png" alt="Nature's Nursery">
-        <div class="logo-text">
-            <span class="green">Nature's</span> <span class="white">Nursery</span>
-        </div>
-    </div>
-    <ul class="menu">
-        <li><a href="home.php">Home</a></li>
-        <li><a href="./product.php">Product</a></li>
-       
-        <li><a href="./blog.php">Blog</a></li>
-        <li><a href="./cart.php">Cart</a></li>
-        <div class= "dropdown">
-        <li><a href="#" class="dropbtn">My profile</a></li>
-        <div class="dropdown-content">
-        <a href="profile.php">Manage My Account</a>
-        <a href="Myorders.php">My orders</a>
-        <a href="logout.php">Logout</a>
-    </div>
-    </div>
-
-
-     
-    </ul>
-    <div class="hamburger-menu">
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
-    </div>
-</nav>
-
+    <?php include "../include/nav.php"; ?>
 <div class="container">
     <img src="../img/user.png" alt="profile" height="150px">
         <h1>Personal Profile</h1>

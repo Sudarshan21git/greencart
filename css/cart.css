@@ -1,0 +1,29 @@
+/* Override Bootstrap table styles */
+.table {
+    border: 2px solid #28a745; /* Custom green border */
+}
+
+.table th {
+    background-color: #00561e !important; /* Dark green header */
+    color: white;
+}
+
+/* Customize Buttons */
+.btn-danger {
+    background-color: #dc3545 !important;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+}
+
+/* Custom Checkout Button */
+.btn-primary {
+    background-color: #024710 !important;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #01350c !important;
+}
