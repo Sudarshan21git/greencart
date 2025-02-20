@@ -49,29 +49,12 @@ if(isset($_POST['submit'])){
 <head>
 	<title>Sign up</title>
 	<link rel="stylesheet" href="../css/signup.css">
-
+  <link rel="stylesheet" href="../include/nav.css">
 </head>
 <body>
-    <nav>
-        <div class="logo">
-          <img src="../img/logo.png" alt="Nature's Nursery">
-          <div class="logo-text">
-            <span class="green">Nature's</span> <span class="white">Nursery</span>
-          </div>
-        </div>
-        <ul class="menu">
-          <li><a href="./home.php">Home</a></li>
-          <li><a href="./product.php">Product</a></li>
-          <li><a href="./blog.php">Blog</a></li>
-          
-          <li><a href="./login.php" class="login-btn">Login</a></li>
-        </ul>
-        <div class="hamburger-menu">
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-        </div>
-    </nav>
+    <!-- nav bar -->
+    <?php include "../include/nav.php"; ?>
+     <!-- nav bar -->
 	<section id="signup-us">
 		<div class="background-image"></div>
 		<div class="signup-box">

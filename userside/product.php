@@ -62,9 +62,9 @@ $result = mysqli_query($conn, $sql);
    
 </head>
 <body>
-
+<!-- navbar -->
 <?php include "../include/nav.php"; ?>
-
+<!-- nav bar -->
 
 <!-- Success Message -->
 <?= $successMessage ?>
