@@ -85,7 +85,7 @@
         <h3>About Us</h3>
         <ul>
           <li><a href="#">My Account</a></li>
-          <li><a href="#">Our Blog</a></li>
+          <li><a href="blog.php">Our Blog</a></li>
         </ul>
       </div>
       <div class="middle">
@@ -95,9 +95,11 @@
       <div class="right">
         <h3>Connect</h3>
         <ul class="social-icons">
-          <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-          <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-          <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+        <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+        <li><a href="https://www.youtube.com/@sudarshansharma867"><i class="fab fa-youtube"></i></a></li>
+        <li><a href="https://github.com/Sudarshan21git"><i class="fab fa-github"></i></a></li>
+        <li><a href="https://www.linkedin.com/in/sudarshan-sharma-55001b236/"><i class="fab fa-linkedin-in"></i></a></li>
       </div>
     </div>
   </footer>

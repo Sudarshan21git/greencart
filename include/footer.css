@@ -1,0 +1,83 @@
+/*******************************footer**********************************/
+
+footer {
+    background-image: url(../img/footer.jpg);
+    background-size: cover;
+    background-position: center;
+    color: #000000;
+    padding: 50px 0;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .left,
+  .middle,
+  .right {
+    flex-basis: 30%;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .left h3,
+  .middle h3,
+  .right h3 {
+    margin-bottom: 20px;
+  }
+  
+  .left ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .left ul li {
+    margin-bottom: 10px;
+  }
+  
+  .left ul li a {
+    color: #000000;
+    font-size: 18px;
+    text-decoration: none;
+  }
+  
+  .middle p {
+    color: #000;
+    font-size: 18px;
+    line-height: 1.8;
+    margin: 0;
+  }
+  
+  .right .social-icons {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .right .social-icons li {
+    margin: 0 30px;
+  }
+  
+  .right .social-icons li a {
+    color: #000000;
+    font-size: 24px;
+    text-decoration: none;
+  }
+  
+  .right .social-icons:hover {
+    color: hwb(279 12% 29%);
+  }
+  
+  @media screen and (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+  }
+  

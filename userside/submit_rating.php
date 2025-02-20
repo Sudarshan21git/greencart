@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include '../include/db.php';
 
 if (!isset($_SESSION['id'])) {
     die("Unauthorized access.");
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->execute()) {
         echo "<script>
                 alert('Rating submitted successfully!');
-                window.location.href = 'Product page/product.php'; 
+                window.location.href = './product.php'; 
               </script>";
     } else {
         echo "<script>
