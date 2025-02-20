@@ -1,29 +1,66 @@
-/* Override Bootstrap table styles */
-.table {
-    border: 2px solid #28a745; /* Custom green border */
-}
+/* cart.css */
+body {
+    background-color: #f8f9fa;
+ }
+ 
+ .shopping-cart h1 {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+ }
+ 
+ 
+ .table th, .table td {
+    vertical-align: middle;
+    padding: 15px;
+ }
+ 
+ .table td img {
+    border-radius: 10px;
+ }
+ 
 
-.table th {
-    background-color: #00561e !important; /* Dark green header */
-    color: white;
-}
+ .table-secondary {
+    background-color: #f8f9fa;
+    border-top: 2px solid #dee2e6; /* Ensure a separator between cart items and totals */
+ }
+ 
+ .checkout-btn {
+    text-align: center;
+    margin-top: 30px;
+ }
+ 
+ .checkout-btn .btn {
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    border-radius: 30px;
+    background-color: #28a745; /* Green color for the checkout button */
+    color: #ffffff;
+    text-transform: uppercase;
+ }
+ 
+ .checkout-btn .btn.disabled {
+    background-color: #6c757d;
+ }
+ 
+ .btn-warning {
+    background-color: #28a745; /* Green color for the 'Continue Shopping' button */
+    color: #ffffff;
+    border-radius: 30px; /* Rounded corners */
+    text-transform: uppercase;
+    padding: 10px 20px;
+    display: inline-block;
+    width: 100%;
+ }
+ 
+ .btn-warning:hover {
+    background-color: #218838; /* Darker green on hover */
+ }
+ 
+ .table .btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+ }
+ 
+ 
 
-/* Customize Buttons */
-.btn-danger {
-    background-color: #dc3545 !important;
-    border: none;
-}
-
-.btn-danger:hover {
-    background-color: #c82333 !important;
-}
-
-/* Custom Checkout Button */
-.btn-primary {
-    background-color: #024710 !important;
-    border: none;
-}
-
-.btn-primary:hover {
-    background-color: #01350c !important;
-}
+ 

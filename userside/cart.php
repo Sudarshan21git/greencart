@@ -30,8 +30,9 @@ if (isset($_GET['delete_all'])) {
    <title>Cart</title>
    <!-- Bootstrap CSS -->
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-   <link rel="stylesheet" type="text/css" href="../include/nav.css">
+   <!-- Custom CSS -->
    <link rel="stylesheet" href="../css/cart.css">
+   <link rel="stylesheet" type="text/css" href="../include/nav.css">
 </head>
 
 <body>
@@ -39,7 +40,7 @@ if (isset($_GET['delete_all'])) {
    
    <div class="container my-5">
       <section class="shopping-cart">
-         <h1 class="text-center text-success">Shopping Cart</h1>
+         <h1 class="text-center text-success mb-4">Shopping Cart</h1>
 
          <div class="table-responsive">
             <table class="table table-bordered text-center">
@@ -101,9 +102,8 @@ if (isset($_GET['delete_all'])) {
             </table>
          </div>
 
-
-         <div class="checkout-btn">
-            <a href="./checkout.php" class="btn <?= ($grand_total > 1) ? '' : 'disabled'; ?>">procced to checkout</a>
+         <div class="checkout-btn mt-4">
+            <a href="./checkout.php" class="btn <?= ($grand_total > 1) ? '' : 'disabled'; ?>">Proceed to Checkout</a>
          </div>
       </section>
    </div>
