@@ -1,3 +1,8 @@
+
+html {
+  overflow-y: scroll;
+}
+
 nav {
     display: flex;
     justify-content: space-between;
@@ -8,12 +13,12 @@ nav {
     background-image: url(./img/navbarbg.jpg);
     background-size: 1200px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: none !important;
   }
   .logo {
     display: flex;
     align-items: center;
     margin-left: 50px;
-    font-family: none !important;
   }
   .logo img {
     height: 40px;
