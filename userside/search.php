@@ -1,7 +1,7 @@
 <?php
 // Include your database connection file
-include 'db.php';
-
+session_start();
+include '../include/db.php';
 if (isset($_SESSION['id'])) {
     $userId = $_SESSION['id'];
 }
@@ -33,13 +33,13 @@ if (isset($_POST['add_to_cart'])) {
     <!-- Include Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="include/nav.css">
+    <link rel="stylesheet" type="text/css" href="../include/nav.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 </head>
 <body>
 
 <!-- Navbar -->
-<?php include "include/nav.php"; ?>
+<?php include "../include/nav.php"; ?>
 <!---Navbar--------->
 
 <!-- Product Display -->
@@ -56,7 +56,7 @@ if (isset($_POST['add_to_cart'])) {
         ?>
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm">
-                    <img src="./img/<?php echo $row['image'];?>" class="card-img-top" alt="Product Image">
+                    <img src="../img/<?php echo $row['image'];?>" class="card-img-top" alt="Product Image">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $row['name'];?></h5>
                         <p class="card-text">Stock: <?php echo $row['stock'];?></p>
@@ -73,7 +73,7 @@ if (isset($_POST['add_to_cart'])) {
                                 }
                             } else {
                                 if ($row['stock'] > 0) {
-                                    echo "<button type='submit' class='btn btn-success w-100' formaction='./loginpage/login.php'>Add to Cart</button>";
+                                    echo "<button type='submit' class='btn btn-success w-100' formaction='./login.php'>Add to Cart</button>";
                                 } else {
                                     echo "<span class='text-danger'>Out of stock</span>";
                                 }

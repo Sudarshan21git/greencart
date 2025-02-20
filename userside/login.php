@@ -1,12 +1,11 @@
 
     
     <?php 
-    include "../db.php";
-   
+include '../include/db.php';   
     ?>
 <?php
         if (isset($_POST['login'])) {
-            include "../db.php";
+          include '../include/db.php';
             $username = $_POST['username'];
             $password = $_POST['password'];
 
@@ -23,7 +22,7 @@
                     if($row ['role'] == 1) {
                     header("location:../admin.php");
                 }else{
-                  header("location:../product.php");
+                  header("location:./product.php");
                 }
                 }
 
@@ -39,22 +38,21 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Login Page</title>
-	<link rel="stylesheet" type="text/css" href="login.css">
-    <link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="../css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <nav>
         <div class="logo">
-          <img src="../logo.png" alt="Nature's Nursery">
+          <img src="../img/logo.png" alt="Nature's Nursery">
           <div class="logo-text">
             <span class="green">Nature's</span> <span class="white">Nursery</span>
           </div>
         </div>
         <ul class="menu">
-          <li><a href="../home.php">Home</a></li>
-          <li><a href="../product.php">Product</a></li>
-          <li><a href="../Blog/blog.php">Blog</a></li>
+          <li><a href="./home.php">Home</a></li>
+          <li><a href="./product.php">Product</a></li>
+          <li><a href="./blog.php">Blog</a></li>
           <li><a href="#" class="login-btn">Login</a></li>
         </ul>
         <div class="hamburger-menu">
@@ -85,7 +83,7 @@
 </form>
 <div class="forgot-create">
 				
-				<a href="../Sign up/signup.php">Create Account</a>
+				<a href="./signup.php">Create Account</a>
 			</div>
 	
 		</div>
