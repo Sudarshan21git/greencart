@@ -16,7 +16,7 @@
     </div>
     <ul class="menu">
       <li><a href="#">Home</a></li>
-      <li><a href="Product page\product.php">Product</a></li>
+      <li><a href="product.php">Product</a></li>
       <li><a href="Blog\blog.php">Blog</a></li>
       <!-- <li><a href="login page\login.php" class="login-btn">Login</a></li> -->
       <?php

@@ -23,7 +23,7 @@
                     if($row ['role'] == 1) {
                     header("location:../admin.php");
                 }else{
-                  header("location:../Product page/product.php");
+                  header("location:../product.php");
                 }
                 }
 
@@ -53,7 +53,7 @@
         </div>
         <ul class="menu">
           <li><a href="../home.php">Home</a></li>
-          <li><a href="../Product page/product.php">Product</a></li>
+          <li><a href="../product.php">Product</a></li>
           <li><a href="../Blog/blog.php">Blog</a></li>
           <li><a href="#" class="login-btn">Login</a></li>
         </ul>

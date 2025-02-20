@@ -1,6 +1,6 @@
 <?php
 
-include '../db.php';
+include './db.php';
 
 // Get logged-in user ID
 $userId = $_SESSION['id'] ?? null;
@@ -22,7 +22,7 @@ $maxPrice = $_GET['max_price'] ?? 10000;
 $successMessage = "";
 if (isset($_POST['add_to_cart'])) {
     if (!$userId) {
-        header("Location: ../loginpage/login.php");
+        header("Location: loginpage/login.php");
         exit;
     }
     
@@ -53,7 +53,7 @@ $result = mysqli_query($conn, $sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Page</title>
-    <link rel="stylesheet" type="text/css" href="../include/nav.css">
+    <link rel="stylesheet" type="text/css" href="./include/nav.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="..." crossorigin="anonymous" />
@@ -63,7 +63,7 @@ $result = mysqli_query($conn, $sql);
 </head>
 <body>
 
-<?php include "../include/nav.php"; ?>
+<?php include "./include/nav.php"; ?>
 
 
 <!-- Success Message -->
@@ -72,7 +72,7 @@ $result = mysqli_query($conn, $sql);
  <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <form method="GET" action="../search.php" class="input-group">
+            <form method="GET" action="search.php" class="input-group">
                 <div class="input-group-prepend">
                 </div>
                 <input type="text" class="form-control" name="search" placeholder="Search for your product..." required>
@@ -120,7 +120,7 @@ $result = mysqli_query($conn, $sql);
                 ?>
                 <div class="col-md-4 mb-4">
                     <div class="card shadow">
-                        <img src="../img/<?php echo $row['image']; ?>" class="card-img-top" alt="">
+                        <img src="img/<?php echo $row['image']; ?>" class="card-img-top" alt="">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo $row['name']; ?></h5>
                             <p class="card-text">Price: Rs.<?php echo $row['price']; ?></p>
