@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+     include('../include/db.php');
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $product_id = $_GET['delete'];

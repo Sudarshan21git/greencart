@@ -1,7 +1,7 @@
 <?php
 include "header.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
-        include "db.php";
+        include "../include/db.php";
 
     $id = $_POST['id'];
     $username = $_POST['name'];

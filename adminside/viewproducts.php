@@ -1,4 +1,4 @@
-<?php include 'db.php'; ?>
+<?php include '../include/db.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,8 +39,8 @@
                             echo "<td>{$serial_number}</td>";
 
                             // Check if image exists, otherwise use a placeholder
-                            $image_src = !empty($row['image']) ? 'img/' . $row['image'] : 'img/default.png';
-                            echo "<td><img src='{$image_src}' alt='{$row['name']}' style='width: 100px;'></td>";
+                            $image_src = !empty($row['image']) ? '../img/' . $row['image'] : 'img/default.png';
+                            echo "<td><img src='../img/$image_src' alt='{$row['name']}' style='width: 100px;'></td>";
 
                             echo "<td>{$row['name']}</td>";
                             echo "<td> Rs.{$row['price']}</td>";

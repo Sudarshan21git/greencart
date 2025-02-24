@@ -1,6 +1,6 @@
 <?php
 // Include the database connection file
-include 'db.php';
+include '../include/db.php';
 
 // Initialize $fetch_data
 $fetch_data = null;
@@ -14,7 +14,7 @@ if(isset($_POST['update_product'])) {
     $update_product_desc = $_POST['update_product_desc'];
     $update_product_image = $_FILES['update_product_image']['name'];
     $update_product_img_tmp_name = $_FILES['update_product_image']['tmp_name'];
-    $update_product_image_folder = 'img/' . $update_product_image;
+    $update_product_image_folder = '../img/' . $update_product_image;
     $getPname = "SELECT name FROM products where id=$update_product_id";
     $getPres = mysqli_query($conn,$getPname);
     $rowP = mysqli_fetch_assoc($getPres);
@@ -126,7 +126,7 @@ if (isset($_GET['id'])) {
         <!-- Current image -->
         <!-- form -->
         <form action="" method="POST" enctype="multipart/form-data" class="update_product product_container_box">
-            <img src="img/<?php echo isset($fetch_data['image']) ? $fetch_data['image'] : ''; ?>" alt="Current Image" class="previous_image">
+            <img src="../img/<?php echo isset($fetch_data['image']) ? $fetch_data['image'] : ''; ?>" alt="Current Image" class="previous_image">
             <h2 style="color: green;">Update Product</h2>
             <br><br> <!-- Add more line breaks here -->
 

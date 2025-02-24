@@ -20,7 +20,7 @@ include '../include/db.php';
                     $_SESSION['id'] = $row['id'];
                     $_SESSION['user_role'] = $row['role'];
                     if($row ['role'] == 1) {
-                    header("location:../admin.php");
+                    header("location:../adminside/admin.php");
                 }else{
                   header("location:./product.php");
                 }

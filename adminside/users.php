@@ -1,5 +1,5 @@
 <?php
-include "db.php"; // Include your database connection file
+include "../include/db.php"; // Include your database connection file
 
 $query = "SELECT * FROM customeruser"; // Query to fetch customeruser from the database
 $result = mysqli_query($conn, $query);

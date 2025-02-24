@@ -1,5 +1,5 @@
 <?php
-include "db.php"; // Include your database connection file
+include "../include/db.php"; // Include your database connection file
 
 if (isset($_POST['approve']) && isset($_POST['order_id'])) {
     $approve_id = $_POST['order_id'];
