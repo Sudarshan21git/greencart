@@ -14,7 +14,7 @@
     <div class="logo">
         <img src="../img/logo.png" alt="Nature's Nursery">
         <div class="logo-text">
-            <span class="green">Nature's</span> <span class="white">Nursery</span>
+            <span class="green">Green</span> <span class="white">Cart</span>
         </div>
     </div>
     <ul class="menu">

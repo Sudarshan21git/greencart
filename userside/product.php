@@ -22,7 +22,7 @@ $maxPrice = $_GET['max_price'] ?? 10000;
 $successMessage = "";
 if (isset($_POST['add_to_cart'])) {
     if (!$userId) {
-        header("Location: loginpage/login.php");
+        header("Location:login.php");
         exit;
     }
     
