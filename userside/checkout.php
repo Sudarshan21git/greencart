@@ -209,6 +209,7 @@
                         <span>Payment Method</span>
                         <select name="method" required>
                             <option value="cash on delivery" selected>Cash on Delivery</option>
+                            <option value=" online payment" selected>Online Payement</option>
                         </select>
                     </div>
                     <div class="inputBox">
