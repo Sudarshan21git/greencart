@@ -12,7 +12,7 @@ $uname = $row["username"];
 $umail = $row["Email"];
 $uphone = $row["phone"];
 $uaddress = $row["address"];
-$profileImage = $row["profile_image"] ?? 'user.png'; // Show default image if no profile image
+$profileImage = $row["profile_image"] ?? "user.png"; // Show default image if no profile image
 ?>
 
 <!DOCTYPE html>
