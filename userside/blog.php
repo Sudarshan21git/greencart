@@ -44,7 +44,7 @@ session_start();
 
 
 
-    <footer>
+    <!-- <footer>
         <div class="container">
           <div class="left">
             <h3>About Us</h3>
@@ -68,7 +68,7 @@ session_start();
         <li><a href="https://www.linkedin.com/in/sudarshan-sharma-55001b236/"><i class="fab fa-linkedin-in"></i></a></li>
           </div>
         </div>
-      </footer>
+      </footer> -->
 
 
 </body>
