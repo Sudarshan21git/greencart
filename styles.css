@@ -637,7 +637,7 @@ img {
 
 /* Footer */
 .footer {
-    background-image: url("../img/footer.jpg");
+    background-image: url("img/footer.jpg");
     background-size: cover;
     background-position: center;
     background-color: var(--gray-dark);
@@ -1140,7 +1140,7 @@ footer img{
   
   /* Blog Page Styles */
   .background {
-    background-image: url(../img/plantbg.png);
+    background-image: url(img/plantbg.png);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -1152,7 +1152,7 @@ footer img{
     margin: 50px;
   }
   .buttombg {
-    background-image: url(../img/plantbg2.png);
+    background-image: url(img/plantbg2.png);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
