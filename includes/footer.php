@@ -28,10 +28,10 @@
                 <div class="footer-links">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="index.php">Home</a></li>
-                        <li><a href="shop.html">Shop</a></li>
-                        <li><a href="blog.html">About Us</a></li>
-                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="http:\\localhost\greencart\user\index.php">Home</a></li>
+                        <li><a href="http:\\localhost\greencart\user\index.php">Shop</a></li>
+                        <li><a href="http:\\localhost\greencart\user\index.php">About Us</a></li>
+                        <li><a href="http:\\localhost\greencart\user\index.php">Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">

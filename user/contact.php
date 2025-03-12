@@ -1,3 +1,38 @@
+<?php
+if (isset($_POST['submit'])) {
+    include '../database/database.php';
+    
+    $name = trim($_POST["name"]);
+    $email = trim($_POST["email"]);
+    $subject = trim($_POST["subject"]);
+    $msg = trim($_POST["message"]);
+    
+    if (empty($name) || empty($email) || empty($subject) || empty($msg)) {
+        echo "<script>alert('Please fill in all fields!');</script>";
+    }else {
+        // Validate name format (first & last name)
+        if (!preg_match("/^[a-zA-Z][a-zA-Z\s']{2,19}$/", $name)) {
+            echo "<script>alert('Invalid name format or length (3 to 20 characters, starting with an alphabet)!');</script>";
+        }
+        // Validate email format (only Gmail addresses)
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[a-zA-Z0-9._%+-]+@gmail\.com$/', $email)) {
+            echo "<script>alert('Invalid email format or not a Gmail address!');</script>";
+        }else {
+            $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $name, $email, $subject, $msg);
+            
+            if ($stmt->execute()) {
+              echo "<script>alert('Successfully Received your message.');</script>";
+              header("Location: " . $_SERVER['PHP_SELF']); 
+          } else {
+            echo "<script>alert('Failure: " . addslashes($conn->error) . "');</script>";
+        }
+      }
+    }
+    $conn->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,26 +103,26 @@
                 <div class="contact-form-container">
                     <h2>Send Us a Message</h2>
                     <p>Have a question or feedback? Fill out the form below and we'll get back to you as soon as possible.</p>
-                    <form id="contact-form" class="contact-form">
+                    <form id="contact-form" class="contact-form" action="" method="POST">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Your Name</label>
-                                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                                <input type="text" id="name" name="name" placeholder="Enter your name" >
                             </div>
                             <div class="form-group">
                                 <label for="email">Your Email</label>
-                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" >
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="subject">Subject</label>
-                            <input type="text" id="subject" name="subject" placeholder="What is this regarding?" required>
+                            <input type="text" id="subject" name="subject" placeholder="What is this regarding?" >
                         </div>
                         <div class="form-group">
                             <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="6" placeholder="Type your message here..." required></textarea>
+                            <textarea id="message" name="message" rows="6" placeholder="Type your message here..."  ></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <button type="submit" class="btn btn-primary" name="submit">Send Message</button>
                     </form>
                 </div>
             </div>
