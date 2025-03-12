@@ -43,16 +43,16 @@ if (isset($_SESSION['user_id'])) {
             </div>
             <nav class="nav-menu">
                 <ul class="nav-list">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="shop.php">Shop</a></li>
-                    <li><a href="blog.php">Blog</a></li>
-                    <li><a href="contact.php">Contact</a></li>
+                    <li><a href="http:\\localhost\greencart\user\index.php">Home</a></li>
+                    <li><a href="http:\\localhost\greencart\user\shop.php">Shop</a></li>
+                    <li><a href="http:\\localhost\greencart\user\blog.php">Blog</a></li>
+                    <li><a href="http:\\localhost\greencart\user\contact.php">Contact</a></li>
                     <?php if (isLoggedIn()): ?>
                         <li><a href="account.php" <?php echo basename($_SERVER['PHP_SELF']) == 'account.php' ? 'class="active"' : ''; ?>>My Account</a></li>
-                        <li><a href="../auth/logout.php">Logout</a></li>
+                        <li><a href="http:\\localhost\greencart\auth\logout.php">Logout</a></li>
                     <?php else: ?>
-                        <li><a href="../auth/login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
-                        <li><a href="../auth/signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Sign Up</a></li>
+                        <li><a href="http:\\localhost\greencart\auth\login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
+                        <li><a href="http:\\localhost\greencart\auth\signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Sign Up</a></li>
                     <?php endif; ?>
                 </ul>
             </nav>
@@ -77,16 +77,16 @@ if (isset($_SESSION['user_id'])) {
     </div>
     <div class="mobile-menu">
         <ul class="mobile-nav-list">
-            <li><a href="index.php">Home</a></li>
-            <li><a href="shop.php">Shop</a></li>
-            <li><a href="blog.php">Blog</a></li>
-            <li><a href="contact.php">Contact</a></li>
+            <li><a href="http:\\localhost\greencart\user\index.php">Home</a></li>
+            <li><a href="http:\\localhost\greencart\useruser\shop.php">Shop</a></li>
+            <li><a href="http:\\localhost\greencart\useruser\blog.php">Blog</a></li>
+            <li><a href="http:\\localhost\greencart\useruser\contact.php">Contact</a></li>
             <?php if (isLoggedIn()): ?>
                 <li><a href="account.php" <?php echo basename($_SERVER['PHP_SELF']) == 'account.php' ? 'class="active"' : ''; ?>>My Account</a></li>
-                <li><a href="../auth/logout.php">Logout</a></li>
+                <li><a href="http:\\localhost\greencart\auth\logout.php">Logout</a></li>
             <?php else: ?>
-                <li><a href="../auth/login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
-                <li><a href="../auth/signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Sign Up</a></li>
+                <li><a href="http:\\localhost\greencart\auth\login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
+                <li><a href="http:\\localhost\greencart\auth\signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Sign Up</a></li>
             <?php endif; ?>
         </ul>
     </div>

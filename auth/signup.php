@@ -3,10 +3,10 @@ if (isset($_POST['submit'])) {
     include '../database/database.php';
 
     $fname = trim($_POST["first-name"]);
-    $lname = trim($_POST["last-name"]);
-    $umail = trim($_POST["email"]);
-    $upw = $_POST["password"];
-    $upwc = $_POST["confirm-password"];
+    $lname =  trim($_POST["last-name"]);
+    $umail =  trim($_POST["email"]);
+    $upw =  trim($_POST["password"]);
+    $upwc =  trim($_POST["confirm-password"]);
     $accCheck = "SELECT * FROM users WHERE email = '$umail'";
     $result = $conn->query($accCheck);
 
