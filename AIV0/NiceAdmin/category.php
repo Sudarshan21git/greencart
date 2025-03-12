@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,6 +35,7 @@
 </head>
 
 <body>
+
 
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
@@ -76,9 +78,9 @@
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link" href="/displayInHomeEditPage?action=editPage">
+            <a class="nav-link" href="#">
                 <i class="bi bi-file-earmark"></i>
-                <span>Edit Home Page</span>
+                <span>Category</span>
             </a>
         </li><!-- End home Page features Nav -->
 
@@ -99,40 +101,25 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Edit Home Page</h5>
-                        <form action="handleEditHome" method="POST" enctype="multipart/form-data">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>Field</th>
-                                    <th>Input</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td><label for="heading1">Heading 1</label></td>
-                                    <td><input type="text" id="heading1" name="heading1" class="form-control" value="${homeFetch.heading1}" required></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="heading2">Heading 2</label></td>
-                                    <td><input type="text" id="heading2" name="heading2" class="form-control" required></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="backgroundImage">Background Image</label></td>
-                                    <td><input type="file" id="backgroundImage" name="backgroundImage" class="form-control" accept="image/*" required></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="fbLink">Facebook Link</label></td>
-                                    <td><input type="url" id="fbLink" name="fbLink" class="form-control" required></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="igLink">Instagram Link</label></td>
-                                    <td><input type="url" id="igLink" name="igLink" class="form-control" required></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </form>
+                        <h5 class="card-title">Category</h5>
+                        <form action="" method="post" enctype="multipart/form-data" class="category_product">
+    <div class="mb-3">
+        <label for="category_name" class="form-label">Category Name</label>
+        <input type="text" id="category_name" name="category_name" class="form-control" placeholder="Enter the Category name" required>
+    </div> 
+    <div class="mb-3">
+        <label for="category_desc" class="form-label">Category Description</label>
+        <textarea id="category_desc" name="category_desc" class="form-control" placeholder="Enter the Category description" rows="3" required></textarea>
+    </div>
+    
+    <div class="mb-3">
+        <label for="category_image" class="form-label">Category Image</label>
+        <input type="file" id="category_image" name="category_image" class="form-control" accept="image/png, image/jpg, image/jpeg" required>
+    </div>
+    
+    <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
+</form>
+
                     </div>
                 </div>
             </div>
