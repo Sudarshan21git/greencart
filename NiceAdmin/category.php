@@ -117,39 +117,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
     $category_image = $_FILES['category_image']['name'];
     $category_image_temp_name = $_FILES['category_image']['tmp_name'];
     $category_image_folder = '../img/' . $category_image;
-    $errorMessage = ""; // Store validation errors
+
+    $errorMessage = "";
 
     if (empty($category_name) || empty($category_desc)) {
-        $errorMessage = "Please fill in all the fields!";
+        $errorMessage = "Please fill in all fields!";
+    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $category_name)) {
+        $errorMessage = "Category must start with an alphabet and be at least 4 characters long.";
+    } elseif (strlen($category_desc) < 1 || strlen($category_desc) > 200 || !preg_match("/^[a-zA-Z]/", $category_desc)) {
+        $errorMessage = "Description must start with an alphabet and be between 1 and 200 characters.";
     } else {
-        if (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $category_name)) {
-            $errorMessage = "Category must start with an alphabet, contain only letters, spaces, and apostrophes, and be at least 4 characters long.";
-        
-        
-        } elseif (strlen($category_desc) < 1 || strlen($category_desc) > 200 || !preg_match("/^[a-zA-Z]/", $category_desc)) {
-            $errorMessage = "Category description must start with an alphabet and be between 1 and 200 characters long.";
-        } else {
-            // Check if category exists
-            $query = "SELECT * FROM categories WHERE name='$category_name'";
-            $validcategory = mysqli_query($conn, $query);
+        $stmt = $conn->prepare("SELECT * FROM categories WHERE name = ?");
+        $stmt->bind_param("s", $category_name);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-            if (mysqli_num_rows($validcategory) == 0) {
-                // Insert into database
-                $insert_query = mysqli_query($conn, "INSERT INTO categories (name, `description`, image) VALUES ('$category_name', '$category_desc', '$category_image')");
+        if ($result->num_rows == 0) {
+            $stmt = $conn->prepare("INSERT INTO categories (name, `description`, image) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $category_name, $category_desc, $category_image);
+            $insert_success = $stmt->execute();
 
-                if ($insert_query) {
-                    if (!empty($category_image)) {
-                        move_uploaded_file($category_image_temp_name, $category_image_folder);
-                    }
-
-                    header("Location: ".$_SERVER['PHP_SELF']."?success=1");
-                    exit();
-                } else {
-                    die("MySQL Error: " . mysqli_error($conn));
+            if ($insert_success) {
+                if (!empty($category_image)) {
+                    move_uploaded_file($category_image_temp_name, $category_image_folder);
                 }
+                header("Location: ".$_SERVER['PHP_SELF']."?success=1");
+                exit();
             } else {
-                $errorMessage = "Category already exists!";
+                $errorMessage = "Error inserting category!";
             }
+        } else {
+            $errorMessage = "Category already exists!";
         }
     }
 
@@ -157,7 +155,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
         echo "<script>alert('$errorMessage');</script>";
     }
 }
-
 if (isset($_GET['success']) && $_GET['success'] == 1) {
     echo "<script>alert('Category inserted successfully!');</script>";
 }
@@ -179,7 +176,59 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
     </div>
     <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
 </form>
+<h3 class="text-center mt-4">Category List</h3>
+<p class="text-center text-muted">Here is the list of all available categories. You can edit or delete them as needed.</p>
+<table class="table table-striped table-bordered text-center">
+    <thead class="table-dark">
+        <tr>
+            <th>Sl No.</th>
+            <th>Category Image</th>
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+        $category_product = mysqli_query($conn, "SELECT * FROM categories ");
+        $serial_number = 1;
+        if (mysqli_num_rows($category_product) > 0) {
+            while ($row = mysqli_fetch_assoc($category_product)) {
+                echo "<tr>";
+                echo "<td>{$serial_number}</td>";
 
+                // Image Handling
+                $image_src = !empty($row['image']) ? '../img/' . $row['image'] : 'img/default.png';
+                echo "<td><img src='{$image_src}' alt='{$row['name']}' class='category-img'></td>";
+
+                echo "<td>{$row['name']}</td>";
+                echo "<td>{$row['description']}</td>";
+                echo "<td>
+                        <a href='update.php?id=" . urlencode($row['category_id']) . "' class='btn btn-warning btn-sm'><i class='bi bi-pencil'></i></a>
+                        <a href='category.php?delete=" . urlencode($row['category_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this category?')\"><i class='bi bi-trash'></i></a>
+                      </td>";
+                echo "</tr>";
+                $serial_number++;
+            }
+        } else {
+            echo "<tr><td colspan='5'>No categories found.</td></tr>";
+        }
+        ?>
+    </tbody>
+</table>
+
+<style>
+    .category-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+</style>
 
 
                     </div>
@@ -218,3 +267,41 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
 </body>
 
 </html>
+<!-- delete catgeory backend code  -->
+<?php
+include('../database/database.php');
+
+
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $category_id = $_GET['delete'];
+
+    // Prevent further deletion if the same category is being deleted (in case of multiple clicks)
+    if (isset($_SESSION['delete_category']) && $_SESSION['delete_category'] == $category_id) {
+        // This condition prevents a second deletion for the same category
+        $_SESSION['error'] = "Category has already been deleted.";
+        header("Location: category.php");
+        exit();
+    }
+
+    // Delete the category from the database
+    $delete_query = mysqli_query($conn, "DELETE FROM categories WHERE category_id = $category_id");
+
+    if ($delete_query) {
+        // Mark that the category has been deleted and store the ID
+        $_SESSION['delete_category'] = $category_id;
+        
+        // Redirect back to the category.php page after successful deletion
+        $_SESSION['success'] = "Category deleted successfully!";
+    
+        exit();
+    } else {
+        $_SESSION['error'] = "Failed to delete category.";
+      
+        exit();
+    }
+} else {
+    $_SESSION['error'] = "Invalid category ID.";
+ 
+    exit();
+}
+?>
