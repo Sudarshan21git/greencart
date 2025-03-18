@@ -111,43 +111,51 @@ if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
-    $category_name = trim($_POST['category_name']);
-    $category_desc = trim($_POST['category_desc']);
-    $category_image = $_FILES['category_image']['name'];
-    $category_image_temp_name = $_FILES['category_image']['tmp_name'];
-    $category_image_folder = '../img/' . $category_image;
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
+    $product_name = trim($_POST['product_name']);
+    $product_desc = trim($_POST['product_desc']);
+    $product_price = trim($_POST['product_price']);
+    $product_stock_quantity =($_POST['product_stock_quantity']);
+    $product_image = $_FILES['product_image']['name'];
+    $product_image_temp_name = $_FILES['product_image']['tmp_name'];
+    $product_image_folder = '../img/' . $product_image;
 
     $errorMessage = "";
 
-    if (empty($category_name) || empty($category_desc)) {
+    if (empty($product_name) || empty($product_price) || empty($product_stock_quantity) || empty($product_desc) || empty($product_image)) {
         $errorMessage = "Please fill in all fields!";
-    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $category_name)) {
-        $errorMessage = "Category must start with an alphabet and be at least 4 characters long.";
-    } elseif (strlen($category_desc) < 1 || strlen($category_desc) > 200 || !preg_match("/^[a-zA-Z]/", $category_desc)) {
+    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $product_name)){
+        $errorMessage = "Product must start with an alphabet and be at least 4 characters long.";
+    } else if (!is_numeric($product_price) || $product_price <= 0) {
+        echo "Product price must be a positive number greater than 0";
+    }else if (!is_numeric($product_stock_quantity) || $product_stock_quantity <= 0) {
+        echo "Product stock must be a positive number greater than 0";
+    }elseif (strlen($product_desc) < 1 || strlen($product_desc) > 200 || !preg_match("/^[a-zA-Z]/", $product_desc)) {
         $errorMessage = "Description must start with an alphabet and be between 1 and 200 characters.";
     } else {
-        $stmt = $conn->prepare("SELECT * FROM categories WHERE name = ?");
-        $stmt->bind_param("s", $category_name);
+        $stmt = $conn->prepare("SELECT * FROM products WHERE name = ?");
+        $stmt->bind_param("s", $product_name);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows == 0) {
-            $stmt = $conn->prepare("INSERT INTO categories (name, `description`, image) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $category_name, $category_desc, $category_image);
+            $stmt = $conn->prepare("INSERT INTO products (name, `description`, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssdis", $product_name, $product_desc, $product_price, $stock_quantity, $product_image);
+            $insert_success = $stmt->execute();
+
             $insert_success = $stmt->execute();
 
             if ($insert_success) {
-                if (!empty($category_image)) {
-                    move_uploaded_file($category_image_temp_name, $category_image_folder);
+                if (!empty($product_image)) {
+                    move_uploaded_file($product_image_temp_name, $product_image_folder);
                 }
                 header("Location: ".$_SERVER['PHP_SELF']."?success=1");
                 exit();
             } else {
-                $errorMessage = "Error inserting category!";
+                $errorMessage = "Error inserting product!";
             }
         } else {
-            $errorMessage = "Category already exists!";
+            $errorMessage = "Product already exists!";
         }
     }
 
@@ -156,67 +164,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
     }
 }
 if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>alert('Category inserted successfully!');</script>";
+    echo "<script>alert('product  inserted successfully!');</script>";
 }
 ?>
 
 <!-- Category Form -->
-<form action="" class="add_category" method="post" enctype="multipart/form-data">
+<form action="" class="add_product" method="post" enctype="multipart/form-data">
     <div class="mb-3">
-        <label for="category_name" class="form-label">Category Name</label>
-        <input type="text" id="category_name" name="category_name" class="form-control" placeholder="Enter the Category name">
+        <label for="product_name" class="form-label">product Name</label>
+        <input type="text" id="product_name" name="product_name" class="form-control" placeholder="Enter the product name">
+    </div>  <div class="mb-3">
+        <label for="product_price" class="form-label">product Price</label>
+        <input type="text" id="product_price" name="product_price" class="form-control" placeholder="Enter the product price">
+    </div>  <div class="mb-3">
+        <label for="product_stock_quantity" class="form-label"> product_stock_quantity</label>
+        <input type="text" id="product_stock_quantity" name="product_stock_quantity" class="form-control" placeholder="Enter the product stock_quantity">
     </div>
     <div class="mb-3">
-        <label for="category_desc" class="form-label">Category Description</label>
-        <textarea id="category_desc" name="category_desc" class="form-control" placeholder="Enter the Category description" rows="3"></textarea>
+        <label for="product_desc" class="form-label">Product Description</label>
+        <textarea id="product_desc" name="product_desc" class="form-control" placeholder="Enter the Product description" rows="3"></textarea>
     </div>
     <div class="mb-3">
-        <label for="category_image" class="form-label">Category Image (Optional)</label>
-        <input type="file" id="category_image" name="category_image" class="form-control" accept="image/png, image/jpg, image/jpeg">
+        <label for="product_image" class="form-label">Product Image </label>
+        <input type="file" id="product_image" name="product_image" class="form-control" accept="image/png, image/jpg, image/jpeg">
     </div>
-    <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
+    <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
 </form>
-<h3 class="text-center mt-4">Category List</h3>
-<p class="text-center text-muted">Here is the list of all available categories. You can edit or delete them as needed.</p>
-<table class="table table-striped table-bordered text-center">
-    <thead class="table-dark">
-        <tr>
-            <th>Sl No.</th>
-            <th>Category Image</th>
-            <th>Category Name</th>
-            <th>Description</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php 
-        $category_product = mysqli_query($conn, "SELECT * FROM categories ");
-        $serial_number = 1;
-        if (mysqli_num_rows($category_product) > 0) {
-            while ($row = mysqli_fetch_assoc($category_product)) {
-                echo "<tr>";
-                echo "<td>{$serial_number}</td>";
-
-                // Image Handling
-                $image_src = !empty($row['image']) ? '../img/' . $row['image'] : 'img/default.png';
-                echo "<td><img src='{$image_src}' alt='{$row['name']}' class='category-img'></td>";
-
-                echo "<td>{$row['name']}</td>";
-                echo "<td>{$row['description']}</td>";
-                echo "<td>
-                        <a href='update.php?id=" . urlencode($row['category_id']) . "' class='btn btn-warning btn-sm'><i class='bi bi-pencil'></i></a>
-                        <a href='category.php?delete=" . urlencode($row['category_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this category?')\"><i class='bi bi-trash'></i></a>
-                      </td>";
-                echo "</tr>";
-                $serial_number++;
-            }
-        } else {
-            echo "<tr><td colspan='5'>No categories found.</td></tr>";
-        }
-        ?>
-    </tbody>
-</table>
-
 <style>
     .category-img {
         width: 80px;
