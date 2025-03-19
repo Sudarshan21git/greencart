@@ -84,7 +84,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" >
+                        <input type="email" id="email" name="email" placeholder="Enter your email" <?php if (isset($_GET['email'])) echo "value='{$_GET['email']}'"; ?>>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
