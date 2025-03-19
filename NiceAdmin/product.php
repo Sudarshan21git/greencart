@@ -99,10 +99,9 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Category</h5>
+                        <h5 class="card-title">Add Product</h5>
                         <!-- backend -->
                         
-
 
                         <?php
 include("../database/database.php");
@@ -111,26 +110,31 @@ if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
+// Fetch categories from the database
+$category_query = "SELECT category_id, name FROM categories";
+$category_result = mysqli_query($conn, $category_query);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
     $product_name = trim($_POST['product_name']);
     $product_desc = trim($_POST['product_desc']);
     $product_price = trim($_POST['product_price']);
-    $product_stock_quantity =($_POST['product_stock_quantity']);
+    $product_stock_quantity = trim($_POST['product_stock_quantity']);
+    $category_id = trim($_POST['product_category']);
     $product_image = $_FILES['product_image']['name'];
     $product_image_temp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = '../img/' . $product_image;
 
     $errorMessage = "";
 
-    if (empty($product_name) || empty($product_price) || empty($product_stock_quantity) || empty($product_desc) || empty($product_image)) {
+    if (empty($product_name) || empty($product_price) || empty($product_stock_quantity) || empty($product_desc) || empty($product_image) || empty($category_id)) {
         $errorMessage = "Please fill in all fields!";
-    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $product_name)){
+    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $product_name)) {
         $errorMessage = "Product must start with an alphabet and be at least 4 characters long.";
-    } else if (!is_numeric($product_price) || $product_price <= 0) {
-        echo "Product price must be a positive number greater than 0";
-    }else if (!is_numeric($product_stock_quantity) || $product_stock_quantity <= 0) {
-        echo "Product stock must be a positive number greater than 0";
-    }elseif (strlen($product_desc) < 1 || strlen($product_desc) > 200 || !preg_match("/^[a-zA-Z]/", $product_desc)) {
+    } elseif (!is_numeric($product_price) || $product_price <= 0) {
+        $errorMessage = "Product price must be a positive number greater than 0";
+    } elseif (!is_numeric($product_stock_quantity) || $product_stock_quantity <= 0) {
+        $errorMessage = "Product stock must be a positive number greater than 0";
+    } elseif (strlen($product_desc) < 1 || strlen($product_desc) > 200 || !preg_match("/^[a-zA-Z]/", $product_desc)) {
         $errorMessage = "Description must start with an alphabet and be between 1 and 200 characters.";
     } else {
         $stmt = $conn->prepare("SELECT * FROM products WHERE name = ?");
@@ -139,17 +143,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
         $result = $stmt->get_result();
 
         if ($result->num_rows == 0) {
-            $stmt = $conn->prepare("INSERT INTO products (name, `description`, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssdis", $product_name, $product_desc, $product_price, $stock_quantity, $product_image);
-            $insert_success = $stmt->execute();
-
+            $stmt = $conn->prepare("INSERT INTO products (category_id, name, description, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("issdis", $category_id, $product_name, $product_desc, $product_price, $product_stock_quantity, $product_image);
             $insert_success = $stmt->execute();
 
             if ($insert_success) {
                 if (!empty($product_image)) {
                     move_uploaded_file($product_image_temp_name, $product_image_folder);
                 }
-                header("Location: ".$_SERVER['PHP_SELF']."?success=1");
+                header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
                 exit();
             } else {
                 $errorMessage = "Error inserting product!";
@@ -161,35 +163,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
 
     if (!empty($errorMessage)) {
         echo "<script>alert('$errorMessage');</script>";
+    } else {
+        if (isset($_GET['success']) && $_GET['success'] == 1) {
+            echo "<script>alert('Product inserted successfully!');</script>";
+        }
     }
-}
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>alert('product  inserted successfully!');</script>";
 }
 ?>
 
-<!-- Category Form -->
+<!-- Product Form -->
 <form action="" class="add_product" method="post" enctype="multipart/form-data">
     <div class="mb-3">
-        <label for="product_name" class="form-label">product Name</label>
+        <label for="product_name" class="form-label">Product Name</label>
         <input type="text" id="product_name" name="product_name" class="form-control" placeholder="Enter the product name">
-    </div>  <div class="mb-3">
-        <label for="product_price" class="form-label">product Price</label>
+    </div>
+    <div class="mb-3">
+        <label for="product_price" class="form-label">Product Price</label>
         <input type="text" id="product_price" name="product_price" class="form-control" placeholder="Enter the product price">
-    </div>  <div class="mb-3">
-        <label for="product_stock_quantity" class="form-label"> product_stock_quantity</label>
-        <input type="text" id="product_stock_quantity" name="product_stock_quantity" class="form-control" placeholder="Enter the product stock_quantity">
+    </div>
+    <div class="mb-3">
+        <label for="product_stock_quantity" class="form-label">Product Stock Quantity</label>
+        <input type="text" id="product_stock_quantity" name="product_stock_quantity" class="form-control" placeholder="Enter the product stock quantity">
     </div>
     <div class="mb-3">
         <label for="product_desc" class="form-label">Product Description</label>
-        <textarea id="product_desc" name="product_desc" class="form-control" placeholder="Enter the Product description" rows="3"></textarea>
+        <textarea id="product_desc" name="product_desc" class="form-control" placeholder="Enter the product description" rows="3"></textarea>
     </div>
     <div class="mb-3">
-        <label for="product_image" class="form-label">Product Image </label>
+        <label for="product_category" class="form-label">Product Category</label>
+        <select id="product_category" name="product_category" class="form-control">
+            <option value="">Choose</option>
+            <?php while ($row = mysqli_fetch_assoc($category_result)) { ?>
+                <option value="<?php echo $row['category_id']; ?>"> <?php echo $row['name']; ?> </option>
+            <?php } ?>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="product_image" class="form-label">Product Image</label>
         <input type="file" id="product_image" name="product_image" class="form-control" accept="image/png, image/jpg, image/jpeg">
     </div>
     <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
 </form>
+
 <style>
     .category-img {
         width: 80px;

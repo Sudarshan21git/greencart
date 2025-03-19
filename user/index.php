@@ -30,41 +30,32 @@
     </section>
 
     <!-- Categories Section -->
-    <section class="categories">
-        <div class="container">
-            <h2 class="section-title">Shop by Category</h2>
-            <div class="categories-grid">
+    <?php
+include("../database/database.php");
+
+$query = "SELECT * FROM categories";
+$result = mysqli_query($conn, $query);
+?>
+
+<section class="categories">
+    <div class="container">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="categories-grid">
+            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                 <div class="category-card">
-                    <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Indoor+Plants" alt="Indoor Plants">
+                    <img src="../img/<?php echo $row['image']; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
                     <div class="category-content">
-                        <h3>Indoor Plants</h3>
-                        <a href="#" class="category-link">View Collection</a>
+                        <h3><?php echo htmlspecialchars($row['name']); ?></h3>
+                        <a href="category_products.php?category_id=<?php echo $row['category_id']; ?>" class="category-link">
+                            View Collection
+                        </a>
                     </div>
                 </div>
-                <div class="category-card">
-                    <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Outdoor+Plants" alt="Outdoor Plants">
-                    <div class="category-content">
-                        <h3>Outdoor Plants</h3>
-                        <a href="#" class="category-link">View Collection</a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Succulents" alt="Succulents">
-                    <div class="category-content">
-                        <h3>Succulents</h3>
-                        <a href="#" class="category-link">View Collection</a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Gardening+Tools" alt="Gardening Tools">
-                    <div class="category-content">
-                        <h3>Gardening Tools</h3>
-                        <a href="#" class="category-link">View Collection</a>
-                    </div>
-                </div>
-            </div>
+            <?php } ?>
         </div>
-    </section>
+    </div>
+</section>
+
 
     <!-- Featured Products -->
     <section class="products">
