@@ -204,7 +204,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                 echo "<td>{$row['name']}</td>";
                 echo "<td>{$row['description']}</td>";
                 echo "<td>
-                        <a href='update.php?id=" . urlencode($row['category_id']) . "' class='btn btn-warning btn-sm'><i class='bi bi-pencil'></i></a>
+                        <a href='update_category.php?id=" . urlencode($row['category_id']) . "' class='btn btn-warning btn-sm'><i class='bi bi-pencil'></i></a>
                         <a href='category.php?delete=" . urlencode($row['category_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this category?')\"><i class='bi bi-trash'></i></a>
                       </td>";
                 echo "</tr>";
