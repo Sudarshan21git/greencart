@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// filte-group price-range
 const priceSlider = document.getElementById("price-range")
 const minPrice = document.getElementById("min-price")
 const maxPrice = document.getElementById("max-price")

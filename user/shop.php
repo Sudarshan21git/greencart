@@ -1,17 +1,96 @@
+<?php
+// Include the database connection
+include_once '../includes/header.php';
+require_once '../database/database.php';
+
+// Number of products per page
+$products_per_page = 8;
+
+// Get the current page from the URL, default to page 1 if not set
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = $page <= 0 ? 1 : $page;
+
+// Calculate the OFFSET for the current page
+$offset = ($page - 1) * $products_per_page;
+
+// Get filter, sort, and search values from the URL
+$category_filter = isset($_GET['category']) ? $_GET['category'] : 'all';
+$sort_filter = isset($_GET['sort']) ? $_GET['sort'] : 'featured';
+$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Build the SQL query to fetch product data and join with the categories table
+$query = "SELECT p.*, c.name AS category_name FROM products p
+          JOIN categories c ON p.category_id = c.category_id
+          WHERE 1";
+
+// Apply search filter
+if ($search_query != '') {
+    $search_query = $conn->real_escape_string($search_query);  // Prevent SQL injection
+    $query .= " AND (p.name LIKE '%$search_query%' OR p.description LIKE '%$search_query%')";
+}
+
+// Apply category filter if it's not 'all'
+if ($category_filter != 'all') {
+    $query .= " AND p.category_id = '$category_filter'";
+}
+
+// Apply sorting
+if ($sort_filter == 'price-low') {
+    $query .= " ORDER BY p.price ASC";
+} elseif ($sort_filter == 'price-high') {
+    $query .= " ORDER BY p.price DESC";
+} elseif ($sort_filter == 'name-asc') {
+    $query .= " ORDER BY p.name ASC";
+} elseif ($sort_filter == 'name-desc') {
+    $query .= " ORDER BY p.name DESC";
+} else {
+    $query .= " ORDER BY p.is_featured DESC";  // Default is 'featured'
+}
+
+// Add LIMIT for pagination
+$query .= " LIMIT $products_per_page OFFSET $offset";
+$result = $conn->query($query);
+
+// Fetch all the products in an array
+$products = [];
+if ($result) {
+    while ($product = $result->fetch_assoc()) {
+        $products[] = $product;
+    }
+}
+
+// Get the total number of products (for pagination)
+$total_products_query = "SELECT COUNT(*) as total FROM products p
+                          JOIN categories c ON p.category_id = c.category_id
+                          WHERE 1";
+if ($search_query != '') {
+    $total_products_query .= " AND (p.name LIKE '%$search_query%' OR p.description LIKE '%$search_query%')";
+}
+if ($category_filter != 'all') {
+    $total_products_query .= " AND p.category_id = '$category_filter'";
+}
+$total_result = $conn->query($total_products_query);
+$row = $total_result->fetch_assoc();
+$total_products = $row['total'];
+
+// Calculate the total number of pages
+$total_pages = ceil($total_products / $products_per_page);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop - GreenCart</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="icon" type="image/png" href="../img/logo.png">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <!-- Header -->
-     <?php include_once '../includes/header.php'; ?>
 
     <!-- Shop Filters -->
     <section class="shop-filters">
@@ -19,24 +98,39 @@
             <div class="filters-container">
                 <div class="filter-group">
                     <label for="category-filter">Category</label>
-                    <select id="category-filter" class="filter-select">
-                        <option value="all">All Categories</option>
-                        <option value="indoor">Indoor Plants</option>
-                        <option value="outdoor">Outdoor Plants</option>
-                        <option value="succulents">Succulents</option>
-                        <option value="tools">Gardening Tools</option>
-                    </select>
+                    <form method="GET" action="shop.php">
+                        <select name="category" id="category-filter" class="filter-select" onchange="this.form.submit()">
+                            <option value="all" <?= $category_filter == 'all' ? 'selected' : ''; ?>>All Categories</option>
+                            <?php
+                            // Fetch the list of categories
+                            $category_query = "SELECT * FROM categories";
+                            $category_result = $conn->query($category_query);
+                            while ($category = $category_result->fetch_assoc()) {
+                                echo '<option value="' . $category['category_id'] . '" ' . ($category_filter == $category['category_id'] ? 'selected' : '') . '>' . htmlspecialchars($category['name']) . '</option>';
+                            }
+                            ?>
+                        </select>
+                        <!-- Hidden inputs for sort and search to retain values -->
+                        <input type="hidden" name="sort" value="<?= $sort_filter; ?>">
+                        <input type="hidden" name="search" value="<?= htmlspecialchars($search_query); ?>">
+                    </form>
                 </div>
                 <div class="filter-group">
                     <label for="sort-filter">Sort By</label>
-                    <select id="sort-filter" class="filter-select">
-                        <option value="featured">Featured</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                        <option value="name-asc">Name: A to Z</option>
-                        <option value="name-desc">Name: Z to A</option>
-                    </select>
+                    <form method="GET" action="shop.php">
+                        <select name="sort" id="sort-filter" class="filter-select" onchange="this.form.submit()">
+                            <option value="featured" <?= $sort_filter == 'featured' ? 'selected' : ''; ?>>Featured</option>
+                            <option value="price-low" <?= $sort_filter == 'price-low' ? 'selected' : ''; ?>>Price: Low to High</option>
+                            <option value="price-high" <?= $sort_filter == 'price-high' ? 'selected' : ''; ?>>Price: High to Low</option>
+                            <option value="name-asc" <?= $sort_filter == 'name-asc' ? 'selected' : ''; ?>>Name: A to Z</option>
+                            <option value="name-desc" <?= $sort_filter == 'name-desc' ? 'selected' : ''; ?>>Name: Z to A</option>
+                        </select>
+                        <!-- Hidden inputs for category and search to retain values -->
+                        <input type="hidden" name="category" value="<?= $category_filter; ?>">
+                        <input type="hidden" name="search" value="<?= htmlspecialchars($search_query); ?>">
+                    </form>
                 </div>
+
                 <div class="filter-group">
                     <label for="price-range">Price Range</label>
                     <div class="price-range-container">
@@ -48,11 +142,19 @@
                     </div>
                 </div>
                 <div class="filter-group search-group">
-                    <input type="text" id="search-filter" placeholder="Search products...">
-                    <button class="search-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </button>
+                    <form method="GET" action="shop.php">
+                        <input type="text" id="search-filter" name="search" value="<?= htmlspecialchars($search_query); ?>" placeholder="Search products...">
+                        <input type="hidden" name="category" value="<?= $category_filter; ?>">
+                        <input type="hidden" name="sort" value="<?= $sort_filter; ?>">
+                        <button class="search-btn" type="submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
+
             </div>
         </div>
     </section>
@@ -61,136 +163,46 @@
     <section class="shop-products">
         <div class="container">
             <div class="products-grid">
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="img/flower.jpg" alt="Monstera Deliciosa">
-                    </div>
-                    <div class="product-info">
-                        <h3>Monstera Deliciosa</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="reviews">(124)</span>
+                <?php foreach ($products as $product): ?>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="../img/<?= htmlspecialchars($product['image']); ?>" alt="<?= htmlspecialchars($product['name']); ?>">
                         </div>
-                        <div class="product-price">$39.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="img/Black rose.jpg" alt="Snake Plant">
+                        <div class="product-info">
+                            <h3><?= htmlspecialchars($product['name']); ?></h3>
+                            <div class="product-rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="reviews">(<?= rand(50, 150); ?>)</span>
+                            </div>
+                            <div class="product-price">$<?= number_format($product['price'], 2); ?></div>
+                            <form method="POST" action="">
+                                <input type="hidden" name="product_id" value="<?= $product['product_id']; ?>">
+                                <button type="submit" class="btn btn-add-cart">Add to Cart</button>
+                            </form>
                         </div>
-                    <div class="product-info">
-                        <h3>Snake Plant</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★☆</span>
-                            <span class="reviews">(86)</span>
-                        </div>
-                        <div class="product-price">$24.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
                     </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Peace+Lily" alt="Peace Lily">
-                    </div>
-                    <div class="product-info">
-                        <h3>Peace Lily</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="reviews">(102)</span>
-                        </div>
-                        <div class="product-price">$29.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Fiddle+Leaf" alt="Fiddle Leaf Fig">
-                    </div>
-                    <div class="product-info">
-                        <h3>Fiddle Leaf Fig</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★☆</span>
-                            <span class="reviews">(78)</span>
-                        </div>
-                        <div class="product-price">$49.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Pothos" alt="Pothos">
-                    </div>
-                    <div class="product-info">
-                        <h3>Pothos</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="reviews">(95)</span>
-                        </div>
-                        <div class="product-price">$19.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=ZZ+Plant" alt="ZZ Plant">
-                    </div>
-                    <div class="product-info">
-                        <h3>ZZ Plant</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★☆</span>
-                            <span class="reviews">(67)</span>
-                        </div>
-                        <div class="product-price">$34.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Aloe+Vera" alt="Aloe Vera">
-                    </div>
-                    <div class="product-info">
-                        <h3>Aloe Vera</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="reviews">(112)</span>
-                        </div>
-                        <div class="product-price">$22.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Rubber+Plant" alt="Rubber Plant">
-                    </div>
-                    <div class="product-info">
-                        <h3>Rubber Plant</h3>
-                        <div class="product-rating">
-                            <span class="stars">★★★★☆</span>
-                            <span class="reviews">(54)</span>
-                        </div>
-                        <div class="product-price">$32.99</div>
-                        <button class="btn btn-add-cart">Add to Cart</button>
-                        </div>
-                </div>
+                <?php endforeach; ?>
             </div>
 
             <!-- Pagination -->
             <div class="pagination">
-                <button class="pagination-btn active">1</button>
-                <button class="pagination-btn">2</button>
-                <button class="pagination-btn">3</button>
-                <button class="pagination-btn pagination-next">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?= $page - 1; ?>&category=<?= $category_filter; ?>&sort=<?= $sort_filter; ?>&search=<?= urlencode($search_query); ?>" class="pagination-btn">Prev</a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <a href="?page=<?= $i; ?>&category=<?= $category_filter; ?>&sort=<?= $sort_filter; ?>&search=<?= urlencode($search_query); ?>" class="pagination-btn <?= ($i == $page) ? 'active' : ''; ?>"><?= $i; ?></a>
+                <?php endfor; ?>
+
+                <?php if ($page < $total_pages): ?>
+                    <a href="?page=<?= $page + 1; ?>&category=<?= $category_filter; ?>&sort=<?= $sort_filter; ?>&search=<?= urlencode($search_query); ?>" class="pagination-btn">Next</a>
+                <?php endif; ?>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-<?php include_once '../includes/footer.php'; ?>
-    <!-- Scripts -->
+    <?php include_once '../includes/footer.php'; ?>
     <script src="../js/script.js"></script>
 </body>
-</html>
 
+</html>
