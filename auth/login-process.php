@@ -155,9 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($row = mysqli_fetch_assoc($result)) {
             // Verify the password
             if ($user_pw == $row['password']) {
-                // Secure session handling
-                session_regenerate_id(true);
-
                 // Store session variables
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['fname'] = $row['first_name'];
@@ -166,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['is_admin'] = $row['is_admin'];
 
                 // Redirect based on role
-                if ($row['role'] == 1) {
+                if ($row['is_admin'] == 1) {
                     redirect("../NiceAdmin/index.php");
                 } else {
                     redirect("../user/shop.php");

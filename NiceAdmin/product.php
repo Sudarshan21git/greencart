@@ -76,14 +76,14 @@
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link" href="category.php">
+            <a class="nav-link collapsed" href="category.php">
                 <i class="bi bi-file-earmark"></i>
                 <span>Category</span>
             </a>
         </li><!-- End home Page features Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="product.php">
+            <a class="nav-link " href="product.php">
                 <i class="bi bi-file-earmark"></i>
                 <span>Product</span>
             </a>

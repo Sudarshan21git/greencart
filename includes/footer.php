@@ -29,9 +29,9 @@
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="http:\\localhost\greencart\user\index.php">Home</a></li>
-                        <li><a href="http:\\localhost\greencart\user\index.php">Shop</a></li>
-                        <li><a href="http:\\localhost\greencart\user\index.php">About Us</a></li>
-                        <li><a href="http:\\localhost\greencart\user\index.php">Contact</a></li>
+                        <li><a href="http:\\localhost\greencart\user\shop.php">Shop</a></li>
+                        <li><a href="http:\\localhost\greencart\user\blog.php">Blog</a></li>
+                        <li><a href="http:\\localhost\greencart\user\contact.php">Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
