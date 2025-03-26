@@ -66,32 +66,14 @@
 
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
-
-  <ul class="sidebar-nav" id="sidebar-nav">
-
-    <li class="nav-item">
-      <a class="nav-link " href="index.php">
-        <i class="bi bi-grid"></i>
-        <span>Dashboard</span>
-      </a>
-    </li><!-- End Dashboard Nav -->
-
-    <li class="nav-item">
-      <a class="nav-link collapsed" href="category.php">
-        <i class="bi bi-file-earmark"></i>
-        <span>Category</span>
-      </a>
-    </li><!-- End home Page features Nav -->
-
-    <li class="nav-item">
-      <a class="nav-link collapsed" href="product.php">
-        <i class="bi bi-file-earmark"></i>
-        <span>Product</span>
-      </a>
-    </li><!-- End Blank Page Nav -->
-  </ul>
-
-</aside><!-- End Sidebar-->
+    <ul class="sidebar-nav" id="sidebar-nav">
+        <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
+        <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
+        <li class="nav-item"><a class="nav-link collapsed" href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
+        <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>contact</span></a></li>
+        
+    </ul>
+</aside>
 
 <main id="main" class="main">
 
