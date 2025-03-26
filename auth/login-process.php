@@ -117,13 +117,6 @@ function sanitize($data)
     return $data;
 }
 
-// Function to redirect
-function redirect($url)
-{
-    header("Location: $url");
-    exit();
-}
-
 // Check if the request is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get and sanitize input
@@ -155,9 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($row = mysqli_fetch_assoc($result)) {
             // Verify the password
             if ($user_pw == $row['password']) {
-                // Secure session handling
-                session_regenerate_id(true);
-
                 // Store session variables
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['fname'] = $row['first_name'];
@@ -166,15 +156,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['is_admin'] = $row['is_admin'];
 
                 // Redirect based on role
-                if ($row['role'] == 1) {
-                    redirect("../NiceAdmin/index.php");
+                if ($row['is_admin'] == 1) {
+                    echo "<script>window.loaction.href='../NiceAdmin/index.php';</script>";
                 } else {
-                    redirect("../user/shop.php");
+                    echo "<script>window.location.href='../user/shop.php';</script>";
+
                 }
-            } else {
+            } else {    
                 echo "<script>
-                alert('Invalid password');
-                window.location.href='login.php';
+                promptMessage('Invalid password');
             </script>";
             }
         } else {

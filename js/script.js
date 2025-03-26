@@ -108,40 +108,50 @@ document.addEventListener('DOMContentLoaded', function() {
     startTestimonialInterval();
 
     // Add to Cart functionality
-    const addToCartButtons = document.querySelectorAll('.btn-add-cart');
-    const cartCount = document.querySelector('.cart-count');
-    let cartItems = 0;
-
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            cartItems++;
-            cartCount.textContent = cartItems;
-            
-            // Add animation effect
-            cartCount.classList.add('pulse');
-            setTimeout(() => {
-                cartCount.classList.remove('pulse');
-            }, 300);
-            
-            // Get product info for cart (in a real app, you'd store this)
-            const productCard = this.closest('.product-card');
-            const productName = productCard.querySelector('h3').textContent;
-            const productPrice = productCard.querySelector('.product-price').textContent;
-            
-            // Show confirmation message
-            const originalText = this.textContent;
-            this.textContent = 'Added!';
-            this.style.backgroundColor = '#15803d';
-            
-            setTimeout(() => {
-                this.textContent = originalText;
-                this.style.backgroundColor = '';
-            }, 1500);
-            
-            console.log('Added to cart:', productName, productPrice);
+    document.querySelectorAll('.btn-add-cart').forEach(button => {
+        button.addEventListener('click', function () {
+            const productID = this.getAttribute('data-productID');
+    
+            if (!productID) {
+                alert("Invalid product ID.");
+                return;
+            }
+    
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '../functions/addToCart.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+    
+                    if (!response.success) {
+                        alert(response.message); // Show error message
+    
+                        // Redirect to login page if required
+                        if (response.redirect) {
+                            window.location.href = response.redirect;
+                        }
+                        return;
+                    }
+    
+                    // Update cart count dynamically
+                    document.querySelector('.cart-count').textContent = response.cartCount;
+    
+                    // Show success animation
+                    button.textContent = 'Added!';
+                    button.style.backgroundColor = '#15803d';
+                    setTimeout(() => {
+                        button.textContent = 'Add to Cart';
+                        button.style.backgroundColor = '';
+                    }, 1500);
+                }
+            };
+    
+            xhr.send('product_id=' + productID);
         });
     });
-
+    
     // Add CSS animation class
     const style = document.createElement('style');
     style.textContent = `
@@ -235,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// filte-group price-range
 const priceSlider = document.getElementById("price-range")
 const minPrice = document.getElementById("min-price")
 const maxPrice = document.getElementById("max-price")

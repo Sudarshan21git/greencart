@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Database connection
-require_once 'config/database.php';
+require_once '../database/database.php';
 
 // Common functions
 function sanitize($data) {
