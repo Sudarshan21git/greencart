@@ -175,10 +175,7 @@ $total_pages = ceil($total_products / $products_per_page);
                                 <span class="reviews">(<?= rand(50, 150); ?>)</span>
                             </div>
                             <div class="product-price">$<?= number_format($product['price'], 2); ?></div>
-                            <form method="POST" action="">
-                                <input type="hidden" name="product_id" value="<?= $product['product_id']; ?>">
-                                <button type="submit" class="btn btn-add-cart">Add to Cart</button>
-                            </form>
+                                <button type="submit" class="btn btn-add-cart" data-productID="<?php echo $product['product_id'] ?>" >Add to Cart</button>
                         </div>
                     </div>
                 <?php endforeach; ?>

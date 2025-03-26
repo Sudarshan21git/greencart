@@ -117,13 +117,6 @@ function sanitize($data)
     return $data;
 }
 
-// Function to redirect
-function redirect($url)
-{
-    header("Location: $url");
-    exit();
-}
-
 // Check if the request is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get and sanitize input
@@ -164,14 +157,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Redirect based on role
                 if ($row['is_admin'] == 1) {
-                    redirect("../NiceAdmin/index.php");
+                    echo "<script>window.loaction.href='../NiceAdmin/index.php';</script>";
                 } else {
-                    redirect("../user/shop.php");
+                    echo "<script>window.location.href='../user/shop.php';</script>";
+
                 }
-            } else {
+            } else {    
                 echo "<script>
-                alert('Invalid password');
-                window.location.href='login.php';
+                promptMessage('Invalid password');
             </script>";
             }
         } else {
