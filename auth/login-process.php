@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Redirect based on role
                 if ($row['is_admin'] == 1) {
-                    echo "<script>window.loaction.href='../NiceAdmin/index.php';</script>";
+                    echo "<script>window.location.href='../NiceAdmin/index.php';</script>";
                 } else {
                     echo "<script>window.location.href='../user/shop.php';</script>";
 
