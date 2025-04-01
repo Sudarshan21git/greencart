@@ -256,7 +256,7 @@ if (priceSlider && minPrice && maxPrice) {
   let highestPrice = 0
   productCards.forEach((card) => {
     const priceText = card.querySelector(".product-price").textContent
-    const price = Number.parseFloat(priceText.replace("$", ""))
+    const price = Number.parseFloat(priceText.replace("Rs.", ""))
     if (price > highestPrice) {
       highestPrice = price
     }
@@ -266,16 +266,16 @@ if (priceSlider && minPrice && maxPrice) {
   const roundedMax = Math.ceil(highestPrice / 10) * 10
   priceSlider.max = roundedMax
   priceSlider.value = roundedMax
-  maxPrice.textContent = `$${roundedMax}`
+  maxPrice.textContent = `Rs.${roundedMax}`
 
   priceSlider.addEventListener("input", function () {
     const value = this.value
-    maxPrice.textContent = `$${value}`
+    maxPrice.textContent = `Rs.${value}`
 
     // Filter products based on price
     productCards.forEach((card) => {
       const priceText = card.querySelector(".product-price").textContent
-      const price = Number.parseFloat(priceText.replace("$", ""))
+      const price = Number.parseFloat(priceText.replace("Rs.", ""))
 
       if (price <= value) {
         card.style.display = "block"

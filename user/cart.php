@@ -104,7 +104,7 @@ if (isset($_GET['delete_all'])) {
                                         <h3><?php echo $item['name']; ?></h3>
                                     </div>
                                 </div>
-                                <div class="price-col" data-label="Price">$<?php echo number_format($item['price'], 2); ?></div>
+                                <div class="price-col" data-label="Price">Rs.<?php echo number_format($item['price'], 2); ?></div>
                                 <div class="quantity-col" data-label="Quantity">
                                         <input type="hidden" name="action" value="update">
                                         <input type="hidden" name="cart_item_id" value="<?php echo $item['cart_item_id']; ?>">
@@ -115,7 +115,7 @@ if (isset($_GET['delete_all'])) {
                                         </div>
                                     
                                 </div>
-                                <div class="total-col" data-label="Total">$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></div>
+                                <div class="total-col" data-label="Total">Rs.<?php echo number_format($item['price'] * $item['quantity'], 2); ?></div>
                                 <form method="POST" action="cart.php" class="remove-form">
                                     <input type="hidden" name="action" value="remove">
                                     <input type="hidden" name="cart_item_id" value="<?php echo $item['cart_item_id']; ?>">
@@ -138,7 +138,7 @@ if (isset($_GET['delete_all'])) {
                         <h3>Cart Totals</h3>
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span id="cart-total">$0.00</span>
+                            <span id="cart-total">Rs.0.00</span>
                         </div>
                         <button class="btn btn-primary btn-checkout" id="checkout-btn">Proceed to Checkout</button>
                     </div>
