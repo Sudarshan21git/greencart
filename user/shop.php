@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // Include the database connection
 include_once '../includes/header.php';
 require_once '../database/database.php';

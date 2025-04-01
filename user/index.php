@@ -24,7 +24,7 @@
             <h1>Bring Nature Home</h1>
             <p>Discover our handpicked collection of beautiful plants to transform your space</p>
             <div class="hero-buttons">
-                <a href="#" class="btn btn-primary">Shop Now</a>
+                <a href="shop.php" class="btn btn-primary">Shop Now</a>
             </div>
         </div>
     </section>

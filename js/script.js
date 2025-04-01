@@ -284,6 +284,34 @@ if (priceSlider && minPrice && maxPrice) {
       }
     })
   })
-
-  
 }
+
+// cart item counting
+    const decreaseBtns = document.querySelectorAll('.quantity-btn.decrease');
+    const increaseBtns = document.querySelectorAll('.quantity-btn.increase');
+
+    decreaseBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.closest('.quantity-selector').querySelector('.quantity-input');
+            let quantity = parseInt(input.value);
+            if (quantity > 1) {
+                input.value = quantity - 1;
+                updateCart(input); // Trigger the form submit
+            }
+        });
+    });
+
+    increaseBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.closest('.quantity-selector').querySelector('.quantity-input');
+            let quantity = parseInt(input.value);
+            input.value = quantity + 1;
+            updateCart(input); // Trigger the form submit
+        });
+    });
+
+    // Function to submit the form with the updated quantity
+    function updateCart(input) {
+        const form = input.closest('form');
+        form.submit(); // Submit the form to update the cart in the backend
+    }

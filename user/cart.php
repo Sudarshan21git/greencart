@@ -1,5 +1,33 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include '../database/database.php';
+$cart_items = [];
+
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+
+    // Fetch the cart for the user
+    $qry = "SELECT * FROM cart WHERE user_id=$userId";
+    $result = mysqli_query($conn, $qry);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $cartData = mysqli_fetch_assoc($result);
+        $cart_id = $cartData['cart_id'];
+
+        // Fetch cart items
+        $qry2 = "SELECT ci.*, p.name, p.price, p.image 
+                 FROM cart_items ci
+                 JOIN products p ON ci.product_id = p.product_id
+                 WHERE ci.cart_id=$cart_id";
+        $result2 = mysqli_query($conn, $qry2);
+        
+        while ($item = mysqli_fetch_assoc($result2)) {
+            $cart_items[] = $item;
+        }
+    }
+}
 
 if (isset($_POST['update_update_btn'])) {
    $update_value = $_POST['update_quantity'];
@@ -43,6 +71,8 @@ if (isset($_GET['delete_all'])) {
             <h1 class="section-title">Your Shopping Cart</h1>
             
             <div class="cart-container" id="cart-container">
+                
+                <?php if(empty($cart_items)): ?>
                 <!-- Empty cart message (shown when cart is empty) -->
                 <div class="empty-cart" id="empty-cart">
                     <div class="empty-cart-icon">
@@ -52,9 +82,9 @@ if (isset($_GET['delete_all'])) {
                     <p>Looks like you haven't added any plants to your cart yet.</p>
                     <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
                 </div>
-
+                <?php else: ?>
                 <!-- Cart items (hidden when cart is empty) -->
-                <div class="cart-content" id="cart-content" style="display: none;">
+                <div class="cart-content" id="cart-content">
                     <div class="cart-header">
                         <div class="cart-header-item product-col">Product</div>
                         <div class="cart-header-item price-col">Price</div>
@@ -64,7 +94,37 @@ if (isset($_GET['delete_all'])) {
                     </div>
 
                     <div class="cart-items" id="cart-items">
-                        <!-- Cart items will be dynamically added here -->
+                        <?php foreach ($cart_items as $item): ?>
+                            <div class="cart-item">
+                                <div class="cart-product-info">
+                                    <div class="cart-product-image">
+                                        <img src="img/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>">
+                                    </div>
+                                    <div class="cart-product-details">
+                                        <h3><?php echo $item['name']; ?></h3>
+                                    </div>
+                                </div>
+                                <div class="price-col" data-label="Price">$<?php echo number_format($item['price'], 2); ?></div>
+                                <div class="quantity-col" data-label="Quantity">
+                                        <input type="hidden" name="action" value="update">
+                                        <input type="hidden" name="cart_item_id" value="<?php echo $item['cart_item_id']; ?>">
+                                        <div class="quantity-selector">
+                                            <button type="button" class="quantity-btn decrease" data-id="<?php echo $item['cart_item_id']; ?>">-</button>
+                                            <input type="number" name="quantity" class="quantity-input" value="<?php echo $item['quantity']; ?>" min="1" data-id="<?php echo $item['cart_item_id']; ?>">
+                                            <button type="button" class="quantity-btn increase" data-id="<?php echo $item['cart_item_id']; ?>">+</button>
+                                        </div>
+                                    
+                                </div>
+                                <div class="total-col" data-label="Total">$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></div>
+                                <form method="POST" action="cart.php" class="remove-form">
+                                    <input type="hidden" name="action" value="remove">
+                                    <input type="hidden" name="cart_item_id" value="<?php echo $item['cart_item_id']; ?>">
+                                    <button type="submit" class="remove-btn" data-id="<?php echo $item['cart_item_id']; ?> ">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    </button>
+                                </form>
+                            </div>
+                            <?php endforeach; ?>
                     </div>
 
                     <div class="cart-actions">
@@ -83,6 +143,7 @@ if (isset($_GET['delete_all'])) {
                         <button class="btn btn-primary btn-checkout" id="checkout-btn">Proceed to Checkout</button>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -229,7 +290,7 @@ if (isset($_GET['delete_all'])) {
     <!-- Footer -->
 <?php include_once '../includes/footer.php'; ?>
 
-    <script src="script.js"></script>
-</body>
+
+</body>    <script src="../js/script.js"></script>
 </html>
 
