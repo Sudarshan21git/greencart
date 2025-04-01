@@ -139,8 +139,8 @@ $total_pages = ceil($total_products / $products_per_page);
                     <div class="price-range-container">
                         <input type="range" id="price-range" min="0" max="100" value="100" class="price-slider">
                         <div class="price-values">
-                            <span id="min-price">$0</span>
-                            <span id="max-price">$100</span>
+                            <span id="min-price">Rs0</span>
+                            <span id="max-price">Rs100</span>
                         </div>
                     </div>
                 </div>
@@ -177,7 +177,7 @@ $total_pages = ceil($total_products / $products_per_page);
                                 <span class="stars">★★★★★</span>
                                 <span class="reviews">(<?= rand(50, 150); ?>)</span>
                             </div>
-                            <div class="product-price">$<?= number_format($product['price'], 2); ?></div>
+                            <div class="product-price">Rs.<?= number_format($product['price'], 2); ?></div>
                                 <button type="submit" class="btn btn-add-cart" data-productID="<?php echo $product['product_id'] ?>" >Add to Cart</button>
                         </div>
                     </div>
