@@ -47,7 +47,7 @@ if ($sort_filter == 'price-low') {
 } elseif ($sort_filter == 'name-desc') {
     $query .= " ORDER BY p.name DESC";
 } else {
-    $query .= " ORDER BY p.is_featured DESC";  // Default is 'featured'
+    $query .= " ORDER BY p.created_at DESC";  // Default is 'featured'
 }
 
 // Add LIMIT for pagination
@@ -139,8 +139,8 @@ $total_pages = ceil($total_products / $products_per_page);
                     <div class="price-range-container">
                         <input type="range" id="price-range" min="0" max="100" value="100" class="price-slider">
                         <div class="price-values">
-                            <span id="min-price">Rs0</span>
-                            <span id="max-price">Rs100</span>
+                            <span id="min-price">Rs.0</span>
+                            <span id="max-price">Rs.100</span>
                         </div>
                     </div>
                 </div>
@@ -177,8 +177,9 @@ $total_pages = ceil($total_products / $products_per_page);
                                 <span class="stars">★★★★★</span>
                                 <span class="reviews">(<?= rand(50, 150); ?>)</span>
                             </div>
-                            <div class="product-price">Rs.<?= number_format($product['price'], 2); ?></div>
-                                <button type="submit" class="btn btn-add-cart" data-productID="<?php echo $product['product_id'] ?>" >Add to Cart</button>
+                            <div class="product-price">Rs.<?php echo number_format($product['price']); ?>
+                            </div>
+                            <button type="submit" class="btn btn-add-cart" data-productID="<?php echo $product['product_id'] ?>">Add to Cart</button>
                         </div>
                     </div>
                 <?php endforeach; ?>
