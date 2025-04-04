@@ -253,24 +253,22 @@ const productCards = document.querySelectorAll(".product-card")
 
 if (priceSlider && minPrice && maxPrice) {
   // Set initial max price based on highest priced product
-  let highestPrice = 0
+  let highestPrice = 0  
   productCards.forEach((card) => {
     const priceText = card.querySelector(".product-price").textContent
-    const price = Number.parseFloat(priceText.replace("Rs.", ""))
+    const price = parseFloat(priceText.replace(/[^\d]/g, ""));
     if (price > highestPrice) {
       highestPrice = price
     }
   })
 
-  // Round up to nearest 10
-  const roundedMax = Math.ceil(highestPrice / 10) * 10
-  priceSlider.max = roundedMax
-  priceSlider.value = roundedMax
-  maxPrice.textContent = `Rs.${roundedMax}`
+  priceSlider.max = highestPrice
+  priceSlider.value = highestPrice
+  maxPrice.textContent = "Rs."+highestPrice
 
   priceSlider.addEventListener("input", function () {
     const value = this.value
-    maxPrice.textContent = `Rs.${value}`
+    maxPrice.textContent = "Rs."+value
 
     // Filter products based on price
     productCards.forEach((card) => {
@@ -286,7 +284,7 @@ if (priceSlider && minPrice && maxPrice) {
   })
 }
 
-// cart item counting
+//  item counting
     const decreaseBtns = document.querySelectorAll('.quantity-btn.decrease');
     const increaseBtns = document.querySelectorAll('.quantity-btn.increase');
 
