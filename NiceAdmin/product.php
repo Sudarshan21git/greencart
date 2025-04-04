@@ -40,7 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
         $result = $stmt->get_result();
 
         if ($result->num_rows == 0) {
-            $stmt = $conn->prepare("INSERT INTO products (category_id, name, description, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?, ?)");
+            $sql="INSERT INTO products (category_id, name, description, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
             $stmt->bind_param("issdis", $category_id, $product_name, $product_desc, $product_price, $product_stock_quantity, $product_image);
             $insert_success = $stmt->execute();
 

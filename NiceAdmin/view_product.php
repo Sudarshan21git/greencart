@@ -44,7 +44,7 @@ include('../database/database.php');
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
-        <li class="nav-item"><a class="nav-link collapsed" href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
+        <li class="nav-item"><a class="nav-link " href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
     </ul>
 </aside><!-- End Sidebar -->
@@ -106,8 +106,8 @@ include('../database/database.php');
                                         echo "<td>{$row['stock_quantity']}</td>";
                                         echo "<td>{$row['product_desc']}</td>";
                                         echo "<td>
-                                                <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
-                                              </td>";
+                                        <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
+                                          <a href='update_product.php?edit=" . urlencode($row['product_id']) . "' class='btn btn-primary btn-sm'><i class='bi bi-pencil'></i></a>                                                </td>";
                                         echo "</tr>";
                                         $serial_number++;
                                     }

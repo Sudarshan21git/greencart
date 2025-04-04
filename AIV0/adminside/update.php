@@ -119,9 +119,7 @@ if (isset($_GET['id'])) {
     <?php include 'header.php' ?>
     <section class="edit_container">
         <pre>
-            <?php
-        // echo $fetch_data;
-        ?>
+        
         </pre>
         <!-- Current image -->
         <!-- form -->
