@@ -141,6 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
     <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi bi-tags"></i><span>Category</span></a></li>
     <li class="nav-item"><a class="nav-link" href="product.php"><i class="bi bi-box-seam"></i><span>Product</span></a></li>
     <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
+    <li class="nav-item"><a class="nav-link collapsed" href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
     <li class="nav-item"><a class="nav-link collapsed" href="http:\\localhost\greencart\auth\logout_admin.php"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a></li>
 
   </ul>
@@ -166,8 +167,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
             }
             ?>
             <form action="" method="post" enctype="multipart/form-data">
-              <img src="../img/<?php echo isset($fetch_data['image']) ? htmlspecialchars($fetch_data['image']) : ''; ?>" alt="Current Image" class="previous_image img-fluid rounded" style="max-width: 150px; height: auto;"><br><br><br>
-
+              <img src="../img/<?php echo isset($fetch_data['image']) ? htmlspecialchars($fetch_data['image']) : ''; ?>" alt="Current Image" class="previous_image img-fluid rounded" style="max-width: 150px; height: auto;"><br>
+              <label class="form-label"><h5>Previous Image</h5></label><br>
               <input type="hidden" value="<?php echo isset($fetch_data['product_id']) ? $fetch_data['product_id'] : ''; ?>" name="update_product_id">
 
               <div class="mb-3">

@@ -9,7 +9,7 @@ include('../database/database.php');
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Product Details - GreenCart Admin</title>
+    <title>User Detail - GreenCart Admin</title>
 
     <!-- Favicons -->
     <link href="assets/img/favicon.png" rel="icon">
@@ -33,7 +33,7 @@ include('../database/database.php');
     <div class="d-flex align-items-center justify-content-between">
         <a href="index.php" class="logo d-flex align-items-center">
             <img src="assets/img/logo.png" alt="">
-            <span class="d-none d-lg-block">GreenCartAdmin</span>
+            <span class="d-none d-lg-block">GreenCart Admin</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
     </div>
@@ -44,13 +44,13 @@ include('../database/database.php');
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
-        <li class="nav-item"><a class="nav-link " href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
+        <li class="nav-item"><a class="nav-link collapsed" href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
-        <li class="nav-item"><a class="nav-link collapsed" href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
+        <li class="nav-item"><a class="nav-link " href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="http:\\localhost\greencart\auth\logout_admin.php"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a></li>
 
     </ul>
-</aside><!-- End Sidebar -->
+</aside><!-- End Sidebar-->
 
 <main id="main" class="main">
     <section class="section">
@@ -58,7 +58,7 @@ include('../database/database.php');
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Product Details</h5>
+                        <h5 class="card-title">User Details</h5>
 
                         <!-- Session Messages -->
                         <?php if(isset($_SESSION['success'])): ?>
@@ -68,56 +68,51 @@ include('../database/database.php');
                             <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
                         <?php endif; ?>
 
-                        <p class="text-center text-muted">Here is the list of all Product Details. You can delete them as needed.</p>
+                        <p class="text-center text-muted">Here is the list of all UserDetail. You can delete them as needed.</p>
                         <table class="table table-striped table-bordered text-center">
                             <thead class="table-dark">
                                 <tr>
                                     <th>Sl No.</th>
-                                    <th>Product Image</th>
-                                    <th>Product Name</th>
-                                    <th>Category</th>
-                                    <th> Price</th>
-                                    <th> Stock</th>
-                                    <th> Description</th>
-                                    <th> Action</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone.no</th>
+                                    <th>Address</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php 
-                                if (!$conn) {
-                                    die("Database connection failed: " . mysqli_connect_error());
-                                }
+                            <?php 
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
 
-                                // Fetch products and their corresponding categories
-                                $query = "
-                                    SELECT p.product_id, p.name AS product_name, p.description AS product_desc, p.price, p.stock_quantity, p.image, c.name AS category_name
-                                    FROM products p
-                                    LEFT JOIN categories c ON p.category_id = c.category_id
-                                ";
-                                
-                                $products = mysqli_query($conn, $query);
-                                $serial_number = 1;
+$user = mysqli_query($conn, "SELECT * FROM users");
+$serial_number = 1;
 
-                                if (mysqli_num_rows($products) > 0) {
-                                    while ($row = mysqli_fetch_assoc($products)) {
-                                        echo "<tr>";
-                                        echo "<td>{$serial_number}</td>";
-                                        echo "<td><img src='../img/{$row['image']}' alt='{$row['product_name']}' style='max-width: 100px;'></td>";
-                                        echo "<td>{$row['product_name']}</td>";
-                                        echo "<td>{$row['category_name']}</td>";
-                                        echo "<td>{$row['price']}</td>";
-                                        echo "<td>{$row['stock_quantity']}</td>";
-                                        echo "<td>{$row['product_desc']}</td>";
-                                        echo "<td>
-                                        <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
-                                          <a href='update_product.php?edit=" . urlencode($row['product_id']) . "' class='btn btn-primary btn-sm'><i class='bi bi-pencil'></i></a>                                                </td>";
-                                        echo "</tr>";
-                                        $serial_number++;
-                                    }
-                                } else {
-                                    echo "<tr><td colspan='8'>No products found.</td></tr>";
-                                }
-                                ?>
+if (mysqli_num_rows($user) > 0) {
+    while ($row = mysqli_fetch_assoc($user)) {
+        echo "<tr>";
+        echo "<td>{$serial_number}</td>";
+        echo "<td>" . htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['phone']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['address']) . "</td>";
+
+        echo "<td>";
+        if ($row['is_admin'] == 0) {
+            echo "<a href='user.php?delete=" . urlencode($row['user_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this user?')\"><i class='bi bi-trash'></i></a>";
+        } else {
+            echo "<span class='badge bg-primary'>Admin</span>";
+        }
+        echo "</td>";
+
+        echo "</tr>";
+        $serial_number++;
+    }
+} else {
+    echo "<tr><td colspan='6'>No users found.</td></tr>";
+}
+?>
                             </tbody>
                         </table>
 
@@ -152,29 +147,29 @@ include('../database/database.php');
 </body>
 </html>
 
-<!-- Delete Product Backend Code -->
+<!-- Delete Contact Message Backend Code -->
 <?php
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $product_id = $_GET['delete'];
+    $user_id = $_GET['delete'];
 
     // Prevent double deletion
-    if (isset($_SESSION['delete_product']) && $_SESSION['delete_product'] == $product_id) {
-        $_SESSION['error'] = "Product has already been deleted.";
-        header("Location: view_product.php");
+    if (isset($_SESSION['delete_message']) && $_SESSION['delete_message'] == $user_id) {
+        $_SESSION['error'] = "user has already been deleted.";
+        header("Location:user.php");
         exit();
     }
 
-    // Delete product from database
-    $delete_query = mysqli_query($conn, "DELETE FROM products WHERE product_id = $product_id");
+    // Delete message from database
+    $delete_query = mysqli_query($conn, "DELETE FROM users WHERE user_id=$user_id");
 
     if ($delete_query) {
-        $_SESSION['delete_product'] = $product_id;
-        $_SESSION['success'] = "Product deleted successfully!";
+        $_SESSION['delete_message'] = $user_id;
+        $_SESSION['success'] = "User deleted successfully!";
     } else {
-        $_SESSION['error'] = "Failed to delete product.";
+        $_SESSION['error'] = "Failed to delete message.";
     }
 
-    header("Location: view_product.php");
+    header("Location: user.php");
     exit();
 }
 ?>
