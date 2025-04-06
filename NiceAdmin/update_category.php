@@ -126,8 +126,10 @@ if (isset($_GET['id'])) {
                 <i class="bi bi-file-earmark"></i>
                 <span>Product</span>
             </a>
-        </li><!-- End Blank Page Nav -->
-
+        </li>
+        <li class="nav-item"><a class="nav-link collapsed" href="http:\\localhost\greencart\auth\logout_admin.php"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a></li>
+        <!-- End Blank Page Nav -->
+    
     </ul>
 
 </aside><!-- End Sidebar-->
