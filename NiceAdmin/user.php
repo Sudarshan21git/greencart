@@ -95,8 +95,9 @@ if (mysqli_num_rows($user) > 0) {
         echo "<td>{$serial_number}</td>";
         echo "<td>" . htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) . "</td>";
         echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['phone']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['address']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['phone'] ?? 'N/A') . "</td>";
+        echo "<td>" . htmlspecialchars($row['address'] ?? 'N/A') . "</td>";
+        
 
         echo "<td>";
         if ($row['is_admin'] == 0) {
