@@ -162,8 +162,8 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
 </form>
 <h3 class="text-center mt-4">Category List</h3>
 <p class="text-center text-muted">Here is the list of all available categories. You can edit or delete them as needed.</p>
-<table class="table table-striped table-bordered text-center">
-    <thead class="table-dark">
+<table class="table table-striped table-bordered text-center table-hover-custom">
+    <thead class="custom-thead">
         <tr>
             <th>Sl No.</th>
             <th>Category Image</th>
@@ -181,14 +181,13 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                 echo "<tr>";
                 echo "<td>{$serial_number}</td>";
 
-                // Image Handling
                 $image_src = !empty($row['image']) ? '../img/' . $row['image'] : 'img/default.png';
                 echo "<td><img src='{$image_src}' alt='{$row['name']}' class='category-img'></td>";
 
                 echo "<td>{$row['name']}</td>";
-                echo "<td>{$row['description']}</td>";
+                echo "<td style='max-width: 200px; font-size: 14px;'>{$row['description']}</td>";
                 echo "<td>
-                        <a href='update_category.php?id=" . urlencode($row['category_id']) . "' class='btn btn-warning btn-sm'><i class='bi bi-pencil'></i></a>
+                        <a href='update_category.php?id=" . urlencode($row['category_id']) . "' class='btn btn-warning btn-sm me-1'><i class='bi bi-pencil'></i></a>
                         <a href='category.php?delete=" . urlencode($row['category_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this category?')\"><i class='bi bi-trash'></i></a>
                       </td>";
                 echo "</tr>";
@@ -201,16 +200,28 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
     </tbody>
 </table>
 
+<!-- Style Section -->
 <style>
+    .custom-thead th {
+        background-color: #006400 !important; /* dark green */
+        color: white !important;
+    }
+
     .category-img {
         width: 80px;
         height: 80px;
         object-fit: cover;
         border-radius: 8px;
     }
+
     .btn-sm {
         padding: 5px 10px;
         font-size: 14px;
+    }
+
+    .table-hover-custom tbody tr:hover {
+        background-color: #e6ffe6; /* light green on hover */
+        transition: background-color 0.3s ease;
     }
 </style>
 

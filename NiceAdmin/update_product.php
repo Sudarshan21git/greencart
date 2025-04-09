@@ -153,9 +153,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <h5 class="card-title">Update Product</h5>
-            </div>
+          <a href="view_product.php"><h5><i class="bi bi-arrow-left"></i> Back</h5></a>
+          <div class="d-flex justify-content-between align-items-center">
+         
+
+  <h5 class="card-title text-center">Update Product</h5>
+</div>
+
 
             <!-- Product Form -->
             <?php
