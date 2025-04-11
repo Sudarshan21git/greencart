@@ -120,7 +120,7 @@ $clear_session = false; // Set to true to clear session after displaying
                         </div>
                         <div class="order-detail">
                             <span>Order Total:</span>
-                            <span id="order-total">Rs.<?php echo number_format($order_total, 2); ?></span>
+                            <span id="order-total">Rs.<?php echo number_format($order_total); ?></span>
                         </div>
                         <div class="order-detail">
                             <span>Payment Method:</span>
@@ -153,11 +153,11 @@ $clear_session = false; // Set to true to clear session after displaying
                                     <h4><?php echo htmlspecialchars($item['name']); ?></h4>
                                     <div class="order-item-meta">
                                         <span>Quantity: <?php echo $item['quantity']; ?></span>
-                                        <span>Price: Rs.<?php echo number_format($item['price'], 2); ?></span>
+                                        <span>Price: Rs.<?php echo number_format($item['price']); ?></span>
                                     </div>
                                 </div>
                                 <div class="order-item-total">
-                                    Rs.<?php echo number_format($item['price'] * $item['quantity'], 2); ?>
+                                    Rs.<?php echo number_format($item['price'] * $item['quantity']); ?>
                                 </div>
                             </div>
                             <?php endforeach; ?>

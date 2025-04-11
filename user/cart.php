@@ -103,7 +103,7 @@ if (isset($_POST['remove-btn'])) {
                                             <h3><?php echo $item['name']; ?></h3>
                                         </div>
                                     </div>
-                                    <div class="price-col" data-label="Price">Rs.<?php echo number_format($item['price'], 2); ?></div>
+                                    <div class="price-col" data-label="Price">Rs.<?php echo number_format($item['price']); ?></div>
                                     <div class="quantity-col" data-label="Quantity">
                                         <div class="quantity-selector">
                                             <button type="button" class="quantity-btn decrease" data-id="<?php echo $item['cart_item_id']; ?>">-</button>
@@ -111,7 +111,7 @@ if (isset($_POST['remove-btn'])) {
                                             <button type="button" class="quantity-btn increase" data-id="<?php echo $item['cart_item_id']; ?>">+</button>
                                         </div>
                                     </div>
-                                    <div class="total-col" data-label="Total">Rs.<span class="item-total"><?php echo number_format($item['price'] * $item['quantity'], 2); ?></span></div>
+                                    <div class="total-col" data-label="Total">Rs.<span class="item-total"><?php echo number_format($item['price'] * $item['quantity']); ?></span></div>
                                     <div class="remove-col">
                                         <form method="POST" action="cart.php" class="remove-form">
                                             <input type="hidden" name="cart_item_id-remove" value="<?php echo $item['cart_item_id']; ?>">
@@ -133,7 +133,7 @@ if (isset($_POST['remove-btn'])) {
                         </div>
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span id="cart-total">Rs.<?php echo number_format($cart_total, 2); ?></span>
+                            <span id="cart-total">Rs.<?php echo number_format($cart_total); ?></span>
                         </div>
                         <button class="btn btn-primary btn-checkout" id="checkout-btn">Proceed to Checkout</button>
                     </div>
@@ -202,13 +202,13 @@ if (isset($_POST['remove-btn'])) {
                                 <span class="checkout-item-quantity"><?php echo $item['quantity']; ?> ×</span>
                                 <span class="checkout-item-name"><?php echo htmlspecialchars($item['name']); ?></span>
                             </div>
-                            <span class="checkout-item-price">Rs.<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                            <span class="checkout-item-price">Rs.<?php echo number_format($item['price'] * $item['quantity']); ?></span>
                         </div>
                         <?php endforeach; ?>
                     </div>
                     <div class="summary-row subtotal">
                         <span>Subtotal</span>
-                        <span>Rs.<?php echo number_format($cart_total, 2); ?></span>
+                        <span>Rs.<?php echo number_format($cart_totat); ?></span>
                     </div>
                     <div class="summary-row shipping">
                         <span>Shipping</span>
@@ -216,7 +216,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span id="checkout-total">Rs.<?php echo number_format($cart_total, 2); ?></span>
+                        <span id="checkout-total">Rs.<?php echo number_format($cart_total); ?></span>
                     </div>
                 </div>
             </div>
@@ -273,15 +273,15 @@ if (isset($_POST['remove-btn'])) {
             const item = document.querySelector(`.cart-item[data-id="${itemId}"]`);
             const price = parseFloat(item.querySelector('.quantity-input').getAttribute('data-price'));
             const itemTotal = price * quantity;
-            item.querySelector('.item-total').textContent = itemTotal.toFixed(2);
+            item.querySelector('.item-total').textContent = itemTotal;
             
             // Update cart total
-            const cartTotal = calculateCartTotal();
-            document.getElementById('cart-total').textContent = 'Rs.' + cartTotal.toFixed(2);
+            const cartTotal = calculateCartTotal()
+            document.getElementById('cart-total').textContent = 'Rs.' + cartTotal;
             
             // Update checkout total if visible
             if (document.getElementById('checkout-total')) {
-                document.getElementById('checkout-total').textContent = 'Rs.' + cartTotal.toFixed(2);
+                document.getElementById('checkout-total').textContent = 'Rs.' + cartTotal;
             }
         }
         
