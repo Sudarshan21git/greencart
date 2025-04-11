@@ -5,7 +5,7 @@ if (isset($_POST['submit'])) {
     $fname = trim($_POST["first-name"]);
     $lname =  trim($_POST["last-name"]);
     $umail =  trim($_POST["email"]);
-    $upw =  trim($_POST["password"]);
+    $upw =  trim($_POST["new-password"]);
     $upwc =  trim($_POST["confirm-password"]);
     $accCheck = "SELECT * FROM users WHERE email = '$umail'";
     $result = $conn->query($accCheck);
@@ -22,10 +22,6 @@ if (isset($_POST['submit'])) {
         // Validate email format (only Gmail addresses)
         elseif (!filter_var($umail, FILTER_VALIDATE_EMAIL) || !preg_match('/^[a-zA-Z0-9._%+-]+@gmail\.com$/', $umail)) {
             echo "<script>alert('Invalid email format or not a Gmail address!');</script>";
-        }
-        // Validate password (min 6 chars, 1 uppercase, 1 lowercase, 1 digit)
-        elseif (strlen($upw) < 6 || !preg_match('/[A-Z]/', $upw) || !preg_match('/[a-z]/', $upw) || !preg_match('/[0-9]/', $upw)) {
-            echo "<script>alert('Password must be at least 6 characters long, contain at least one uppercase letter, and one number!');</script>";
         }
         // Check if passwords match
         elseif ($upw !== $upwc) {
@@ -87,9 +83,9 @@ if (isset($_POST['submit'])) {
                         <input type="email" id="email" name="email" placeholder="Enter your email" <?php if (isset($_GET['email'])) echo "value='{$_GET['email']}'"; ?>>
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
+                        <label for="new-password">Password</label>
                         <div class="password-input">
-                            <input type="password" id="password" name="password" placeholder="Create a password" >
+                            <input type="password" id="new-password" name="new-password" placeholder="Create a password" >
                             <button type="button" class="toggle-password">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>

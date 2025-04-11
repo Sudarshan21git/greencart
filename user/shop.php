@@ -47,7 +47,7 @@ if ($sort_filter == 'price-low') {
 } elseif ($sort_filter == 'name-desc') {
     $query .= " ORDER BY p.name DESC";
 } else {
-    $query .= " ORDER BY p.created_at DESC";  // Default is 'featured'
+    $query .= " ORDER BY p.created_at DESC";
 }
 
 // Add LIMIT for pagination
@@ -168,9 +168,11 @@ $total_pages = ceil($total_products / $products_per_page);
             <div class="products-grid">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
+                    <a href="../product.php?id=<?= $product['product_id']; ?>" class="product-link">
                         <div class="product-image">
                             <img src="../img/<?= htmlspecialchars($product['image']); ?>" alt="<?= htmlspecialchars($product['name']); ?>">
                         </div>
+                        </a>
                         <div class="product-info">
                             <h3><?= htmlspecialchars($product['name']); ?></h3>
                             <div class="product-rating">

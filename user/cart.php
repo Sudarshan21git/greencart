@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include '../database/database.php';
 $cart_items = [];
+$cart_total = 0;
 
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
@@ -23,30 +24,27 @@ if (isset($_SESSION['user_id'])) {
                  WHERE ci.cart_id=$cart_id";
         $result2 = mysqli_query($conn, $qry2);
         
-        while ($item = mysqli_fetch_assoc($result2)) {
-            $cart_items[] = $item;
+        if ($result2) {
+            while ($item = mysqli_fetch_assoc($result2)) {
+                $cart_items[] = $item;
+                $cart_total += ($item['price'] * $item['quantity']);
+            }
         }
     }
 }
 
-if (isset($_POST['update_update_btn'])) {
-   $update_value = $_POST['update_quantity'];
-   $update_id = $_POST['update_quantity_id'];
-   mysqli_query($conn, "UPDATE `cart` SET quantity = '$update_value' WHERE id = '$update_id'");
+// Handle item removal
+if (isset($_POST['remove-btn'])) {
+   $remove_id = mysqli_real_escape_string($conn, $_POST['cart_item_id-remove']);
+   $removeResult = mysqli_query($conn, "DELETE FROM `cart_items` WHERE cart_item_id = '$remove_id'");
+   if(!$removeResult) {
+       echo "Error removing item from cart: " . mysqli_error($conn);
+   }
    header('location:cart.php');
+   exit();
 }
 
-if (isset($_GET['remove'])) {
-   $remove_id = $_GET['remove'];
-   mysqli_query($conn, "DELETE FROM `cart` WHERE id = '$remove_id'");
-   header('location:cart.php');
-}
-
-if (isset($_GET['delete_all'])) {
-   mysqli_query($conn, "DELETE FROM `cart` WHERE userid=$userId");
-   header('location:cart.php');
-}
-?>
+?>  
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +53,8 @@ if (isset($_GET['delete_all'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - GreenCart</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="stylesheet" href="../css/cart-styles.css">
+    <link rel="icon" type="image/png" href="../img/logo.png">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -63,7 +62,6 @@ if (isset($_GET['delete_all'])) {
 <body>
     <!-- Header -->
     <?php include_once '../includes/header.php'; ?>
-
 
     <!-- Cart Section -->
     <section class="cart-section">
@@ -85,60 +83,57 @@ if (isset($_GET['delete_all'])) {
                 <?php else: ?>
                 <!-- Cart items (hidden when cart is empty) -->
                 <div class="cart-content" id="cart-content">
-                    <div class="cart-header">
-                        <div class="cart-header-item product-col">Product</div>
-                        <div class="cart-header-item price-col">Price</div>
-                        <div class="cart-header-item quantity-col">Quantity</div>
-                        <div class="cart-header-item total-col">Total</div>
-                        <div class="cart-header-item remove-col"></div>
-                    </div>
+                    <form method="POST" action="cart.php" id="cart-form">
+                        <div class="cart-header">
+                            <div class="cart-header-item product-col">Product</div>
+                            <div class="cart-header-item price-col">Price</div>
+                            <div class="cart-header-item quantity-col">Quantity</div>
+                            <div class="cart-header-item total-col">Total</div>
+                            <div class="cart-header-item remove-col"></div>
+                        </div>
 
-                    <div class="cart-items" id="cart-items">
-                        <?php foreach ($cart_items as $item): ?>
-                            <div class="cart-item">
-                                <div class="cart-product-info">
-                                    <div class="cart-product-image">
-                                        <img src="img/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>">
+                        <div class="cart-items" id="cart-items">
+                            <?php foreach ($cart_items as $item): ?>
+                                <div class="cart-item" data-id="<?php echo $item['cart_item_id']; ?>">
+                                    <div class="cart-product-info">
+                                        <div class="cart-product-image">
+                                            <img src="../img/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>">
+                                        </div>
+                                        <div class="cart-product-details">
+                                            <h3><?php echo $item['name']; ?></h3>
+                                        </div>
                                     </div>
-                                    <div class="cart-product-details">
-                                        <h3><?php echo $item['name']; ?></h3>
-                                    </div>
-                                </div>
-                                <div class="price-col" data-label="Price">Rs.<?php echo number_format($item['price'], 2); ?></div>
-                                <div class="quantity-col" data-label="Quantity">
-                                        <input type="hidden" name="action" value="update">
-                                        <input type="hidden" name="cart_item_id" value="<?php echo $item['cart_item_id']; ?>">
+                                    <div class="price-col" data-label="Price">Rs.<?php echo number_format($item['price'], 2); ?></div>
+                                    <div class="quantity-col" data-label="Quantity">
                                         <div class="quantity-selector">
                                             <button type="button" class="quantity-btn decrease" data-id="<?php echo $item['cart_item_id']; ?>">-</button>
-                                            <input type="number" name="quantity" class="quantity-input" value="<?php echo $item['quantity']; ?>" min="1" data-id="<?php echo $item['cart_item_id']; ?>">
+                                            <input type="number" name="quantities[<?php echo $item['cart_item_id']; ?>]" class="quantity-input" value="<?php echo $item['quantity']; ?>" min="1" data-id="<?php echo $item['cart_item_id']; ?>" data-price="<?php echo $item['price']; ?>">
                                             <button type="button" class="quantity-btn increase" data-id="<?php echo $item['cart_item_id']; ?>">+</button>
                                         </div>
-                                    
+                                    </div>
+                                    <div class="total-col" data-label="Total">Rs.<span class="item-total"><?php echo number_format($item['price'] * $item['quantity'], 2); ?></span></div>
+                                    <div class="remove-col">
+                                        <form method="POST" action="cart.php" class="remove-form">
+                                            <input type="hidden" name="cart_item_id-remove" value="<?php echo $item['cart_item_id']; ?>">
+                                            <button type="submit" class="remove-btn" name="remove-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="total-col" data-label="Total">Rs.<?php echo number_format($item['price'] * $item['quantity'], 2); ?></div>
-                                <form method="POST" action="cart.php" class="remove-form">
-                                    <input type="hidden" name="action" value="remove">
-                                    <input type="hidden" name="cart_item_id" value="<?php echo $item['cart_item_id']; ?>">
-                                    <button type="submit" class="remove-btn" data-id="<?php echo $item['cart_item_id']; ?> ">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                    </button>
-                                </form>
-                            </div>
                             <?php endforeach; ?>
-                    </div>
-
-                    <div class="cart-actions">
-                        <div class="coupon-container">
-                            <!-- to make update button align right -->
                         </div>
-                        <button class="btn btn-secondary" id="update-cart">Update Cart</button>
-                    </div>
+                    </form>
 
                     <div class="cart-summary">
                         <h3>Cart Totals</h3>
+                        <div class="summary-row shipping">
+                            <span>Shipping</span>
+                            <span>Free</span>
+                        </div>
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span id="cart-total">Rs.0.00</span>
+                            <span id="cart-total">Rs.<?php echo number_format($cart_total, 2); ?></span>
                         </div>
                         <button class="btn btn-primary btn-checkout" id="checkout-btn">Proceed to Checkout</button>
                     </div>
@@ -147,7 +142,6 @@ if (isset($_GET['delete_all'])) {
             </div>
         </div>
     </section>
-
     <!-- Checkout Section (initially hidden) -->
     <section class="checkout-section" id="checkout-section" style="display: none;">
         <div class="container">
@@ -156,20 +150,20 @@ if (isset($_GET['delete_all'])) {
             <div class="checkout-container">
                 <div class="checkout-form-container">
                     <h2>Billing Details</h2>
-                    <form id="checkout-form" class="checkout-form">
+                    <form id="checkout-form" class="checkout-form" method="POST" action="process-order.php">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="first-name">First Name</label>
-                                <input type="text" id="first-name" name="first-name" required>
+                                <input type="text" id="first-name" name="first_name" value="<?php echo isset($_SESSION['fname']) ? htmlspecialchars($_SESSION['fname']) : ''; ?>" required>
                             </div>
                             <div class="form-group">
                                 <label for="last-name">Last Name</label>
-                                <input type="text" id="last-name" name="last-name" required>
+                                <input type="text" id="last-name" name="last_name" value="<?php echo isset($_SESSION['lname']) ? htmlspecialchars($_SESSION['lname']) : ''; ?>" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" required>
+                            <input type="email" id="email" name="email" value="<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>" required>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
@@ -179,63 +173,18 @@ if (isset($_GET['delete_all'])) {
                             <label for="address">Street Address</label>
                             <input type="text" id="address" name="address" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" name="city" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="state">State/Province</label>
-                                <input type="text" id="state" name="state" required>
-                            </div>
-                        </div>
-                        <!-- <div class="form-row">
-                            <div class="form-group">
-                                <label for="zip">Postal/Zip Code</label>
-                                <input type="text" id="zip" name="zip" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="country">Country</label>
-                                <select id="country" name="country" required>
-                                    <option value="">Select Country</option>
-                                    <option value="US">United States</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="NP">Nepal</option>
-                                    <option value="IN">India</option>
-                                </select>
-                            </div>
-                        </div> -->
                         
                         <h2>Payment Information</h2>
                         <div class="payment-methods">
                             <div class="payment-method">
-                                <input type="radio" id="payment-credit" name="payment-method" value="credit" checked>
-                                <label for="payment-credit">Esewa</label>
+                                <input type="radio" id="payment-esewa" name="payment_method" value="esewa" checked>
+                                <label for="payment-esewa">Esewa</label>
                             </div>
                             <div class="payment-method">
-                                <input type="radio" id="payment-paypal" name="payment-method" value="paypal">
-                                <label for="payment-paypal">Cash on Delivery</label>
+                                <input type="radio" id="payment-cod" name="payment_method" value="cod">
+                                <label for="payment-cod">Cash on Delivery</label>
                             </div>
                         </div>
-                        
-                        <!-- <div id="credit-card-fields">
-                            <div class="form-group">
-                                <label for="card-number">Phone Number</label>
-                                <input type="text" id="card-number" name="card-number" placeholder="XXXX XXXX XXXX XXXX">
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="expiry-date">Expiry Date</label>
-                                    <input type="text" id="expiry-date" name="expiry-date" placeholder="MM/YY">
-                                </div>
-                                <div class="form-group">
-                                    <label for="cvv">CVV</label>
-                                    <input type="text" id="cvv" name="cvv" placeholder="XXX">
-                                </div>
-                            </div>
-                        </div> -->
                         
                         <div class="checkout-actions">
                             <button type="button" class="btn btn-secondary" id="back-to-cart">Back to Cart</button>
@@ -247,11 +196,27 @@ if (isset($_GET['delete_all'])) {
                 <div class="order-summary">
                     <h3>Order Summary</h3>
                     <div id="checkout-items">
-                        <!-- Order items will be dynamically added here -->
+                        <?php foreach ($cart_items as $item): ?>
+                        <div class="checkout-item">
+                            <div class="checkout-item-info">
+                                <span class="checkout-item-quantity"><?php echo $item['quantity']; ?> ×</span>
+                                <span class="checkout-item-name"><?php echo htmlspecialchars($item['name']); ?></span>
+                            </div>
+                            <span class="checkout-item-price">Rs.<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="summary-row subtotal">
+                        <span>Subtotal</span>
+                        <span>Rs.<?php echo number_format($cart_total, 2); ?></span>
+                    </div>
+                    <div class="summary-row shipping">
+                        <span>Shipping</span>
+                        <span>Free</span>
                     </div>
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span id="checkout-total">$0.00</span>
+                        <span id="checkout-total">Rs.<?php echo number_format($cart_total, 2); ?></span>
                     </div>
                 </div>
             </div>
@@ -282,15 +247,132 @@ if (isset($_GET['delete_all'])) {
                     </div>
                 </div>
                 <p>We'll send you another email when your order ships.</p>
-                <a href="shop.html" class="btn btn-primary">Continue Shopping</a>
+                <a href="../shop.php" class="btn btn-primary">Continue Shopping</a>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-<?php include_once '../includes/footer.php'; ?>
+    <?php include_once '../includes/footer.php'; ?>
 
-
-</body>    <script src="../js/script.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calculate cart total
+        function calculateCartTotal() {
+            let total = 0;
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const quantity = parseInt(item.querySelector('.quantity-input').value);
+                const price = parseFloat(item.querySelector('.quantity-input').getAttribute('data-price'));
+                total += quantity * price;
+            });
+            return total;
+        }
+        
+        // Update item total
+        function updateItemTotal(itemId, quantity) {
+            const item = document.querySelector(`.cart-item[data-id="${itemId}"]`);
+            const price = parseFloat(item.querySelector('.quantity-input').getAttribute('data-price'));
+            const itemTotal = price * quantity;
+            item.querySelector('.item-total').textContent = itemTotal.toFixed(2);
+            
+            // Update cart total
+            const cartTotal = calculateCartTotal();
+            document.getElementById('cart-total').textContent = 'Rs.' + cartTotal.toFixed(2);
+            
+            // Update checkout total if visible
+            if (document.getElementById('checkout-total')) {
+                document.getElementById('checkout-total').textContent = 'Rs.' + cartTotal.toFixed(2);
+            }
+        }
+        
+        // Handle quantity decrease button
+        const decreaseButtons = document.querySelectorAll('.quantity-btn.decrease');
+        decreaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                const input = document.querySelector(`.quantity-input[data-id="${itemId}"]`);
+                let value = parseInt(input.value);
+                if (value > 1) {
+                    value--;
+                    input.value = value;
+                    updateItemTotal(itemId, value);
+                    updateQuantityInDatabase(itemId, value);
+                }
+            });
+        });
+        
+        // Handle quantity increase button
+        const increaseButtons = document.querySelectorAll('.quantity-btn.increase');
+        increaseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                const input = document.querySelector(`.quantity-input[data-id="${itemId}"]`);
+                let value = parseInt(input.value);
+                value++;
+                input.value = value;
+                updateItemTotal(itemId, value);
+                updateQuantityInDatabase(itemId, value);
+            });
+        });
+        
+        // Handle quantity input change
+        const quantityInputs = document.querySelectorAll('.quantity-input');
+        quantityInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const itemId = this.getAttribute('data-id');
+                let value = parseInt(this.value);
+                if (value < 1) {
+                    value = 1;
+                    this.value = value;
+                }
+                updateItemTotal(itemId, value);
+                updateQuantityInDatabase(itemId, value);
+            });
+        });
+        
+        // Update quantity in database via AJAX
+        function updateQuantityInDatabase(itemId, quantity) {
+            const formData = new FormData();
+            formData.append('ajax_update', '1');
+            formData.append('item_id', itemId);
+            formData.append('quantity', quantity);
+            
+            fetch('../functions/updateCart.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update was successful
+                    console.log('Quantity updated successfully');
+                } else {
+                    console.error('Failed to update quantity:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating quantity:', error);
+            });
+        }
+        
+        // Checkout button
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function() {
+                document.getElementById('checkout-section').style.display = 'block';
+                document.getElementById('checkout-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        
+        // Back to cart button
+        const backToCartBtn = document.getElementById('back-to-cart');
+        if (backToCartBtn) {
+            backToCartBtn.addEventListener('click', function() {
+                document.getElementById('checkout-section').style.display = 'none';
+                document.querySelector('.cart-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+    });
+    </script>
+</body>
 </html>
-

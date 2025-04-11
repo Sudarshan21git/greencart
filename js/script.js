@@ -1,12 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Mobile Menu Toggle
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mobileMenu = document.querySelector('.mobile-menu');
-
-    mobileMenuToggle.addEventListener('click', function() {
-        mobileMenu.classList.toggle('active');
-    });
-  });
     // Home Product Slider
     // const sliderContainer = document.querySelector('.slider-container');
     // const sliderPrev = document.querySelector('.slider-prev');
@@ -188,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Password strength meter
-    const passwordInput = document.getElementById('password');
+    const passwordInput = document.getElementById('new-password');
     const strengthSegments = document.querySelectorAll('.strength-segment');
     const strengthText = document.querySelector('.strength-text');
     
