@@ -51,14 +51,15 @@ include('../database/database.php');
 
     </ul>
 </aside><!-- End Sidebar -->
-
 <main id="main" class="main">
     <section class="section">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
+                    <a href="product.php"><h5><i class="bi bi-arrow-left"></i> Back</h5></a>
+
                     <div class="card-body">
-                        <h5 class="card-title">Product Details</h5>
+                        <h1 class="card-title text-center" style="color: green !important; font-size: 2.5rem;">Product Details</h1>
 
                         <!-- Session Messages -->
                         <?php if(isset($_SESSION['success'])): ?>
@@ -69,17 +70,18 @@ include('../database/database.php');
                         <?php endif; ?>
 
                         <p class="text-center text-muted">Here is the list of all Product Details. You can delete them as needed.</p>
-                        <table class="table table-striped table-bordered text-center">
-                            <thead class="table-dark">
+
+                        <table class="table table-striped table-bordered text-center align-middle table-hover-custom">
+                            <thead style="background-color: green; color: white;">
                                 <tr>
                                     <th>Sl No.</th>
                                     <th>Product Image</th>
                                     <th>Product Name</th>
                                     <th>Category</th>
-                                    <th> Price</th>
-                                    <th> Stock</th>
-                                    <th> Description</th>
-                                    <th> Action</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th style="width: 150px;">Description</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,7 +90,6 @@ include('../database/database.php');
                                     die("Database connection failed: " . mysqli_connect_error());
                                 }
 
-                                // Fetch products and their corresponding categories
                                 $query = "
                                     SELECT p.product_id, p.name AS product_name, p.description AS product_desc, p.price, p.stock_quantity, p.image, c.name AS category_name
                                     FROM products p
@@ -107,10 +108,11 @@ include('../database/database.php');
                                         echo "<td>{$row['category_name']}</td>";
                                         echo "<td>{$row['price']}</td>";
                                         echo "<td>{$row['stock_quantity']}</td>";
-                                        echo "<td>{$row['product_desc']}</td>";
+                                        echo "<td style='font-size: 14px;'>{$row['product_desc']}</td>";
                                         echo "<td>
-                                        <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
-                                          <a href='update_product.php?edit=" . urlencode($row['product_id']) . "' class='btn btn-primary btn-sm'><i class='bi bi-pencil'></i></a>                                                </td>";
+                                            <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm me-1' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
+                                            <a href='update_product.php?edit=" . urlencode($row['product_id']) . "' class='btn btn-primary btn-sm'><i class='bi bi-pencil'></i></a>
+                                        </td>";
                                         echo "</tr>";
                                         $serial_number++;
                                     }
@@ -121,15 +123,29 @@ include('../database/database.php');
                             </tbody>
                         </table>
 
+                        <!-- Custom Styling -->
                         <style>
-                            .btn-sm { padding: 5px 10px; font-size: 14px; }
+                            .btn-sm {
+                                padding: 5px 10px;
+                                font-size: 14px;
+                            }
+                            .table-hover-custom tbody tr:hover {
+                                background-color: #e6ffe6; /* light green on hover */
+                                transition: background-color 0.3s ease;
+                            }
+                            thead th {
+                                background-color: green !important;
+                                color: white !important;
+                            }
                         </style>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-</main><!-- End #main -->
+</main>
+<!-- End #main -->
+
 
 <!-- ======= Footer ======= -->
 <footer id="footer" class="footer">

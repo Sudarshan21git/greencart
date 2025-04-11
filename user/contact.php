@@ -32,7 +32,7 @@
                         </div>
                         <div class="info-content">
                             <h3>Email Us</h3>
-                            <p>hello@greencart.com</p>
+                            <p>naturenursery@gmail.com</p>
                             <p>support@greencart.com</p>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                         </div>
                         <div class="info-content">
                             <h3>Call Us</h3>
-                            <p>(123) 456-7890</p>
+                            <p>977 9882882488</p>
                             <p>Mon-Fri: 9am-5pm EST</p>
                         </div>
                     </div>
@@ -57,9 +57,8 @@
                         </div>
                         <div class="info-content">
                             <h3>Visit Us</h3>
-                            <p>123 Green Street</p>
-                            <p>Plantville, PL 12345</p>
-                            <p>United States</p>
+                            <p>Lazimpat,kathmandu</p>
+                            <p>Nepal</p>
                         </div>
                     </div>
                     <div class="info-card">
