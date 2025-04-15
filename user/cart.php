@@ -2,6 +2,14 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/login.php");
+    exit();
+}
+else if ($_SESSION['is_admin'] == 1) {
+    header("Location: 404.html");
+}
 include '../database/database.php';
 $cart_items = [];
 $cart_total = 0;
@@ -208,7 +216,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                     <div class="summary-row subtotal">
                         <span>Subtotal</span>
-                        <span>Rs.<?php echo number_format($cart_totat); ?></span>
+                        <span>Rs.<?php echo number_format($cart_total); ?></span>
                     </div>
                     <div class="summary-row shipping">
                         <span>Shipping</span>

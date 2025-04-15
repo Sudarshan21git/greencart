@@ -1,3 +1,17 @@
+<?php 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/login.php");
+    exit();
+}
+else if ($_SESSION['is_admin'] == 1) {
+    header("Location: 404.html");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
