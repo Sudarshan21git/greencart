@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Components / Accordion - NiceAdmin Bootstrap Template</title>
+    <title>GreenCart Template</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -246,7 +246,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
         <!-- You can delete the links only if you purchased the pro version. -->
         <!-- Licensing information: https://bootstrapmade.com/license/ -->
         <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        Designed by <a href="https://bootstrapmade.com/">GreenCart Team</a>
     </div>
 </footer><!-- End Footer -->
 

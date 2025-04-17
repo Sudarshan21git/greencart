@@ -208,7 +208,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                     <div class="summary-row subtotal">
                         <span>Subtotal</span>
-                        <span>Rs.<?php echo number_format($cart_totat); ?></span>
+                        <span>Rs.<?php echo number_format($cart_total); ?></span>
                     </div>
                     <div class="summary-row shipping">
                         <span>Shipping</span>

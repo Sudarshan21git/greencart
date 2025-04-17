@@ -190,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
         &copy; Copyright <strong><span>GreenCartAdmin</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        Designed by <a href="https://bootstrapmade.com/">GreenCart Team</a>
     </div>
 </footer><!-- End Footer -->
 
