@@ -9,6 +9,9 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
+else if ($_SESSION['is_admin'] == 1) {
+    header("Location: 404.html");
+}
 
 // Include database connection
 include '../database/database.php';
@@ -44,6 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     // Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Invalid email format";
+    } else if (!preg_match('/^(98|97)\d{8}$/', $phone)) {
+        $error_message = "Enter a valid phone number!! ";
+        
     } else {
         // Check if email already exists for another user
         $check_email_sql = "SELECT user_id FROM users WHERE email = ? AND user_id != ?";
@@ -116,22 +122,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
             mysqli_stmt_bind_result($password_stmt, $stored_password);
             mysqli_stmt_fetch($password_stmt);
             mysqli_stmt_close($password_stmt);
-        
+
             // Direct string comparison (no hashing)
             if ($current_password === $stored_password) {
                 // Update password directly (no hashing)
                 $update_password_sql = "UPDATE users SET password = ? WHERE user_id = ?";
                 $update_password_stmt = mysqli_prepare($conn, $update_password_sql);
-        
+
                 if ($update_password_stmt) {
                     mysqli_stmt_bind_param($update_password_stmt, "si", $new_password, $user_id);
-        
+
                     if (mysqli_stmt_execute($update_password_stmt)) {
                         $success_message = "Password changed successfully";
                     } else {
                         $error_message = "Error changing password: " . mysqli_error($conn);
                     }
-        
+
                     mysqli_stmt_close($update_password_stmt);
                 } else {
                     $error_message = "Database error: " . mysqli_error($conn);
@@ -139,8 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
             } else {
                 $error_message = "Current password is incorrect";
             }
-        }
-        else {
+        } else {
             $error_message = "Database error: " . mysqli_error($conn);
         }
     }
