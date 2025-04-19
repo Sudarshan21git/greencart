@@ -3,10 +3,6 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
-    exit();
-}
 else if ($_SESSION['is_admin'] == 1) {
     header("Location: 404.html");
 }
