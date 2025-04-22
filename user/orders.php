@@ -29,7 +29,6 @@ $orders = [];
 while ($order = mysqli_fetch_assoc($orders_result)) {
     $orders[] = $order;
 }
-mysqli_stmt_close($orders_stmt);
 
 // Handle order cancellation
 $success_message = '';
@@ -147,7 +146,7 @@ mysqli_close($conn);
                                 <div class="order-card">
                                     <div class="order-header">
                                         <div class="order-id">
-                                            <h3>Order #<?php echo $order['order_id']; ?></h3>
+                                            <h3>Order #<?php echo $order['order_number']; ?></h3>
                                             <span class="order-date"><?php echo date('F d, Y', strtotime($order['created_at'])); ?></span>
                                         </div>
                                         <div class="order-status <?php echo strtolower($order['status']); ?>">
@@ -159,7 +158,7 @@ mysqli_close($conn);
                                         <div class="order-info">
                                             <div class="info-item">
                                                 <span class="info-label">Total Amount:</span>
-                                                <span class="info-value">Rs.<?php echo number_format($order['total_amount'], 2); ?></span>
+                                                <span class="info-value">Rs.<?php echo number_format($order['total'], 2); ?></span>
                                             </div>
                                             <div class="info-item">
                                                 <span class="info-label">Payment Method:</span>
@@ -167,7 +166,7 @@ mysqli_close($conn);
                                             </div>
                                             <div class="info-item">
                                                 <span class="info-label">Shipping Address:</span>
-                                                <span class="info-value"><?php echo $order['address']; ?></span>
+                                                <span class="info-value"><?php echo $order['shipping_address']; ?></span>
                                             </div>
                                         </div>
                                     </div>

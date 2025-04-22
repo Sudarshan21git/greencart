@@ -13,35 +13,21 @@ function isLoggedIn(): bool
 }
 
 // Get cart count
-$cartCount = 0;
-
-if (isset($_SESSION['user_id'])) {
+$cart_count = 0;
+if (isLoggedIn()) {
     // Include the database connection file
     include '../database/database.php';
-    $userId = $_SESSION['user_id'];
+    $user_id = $_SESSION['user_id'];
 
-    // Prepare the MySQLi statement
-    $stmt = mysqli_prepare($conn, "
-        SELECT SUM(ci.quantity) as cart_count 
-        FROM cart_items ci 
-        JOIN cart c ON ci.cart_id = c.cart_id 
-        WHERE c.user_id = ?
-    ");
-
-    if ($stmt) {
-        // Bind the parameter
-        mysqli_stmt_bind_param($stmt, "i", $userId);
-        // Execute the statement
-        mysqli_stmt_execute($stmt);
-        // Get the result
-        $result = mysqli_stmt_get_result($stmt);
-        // Fetch the data
-        if ($row = mysqli_fetch_assoc($result)) {
-            $cartCount = $row['cart_count'] ?? 0;
-        }
-        // Close the statement
-        mysqli_stmt_close($stmt);
-    }
+    // Get cart items count
+    $cart_query = "SELECT COUNT(ci.cart_item_id) as item_count FROM cart c JOIN cart_items ci ON c.cart_id = ci.cart_id WHERE c.user_id = ?";
+    $cart_stmt = mysqli_prepare($conn, $cart_query);
+    mysqli_stmt_bind_param($cart_stmt, "i", $user_id);
+    mysqli_stmt_execute($cart_stmt);
+    $cart_result = mysqli_stmt_get_result($cart_stmt);
+    $cart_data = mysqli_fetch_assoc($cart_result);
+    $cart_count = $cart_data ? $cart_data['item_count'] : 0;
+    mysqli_stmt_close($cart_stmt);
 }
 
 ?>
@@ -61,7 +47,7 @@ if (isset($_SESSION['user_id'])) {
                     <li><a href="http://localhost/greencart/user/blog.php">Blog</a></li>
                     <li><a href="http://localhost/greencart/user/contact.php">Contact</a></li>
                     <?php if (isLoggedIn()): ?>
-                        <li><a href="account.php" <?php echo basename($_SERVER['PHP_SELF']) == 'account.php' ? 'class="active"' : ''; ?>>My Account</a></li>
+                        <li><a href="dashboard.php" <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'class="active"' : ''; ?>>My Account</a></li>
                     <?php else: ?>
                         <li><a href="http://localhost/greencart/auth/login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>Login</a></li>
                         <li><a href="http://localhost/greencart/auth/signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'class="active"' : ''; ?>>Sign Up</a></li>
@@ -75,7 +61,7 @@ if (isset($_SESSION['user_id'])) {
                         <circle cx="20" cy="21" r="1"></circle>
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                     </svg>
-                    <span class="cart-count"><?php echo $cartCount ?></span>
+                    <span class="cart-count"><?php echo $cart_count ?></span>
                 </a>
                 <button class="mobile-menu-toggle">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -103,13 +89,13 @@ if (isset($_SESSION['user_id'])) {
     </div>
 </header>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Mobile Menu Toggle
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mobileMenu = document.querySelector('.mobile-menu');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const mobileMenu = document.querySelector('.mobile-menu');
 
-    mobileMenuToggle.addEventListener('click', function() {
-        mobileMenu.classList.toggle('active');
+        mobileMenuToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+        });
     });
-  });
 </script>

@@ -168,7 +168,7 @@ mysqli_close($conn);
                                             ?>
                                         </div>
                                         <div class="review-text">
-                                            <?php echo htmlspecialchars($review['review_text']); ?>
+                                            <?php echo htmlspecialchars($review['message']); ?>
                                         </div>
                                     </div>
                                     

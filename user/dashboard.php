@@ -69,7 +69,7 @@ mysqli_stmt_close($review_count_stmt);
 $cart_query = "SELECT COUNT(ci.cart_item_id) as item_count 
               FROM cart c 
               JOIN cart_items ci ON c.cart_id = ci.cart_id 
-              WHERE c.user_id = ? AND c.status = 'active'";
+              WHERE c.user_id = ?";
 $cart_stmt = mysqli_prepare($conn, $cart_query);
 mysqli_stmt_bind_param($cart_stmt, "i", $user_id);
 mysqli_stmt_execute($cart_stmt);
@@ -178,14 +178,14 @@ mysqli_close($conn);
                                 <?php foreach ($recent_orders as $order): ?>
                                 <div class="dashboard-order">
                                     <div class="order-header">
-                                        <div class="order-id">Order #<?php echo $order['order_id']; ?></div>
+                                        <div class="order-id">Order #<?php echo $order['order_number']; ?></div>
                                         <div class="order-date"><?php echo date('M d, Y', strtotime($order['created_at'])); ?></div>
                                     </div>
                                     <div class="order-details">
                                         <div class="order-status <?php echo strtolower($order['status']); ?>">
                                             <?php echo ucfirst($order['status']); ?>
                                         </div>
-                                        <div class="order-total">Rs.<?php echo number_format($order['total_amount'], 2); ?></div>
+                                        <div class="order-total">Rs.<?php echo number_format($order['total'], 2); ?></div>
                                     </div>
                                     <div class="order-actions">
                                         <a href="order-details.php?id=<?php echo $order['order_id']; ?>" class="btn btn-sm">View Details</a>
@@ -196,7 +196,7 @@ mysqli_close($conn);
                             <?php else: ?>
                             <div class="empty-state">
                                 <p>You haven't placed any orders yet.</p>
-                                <a href="../shop.php" class="btn btn-primary">Start Shopping</a>
+                                <a href="shop.php" class="btn btn-primary">Start Shopping</a>
                             </div>
                             <?php endif; ?>
                         </div>

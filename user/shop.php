@@ -7,7 +7,7 @@ else if ($_SESSION['is_admin'] == 1) {
 }
 // Include the database connection
 include_once '../includes/header.php';
-require_once '../database/database.php';
+include '../database/database.php';
 
 // Number of products per page
 $products_per_page = 8;
