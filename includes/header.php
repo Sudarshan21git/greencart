@@ -36,7 +36,7 @@ if (isLoggedIn()) {
     <div class="container">
         <div class="header-content">
             <div class="logo">
-                <a href="index.html">
+                <a href="http://localhost/greencart/user/index.php">
                     <span class="green">Green</span> <span class="white">Cart</span>
                 </a>
             </div>
