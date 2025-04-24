@@ -1626,7 +1626,40 @@ textarea:focus {
     margin: 0 5px;
     padding: 0 5px;
 }
+.stock-warning {
+    color: #f44336;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
 
+.notification {
+    position: fixed;
+    top: 70px;
+    right: 70px;
+    padding: 15px 20px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s, transform 0.3s;
+    max-width: 300px;
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
 .remove-col {
     text-align: center;
     padding: 0 10px;

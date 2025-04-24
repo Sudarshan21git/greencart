@@ -1,49 +1,76 @@
 <?php
-session_start();
-$userId = $_SESSION['user_id'];
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-require_once '../database/database.php'; // Ensure this file contains your database connection
+// Include database connection
+include '../database/database.php';
 
-// Handle AJAX quantity updates
-if (isset($_POST['ajax_update']) && isset($_POST['item_id']) && isset($_POST['quantity'])) {
-    $item_id = mysqli_real_escape_string($conn, $_POST['item_id']);
-    $quantity = (int)$_POST['quantity'];
+// Check if this is an AJAX request
+if (isset($_POST['ajax_update']) && $_POST['ajax_update'] == '1') {
+    $response = array('success' => false);
     
-    if ($quantity > 0) {
-        $update_query = "UPDATE cart_items SET quantity = $quantity WHERE cart_item_id = $item_id";
-        $update_result = mysqli_query($conn, $update_query);
+    // Get the item ID and quantity
+    $item_id = isset($_POST['item_id']) ? intval($_POST['item_id']) : 0;
+    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
+    
+    if ($item_id > 0 && $quantity > 0) {
+        // Get the product ID from cart_items
+        $item_query = "SELECT ci.product_id FROM cart_items ci WHERE ci.cart_item_id = ?";
+        $item_stmt = mysqli_prepare($conn, $item_query);
+        mysqli_stmt_bind_param($item_stmt, "i", $item_id);
+        mysqli_stmt_execute($item_stmt);
+        $item_result = mysqli_stmt_get_result($item_stmt);
         
-        if ($update_result) {
-            // Get updated price
-            $price_query = "SELECT ci.quantity, p.price 
-                           FROM cart_items ci 
-                           JOIN products p ON ci.product_id = p.product_id 
-                           WHERE ci.cart_item_id = $item_id";
-            $price_result = mysqli_query($conn, $price_query);
+        if ($item_data = mysqli_fetch_assoc($item_result)) {
+            $product_id = $item_data['product_id'];
             
-            if ($price_result && mysqli_num_rows($price_result) > 0) {
-                $item_data = mysqli_fetch_assoc($price_result);
-                $item_total = $item_data['quantity'] * $item_data['price'];
+            // Check stock quantity
+            $stock_query = "SELECT stock_quantity FROM products WHERE product_id = ?";
+            $stock_stmt = mysqli_prepare($conn, $stock_query);
+            mysqli_stmt_bind_param($stock_stmt, "i", $product_id);
+            mysqli_stmt_execute($stock_stmt);
+            $stock_result = mysqli_stmt_get_result($stock_stmt);
+            
+            if ($stock_data = mysqli_fetch_assoc($stock_result)) {
+                $stock_quantity = $stock_data['stock_quantity'];
                 
-                // Get cart total
-                $total_query = "SELECT SUM(ci.quantity * p.price) as cart_total 
-                               FROM cart_items ci 
-                               JOIN products p ON ci.product_id = p.product_id 
-                               JOIN cart c ON ci.cart_id = c.cart_id 
-                               WHERE c.user_id = $userId";
-                $total_result = mysqli_query($conn, $total_query);
-                $total_data = mysqli_fetch_assoc($total_result);
-                
-                echo json_encode([
-                    'success' => true, 
-                    'item_total' => $item_total,
-                    'cart_total' => $total_data['cart_total']
-                ]);
-                exit();
+                // Check if requested quantity exceeds stock
+                if ($quantity > $stock_quantity) {
+                    $response['success'] = false;
+                    $response['message'] = "Cannot update quantity. Only {$stock_quantity} items in stock.";
+                    $response['stock_error'] = true;
+                    $response['max_stock'] = $stock_quantity;
+                } else {
+                    // Update the quantity in the database
+                    $update_query = "UPDATE cart_items SET quantity = ? WHERE cart_item_id = ?";
+                    $update_stmt = mysqli_prepare($conn, $update_query);
+                    mysqli_stmt_bind_param($update_stmt, "ii", $quantity, $item_id);
+                    
+                    if (mysqli_stmt_execute($update_stmt)) {
+                        $response['success'] = true;
+                        $response['message'] = "Quantity updated successfully.";
+                    } else {
+                        $response['message'] = "Failed to update quantity in database.";
+                    }
+                }
+            } else {
+                $response['message'] = "Product not found.";
             }
+        } else {
+            $response['message'] = "Cart item not found.";
         }
+    } else {
+        $response['message'] = "Invalid item ID or quantity.";
     }
     
-    echo json_encode(['success' => false, 'message' => 'Failed to update cart']);
-    exit();
+    // Return JSON response
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
 }
+
+// If not an AJAX request, redirect back to cart
+header("Location: ../user/cart.php");
+exit;
+?>

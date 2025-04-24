@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-else if ($_SESSION['is_admin'] == 1) {
+else if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
     header("Location: 404.html");
 }
 // Include the database connection
@@ -171,7 +171,7 @@ $total_pages = ceil($total_products / $products_per_page);
             <div class="products-grid">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
-                    <a href="../product.php?id=<?= $product['product_id']; ?>" class="product-link">
+                    <a href="product-details.php?id=<?= $product['product_id']; ?>" class="product-link">
                         <div class="product-image">
                             <img src="../img/<?= htmlspecialchars($product['image']); ?>" alt="<?= htmlspecialchars($product['name']); ?>">
                         </div>
@@ -184,8 +184,8 @@ $total_pages = ceil($total_products / $products_per_page);
                             </div>
                             <div class="product-price">Rs.<?php echo number_format($product['price']); ?>
                             </div>
-                            <button type="submit" class="btn btn-add-cart" data-productID="<?php echo $product['product_id'] ?>">Add to Cart</button>
-                        </div>
+                            <button type="button" class="btn btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">Add to Cart</button>
+                            </div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -206,6 +206,9 @@ $total_pages = ceil($total_products / $products_per_page);
             </div>
         </div>
     </section>
+
+    <!-- Notification container -->
+    <div id="notification-container"></div>
 
     <?php include_once '../includes/footer.php'; ?>
     <script src="../js/script.js"></script>
