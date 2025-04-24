@@ -3,6 +3,11 @@ ob_start();
 session_start();
 include('../database/database.php');
 
+// Check for low stock products
+$low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
+$low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
+$low_stock_count = mysqli_num_rows($low_stock_query);
+
 // Initialize search query
 $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 ?>
@@ -26,6 +31,31 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
 
     <!-- Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
+    
+    <style>
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .table-hover-custom tbody tr:hover {
+            background-color: #e6ffe6;
+            transition: background-color 0.3s ease;
+        }
+        thead th {
+            background-color: green !important;
+            color: white !important;
+        }
+        .low-stock {
+            color: red;
+            font-weight: bold;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+    </style>
 </head>
 <body>
 
@@ -45,7 +75,15 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
-        <li class="nav-item"><a class="nav-link " href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
+        <li class="nav-item">
+            <a class="nav-link active" href="product.php">
+                <i class="bi-box-seam"></i>
+                <span>Product</span>
+                <?php if ($low_stock_count > 0): ?>
+                    <span class="badge bg-danger rounded-pill ms-auto"><?= $low_stock_count ?></span>
+                <?php endif; ?>
+            </a>
+        </li>
         <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="order.php"><i class="bi bi-box"></i><span>Order</span></a></li>
@@ -124,7 +162,11 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
                                         echo "<td>{$row['product_name']}</td>";
                                         echo "<td>{$row['category_name']}</td>";
                                         echo "<td>{$row['price']}</td>";
-                                        echo "<td>{$row['stock_quantity']}</td>";
+                                        echo "<td class='" . ($row['stock_quantity'] < 5 ? 'low-stock' : '') . "'>{$row['stock_quantity']}";
+                                        if ($row['stock_quantity'] < 5) {
+                                            echo " (Low Stock)";
+                                        }
+                                        echo "</td>";
                                         echo "<td style='font-size: 14px;'>{$row['product_desc']}</td>";
                                         echo "<td>
                                             <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm me-1' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
@@ -139,22 +181,6 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
                                 ?>
                             </tbody>
                         </table>
-
-                        <!-- Table Custom Styling -->
-                        <style>
-                            .btn-sm {
-                                padding: 5px 10px;
-                                font-size: 14px;
-                            }
-                            .table-hover-custom tbody tr:hover {
-                                background-color: #e6ffe6;
-                                transition: background-color 0.3s ease;
-                            }
-                            thead th {
-                                background-color: green !important;
-                                color: white !important;
-                            }
-                        </style>
 
                     </div>
                 </div>
@@ -177,13 +203,52 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
 <!-- Back to Top -->
 <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
+<!-- Toast Notification for Low Stock -->
+<div class="toast-container">
+    <?php if (!empty($low_stock_products)): ?>
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+            <div class="toast-header bg-warning">
+                <strong class="me-auto">Low Stock Alert</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <p>The following products are running low on stock:</p>
+                <ul>
+                    <?php foreach ($low_stock_products as $product): ?>
+                        <li><?= htmlspecialchars($product['name']) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+
 <!-- JS Files -->
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
 
+<script>
+// Check for low stock and show alert
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (!empty($low_stock_products)): ?>
+        const productNames = <?php echo json_encode(array_column($low_stock_products, 'name')); ?>;
+        const message = "Warning! Low stock for products:\n" + productNames.join("\n");
+        
+        // Show browser alert
+        alert(message);
+        
+        // Initialize Bootstrap toasts
+        const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        const toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl);
+        });
+    <?php endif; ?>
+});
+</script>
+
 </body>
 </html>
-<!-- delete catgeory backend code  -->
+
 <!-- Delete Product Backend Code -->
 <?php
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
