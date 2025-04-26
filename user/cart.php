@@ -25,8 +25,8 @@ if (isset($_SESSION['user_id'])) {
         $cartData = mysqli_fetch_assoc($result);
         $cart_id = $cartData['cart_id'];
 
-        // Fetch cart items
-        $qry2 = "SELECT ci.*, p.name, p.price, p.image 
+        // Fetch cart items with stock information
+        $qry2 = "SELECT ci.*, p.name, p.price, p.image, p.stock_quantity 
                  FROM cart_items ci
                  JOIN products p ON ci.product_id = p.product_id
                  WHERE ci.cart_id=$cart_id";
@@ -86,7 +86,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                     <h2>Your cart is empty</h2>
                     <p>Looks like you haven't added any plants to your cart yet.</p>
-                    <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+                    <a href="../shop.php" class="btn btn-primary">Continue Shopping</a>
                 </div>
                 <?php else: ?>
                 <!-- Cart items (hidden when cart is empty) -->
@@ -109,14 +109,24 @@ if (isset($_POST['remove-btn'])) {
                                         </div>
                                         <div class="cart-product-details">
                                             <h3><?php echo $item['name']; ?></h3>
+                                            <?php if ($item['stock_quantity'] <= 5): ?>
+                                                <small style="color: #ff9800;">Only <?php echo $item['stock_quantity']; ?> left in stock</small>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="price-col" data-label="Price">Rs.<?php echo number_format($item['price']); ?></div>
                                     <div class="quantity-col" data-label="Quantity">
                                         <div class="quantity-selector">
                                             <button type="button" class="quantity-btn decrease" data-id="<?php echo $item['cart_item_id']; ?>">-</button>
-                                            <input type="number" name="quantities[<?php echo $item['cart_item_id']; ?>]" class="quantity-input" value="<?php echo $item['quantity']; ?>" min="1" data-id="<?php echo $item['cart_item_id']; ?>" data-price="<?php echo $item['price']; ?>">
+                                            <input type="number" name="quantities[<?php echo $item['cart_item_id']; ?>]" class="quantity-input" 
+                                                value="<?php echo $item['quantity']; ?>" min="1" max="<?php echo $item['stock_quantity']; ?>" 
+                                                data-id="<?php echo $item['cart_item_id']; ?>" 
+                                                data-price="<?php echo $item['price']; ?>"
+                                                data-max="<?php echo $item['stock_quantity']; ?>">
                                             <button type="button" class="quantity-btn increase" data-id="<?php echo $item['cart_item_id']; ?>">+</button>
+                                        </div>
+                                        <div class="stock-warning" id="stock-warning-<?php echo $item['cart_item_id']; ?>">
+                                            Maximum available: <?php echo $item['stock_quantity']; ?>
                                         </div>
                                     </div>
                                     <div class="total-col" data-label="Total">Rs.<span class="item-total"><?php echo number_format($item['price'] * $item['quantity']); ?></span></div>
@@ -281,16 +291,46 @@ if (isset($_POST['remove-btn'])) {
             const item = document.querySelector(`.cart-item[data-id="${itemId}"]`);
             const price = parseFloat(item.querySelector('.quantity-input').getAttribute('data-price'));
             const itemTotal = price * quantity;
-            item.querySelector('.item-total').textContent = itemTotal;
+            item.querySelector('.item-total').textContent = itemTotal.toLocaleString();
             
             // Update cart total
             const cartTotal = calculateCartTotal()
-            document.getElementById('cart-total').textContent = 'Rs.' + cartTotal;
+            document.getElementById('cart-total').textContent = 'Rs.' + cartTotal.toLocaleString();
             
             // Update checkout total if visible
             if (document.getElementById('checkout-total')) {
-                document.getElementById('checkout-total').textContent = 'Rs.' + cartTotal;
+                document.getElementById('checkout-total').textContent = 'Rs.' + cartTotal.toLocaleString();
             }
+        }
+        
+        // Show notification function
+        function showNotification(message, type) {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Hide and remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
         }
         
         // Handle quantity decrease button
@@ -305,6 +345,12 @@ if (isset($_POST['remove-btn'])) {
                     input.value = value;
                     updateItemTotal(itemId, value);
                     updateQuantityInDatabase(itemId, value);
+                    
+                    // Hide stock warning if it's visible
+                    const stockWarning = document.getElementById(`stock-warning-${itemId}`);
+                    if (stockWarning) {
+                        stockWarning.style.display = 'none';
+                    }
                 }
             });
         });
@@ -316,10 +362,29 @@ if (isset($_POST['remove-btn'])) {
                 const itemId = this.getAttribute('data-id');
                 const input = document.querySelector(`.quantity-input[data-id="${itemId}"]`);
                 let value = parseInt(input.value);
-                value++;
-                input.value = value;
-                updateItemTotal(itemId, value);
-                updateQuantityInDatabase(itemId, value);
+                const maxStock = parseInt(input.getAttribute('data-max'));
+                
+                if (value < maxStock) {
+                    value++;
+                    input.value = value;
+                    updateItemTotal(itemId, value);
+                    updateQuantityInDatabase(itemId, value);
+                    
+                    // Show stock warning if reaching max
+                    if (value >= maxStock) {
+                        const stockWarning = document.getElementById(`stock-warning-${itemId}`);
+                        if (stockWarning) {
+                            stockWarning.style.display = 'block';
+                        }
+                    }
+                } else {
+                    // Show stock warning
+                    const stockWarning = document.getElementById(`stock-warning-${itemId}`);
+                    if (stockWarning) {
+                        stockWarning.style.display = 'block';
+                    }
+                    showNotification(`Sorry, only ${maxStock} items available`, 'error');
+                }
             });
         });
         
@@ -329,10 +394,29 @@ if (isset($_POST['remove-btn'])) {
             input.addEventListener('change', function() {
                 const itemId = this.getAttribute('data-id');
                 let value = parseInt(this.value);
-                if (value < 1) {
+                const maxStock = parseInt(this.getAttribute('data-max'));
+                
+                if (isNaN(value) || value < 1) {
                     value = 1;
                     this.value = value;
+                } else if (value > maxStock) {
+                    value = maxStock;
+                    this.value = value;
+                    
+                    // Show stock warning
+                    const stockWarning = document.getElementById(`stock-warning-${itemId}`);
+                    if (stockWarning) {
+                        stockWarning.style.display = 'block';
+                    }
+                    showNotification(`Sorry, only ${maxStock} items available`, 'error');
+                } else {
+                    // Hide stock warning
+                    const stockWarning = document.getElementById(`stock-warning-${itemId}`);
+                    if (stockWarning) {
+                        stockWarning.style.display = 'none';
+                    }
                 }
+                
                 updateItemTotal(itemId, value);
                 updateQuantityInDatabase(itemId, value);
             });
@@ -356,6 +440,14 @@ if (isset($_POST['remove-btn'])) {
                     console.log('Quantity updated successfully');
                 } else {
                     console.error('Failed to update quantity:', data.message);
+                    
+                    // If there's a max_quantity in the response, update the input
+                    if (data.max_quantity) {
+                        const input = document.querySelector(`.quantity-input[data-id="${itemId}"]`);
+                        input.value = data.max_quantity;
+                        updateItemTotal(itemId, data.max_quantity);
+                        showNotification(data.message, 'error');
+                    }
                 }
             })
             .catch(error => {

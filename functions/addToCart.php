@@ -1,73 +1,226 @@
 <?php
-session_start();
-require_once '../database/database.php'; // Ensure this file contains your database connection
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-header('Content-Type: application/json'); // Set header to return JSON
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Check if the user is logged in
+// Create a log function for debugging
+function logError($message) {
+    // Uncomment this line to log errors to a file
+    // file_put_contents('../logs/cart_errors.log', date('[Y-m-d H:i:s] ') . $message . PHP_EOL, FILE_APPEND);
+    return $message;
+}
+
+// Set content type to JSON
+header('Content-Type: application/json');
+
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(["success" => false, "message" => "You must be logged in to add items to the cart", "redirect" => "../auth/login.php"]);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Please log in to add items to your cart'
+    ]);
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
-$product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
+// Include database connection
+include_once '../database/database.php';
 
+if (!$conn) {
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Database connection failed')
+    ]);
+    exit();
+}
+
+$userId = $_SESSION['user_id'];
+
+// Get product_id and quantity
+$product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+$quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
+
+// Validate inputs
 if ($product_id <= 0) {
-    echo json_encode(["success" => false, "message" => "Invalid product ID"]);
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Invalid product ID: ' . $product_id),
+        'debug' => $_POST
+    ]);
     exit();
 }
 
-// Check if user has an active cart
-$cart_query = "SELECT cart_id FROM cart WHERE user_id = ? LIMIT 1";
-$stmt = $conn->prepare($cart_query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$cart_result = $stmt->get_result();
-$cart = $cart_result->fetch_assoc();
+if ($quantity <= 0) {
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Invalid quantity: ' . $quantity)
+    ]);
+    exit();
+}
 
-if (!$cart) {
+// Check product stock
+$stock_query = "SELECT stock_quantity, name FROM products WHERE product_id = ?";
+$stock_stmt = mysqli_prepare($conn, $stock_query);
+
+if (!$stock_stmt) {
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Failed to prepare stock query: ' . mysqli_error($conn))
+    ]);
+    exit();
+}
+
+mysqli_stmt_bind_param($stock_stmt, "i", $product_id);
+mysqli_stmt_execute($stock_stmt);
+$stock_result = mysqli_stmt_get_result($stock_stmt);
+
+if (mysqli_num_rows($stock_result) === 0) {
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Product not found: ' . $product_id)
+    ]);
+    exit();
+}
+
+$product = mysqli_fetch_assoc($stock_result);
+$available_stock = $product['stock_quantity'];
+$product_name = $product['name'];
+
+if ($quantity > $available_stock) {
+    echo json_encode([
+        'success' => false,
+        'message' => "Sorry, only {$available_stock} items of {$product_name} available"
+    ]);
+    exit();
+}
+
+// Check if user already has a cart
+$cart_query = "SELECT cart_id FROM cart WHERE user_id = ?";
+$cart_stmt = mysqli_prepare($conn, $cart_query);
+
+if (!$cart_stmt) {
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Failed to prepare cart query: ' . mysqli_error($conn))
+    ]);
+    exit();
+}
+
+mysqli_stmt_bind_param($cart_stmt, "i", $userId);
+mysqli_stmt_execute($cart_stmt);
+$cart_result = mysqli_stmt_get_result($cart_stmt);
+
+if (mysqli_num_rows($cart_result) === 0) {
     // Create a new cart for the user
-    $insert_cart = "INSERT INTO cart (user_id, created_at, updated_at) VALUES (?, NOW(), NOW())";
-    $stmt = $conn->prepare($insert_cart);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $cart_id = $stmt->insert_id;
+    $create_cart_query = "INSERT INTO cart (user_id) VALUES (?)";
+    $create_cart_stmt = mysqli_prepare($conn, $create_cart_query);
+    
+    if (!$create_cart_stmt) {
+        echo json_encode([
+            'success' => false,
+            'message' => logError('Failed to prepare create cart query: ' . mysqli_error($conn))
+        ]);
+        exit();
+    }
+    
+    mysqli_stmt_bind_param($create_cart_stmt, "i", $userId);
+    
+    if (!mysqli_stmt_execute($create_cart_stmt)) {
+        echo json_encode([
+            'success' => false,
+            'message' => logError('Failed to create cart: ' . mysqli_error($conn))
+        ]);
+        exit();
+    }
+    
+    $cart_id = mysqli_insert_id($conn);
 } else {
+    $cart = mysqli_fetch_assoc($cart_result);
     $cart_id = $cart['cart_id'];
 }
 
-// Check if product already exists in the cart
-$item_query = "SELECT cart_item_id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?";
-$stmt = $conn->prepare($item_query);
-$stmt->bind_param("ii", $cart_id, $product_id);
-$stmt->execute();
-$item_result = $stmt->get_result();
-$item = $item_result->fetch_assoc();
+// Check if the product is already in the cart
+$check_item_query = "SELECT cart_item_id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?";
+$check_item_stmt = mysqli_prepare($conn, $check_item_query);
 
-if ($item) {
-    // Update quantity
-    $new_quantity = $item['quantity'] + 1;
-    $update_item = "UPDATE cart_items SET quantity = ?, updated_at = NOW() WHERE cart_item_id = ?";
-    $stmt = $conn->prepare($update_item);
-    $stmt->bind_param("ii", $new_quantity, $item['cart_item_id']);
-    $stmt->execute();
-} else {
-    // Insert new item into cart
-    $insert_item = "INSERT INTO cart_items (cart_id, product_id, quantity, created_at, updated_at) VALUES (?, ?, 1, NOW(), NOW())";
-    $stmt = $conn->prepare($insert_item);
-    $stmt->bind_param("ii", $cart_id, $product_id);
-    $stmt->execute();
+if (!$check_item_stmt) {
+    echo json_encode([
+        'success' => false,
+        'message' => logError('Failed to prepare check item query: ' . mysqli_error($conn))
+    ]);
+    exit();
 }
 
-// Fetch the updated cart count
-$count_query = "SELECT SUM(quantity) as total_items FROM cart_items WHERE cart_id = ?";
-$stmt = $conn->prepare($count_query);
-$stmt->bind_param("i", $cart_id);
-$stmt->execute();
-$count_result = $stmt->get_result();
-$total_items = $count_result->fetch_assoc()['total_items'];
+mysqli_stmt_bind_param($check_item_stmt, "ii", $cart_id, $product_id);
+mysqli_stmt_execute($check_item_stmt);
+$check_item_result = mysqli_stmt_get_result($check_item_stmt);
 
-echo json_encode(["success" => true, "message" => "Product added to cart", "cartCount" => $total_items]);
-exit();
-?>
+if (mysqli_num_rows($check_item_result) > 0) {
+    // Update existing cart item
+    $cart_item = mysqli_fetch_assoc($check_item_result);
+    $new_quantity = $cart_item['quantity'] + $quantity;
+    
+    // Check if the new total quantity exceeds available stock
+    if ($new_quantity > $available_stock) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Cannot add {$quantity} more. You already have {$cart_item['quantity']} in your cart and only {$available_stock} are available."
+        ]);
+        exit();
+    }
+    
+    $update_query = "UPDATE cart_items SET quantity = ? WHERE cart_item_id = ?";
+    $update_stmt = mysqli_prepare($conn, $update_query);
+    
+    if (!$update_stmt) {
+        echo json_encode([
+            'success' => false,
+            'message' => logError('Failed to prepare update query: ' . mysqli_error($conn))
+        ]);
+        exit();
+    }
+    
+    mysqli_stmt_bind_param($update_stmt, "ii", $new_quantity, $cart_item['cart_item_id']);
+    
+    if (mysqli_stmt_execute($update_stmt)) {
+        echo json_encode([
+            'success' => true,
+            'message' => "Cart updated! Added {$quantity} more {$product_name} to your cart."
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => logError('Failed to update cart: ' . mysqli_error($conn))
+        ]);
+    }
+} else {
+    // Add new cart item
+    $insert_query = "INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)";
+    $insert_stmt = mysqli_prepare($conn, $insert_query);
+    
+    if (!$insert_stmt) {
+        echo json_encode([
+            'success' => false,
+            'message' => logError('Failed to prepare insert query: ' . mysqli_error($conn))
+        ]);
+        exit();
+    }
+    
+    mysqli_stmt_bind_param($insert_stmt, "iii", $cart_id, $product_id, $quantity);
+    
+    if (mysqli_stmt_execute($insert_stmt)) {
+        echo json_encode([
+            'success' => true,
+            'message' => "Added {$quantity} {$product_name} to your cart!"
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => logError('Failed to add to cart: ' . mysqli_error($conn))
+        ]);
+    }
+}
