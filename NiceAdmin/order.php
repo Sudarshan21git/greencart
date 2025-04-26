@@ -46,7 +46,6 @@ if (isset($_GET['action']) && isset($_GET['order_id'])) {
 }
 ?>
 
-<!-- === HTML STARTS HERE === -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,6 +55,47 @@ if (isset($_GET['action']) && isset($_GET['order_id'])) {
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        /* Custom Styles for Action Buttons */
+        .approve-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .approve-btn:hover {
+            background-color: #218838;
+            color: white;
+        }
+        
+        .decline-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .decline-btn:hover {
+            background-color: #c82333;
+            color: white;
+        }
+        
+        .badge {
+            padding: 6px 10px;
+            font-size: 14px;
+            font-weight: normal;
+        }
+    </style>
 </head>
 <body>
 
@@ -135,9 +175,15 @@ if (isset($_GET['action']) && isset($_GET['order_id'])) {
                             <td>" . htmlspecialchars($order['created_at']) . "</td>
                             <td>";
 
-                        if ($order['status'] == 'Pending') {
-                            echo "<a href='order.php?action=approve&order_id={$order['order_id']}' class='btn btn-success btn-sm'>Approve</a> ";
-                            echo "<a href='order.php?action=decline&order_id={$order['order_id']}' class='btn btn-danger btn-sm'>Decline</a>";
+                        if ($order['status'] == 'pending') {
+                            echo "<div class='action-buttons'>
+                                    <a href='order.php?action=approve&order_id={$order['order_id']}' class='approve-btn'>
+                                        <i class='bi bi-check-circle'></i> Approve
+                                    </a>
+                                    <a href='order.php?action=decline&order_id={$order['order_id']}' class='decline-btn'>
+                                        <i class='bi bi-x-circle'></i> Decline
+                                    </a>
+                                </div>";
                         } elseif ($order['status'] == 'Approved') {
                             echo "<span class='badge bg-success'>Approved</span>";
                         } else {

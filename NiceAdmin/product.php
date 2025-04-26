@@ -4,6 +4,10 @@ include("../database/database.php");
 if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
 }
+// Check for low stock products
+$low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
+$low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
+$low_stock_count = mysqli_num_rows($low_stock_query);
 
 // Initialize error and success message variables
 $errorMessage = "";
@@ -115,8 +119,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
-        <li class="nav-item"><a class="nav-link " href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
-        <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
+        <li class="nav-item">
+            <a class="nav-link active" href="product.php">
+                <i class="bi-box-seam"></i>
+                <span>Product</span>
+                <?php if ($low_stock_count > 0): ?>
+                    <span class="badge bg-danger rounded-pill ms-auto"><?= $low_stock_count ?></span>
+                <?php endif; ?>
+            </a>
+        </li>        <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="order.php"><i class="bi bi-box "></i><span>Order</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="http:\\localhost\greencart\auth\logout_admin.php"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a></li>

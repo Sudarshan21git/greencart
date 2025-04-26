@@ -184,7 +184,7 @@ $clear_session = false; // Set to true to clear session after displaying
                     </div>
                     
                     <div class="order-actions">
-                        <a href="../shop.php" class="btn btn-primary">Continue Shopping</a>
+                        <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
                         <a href="orders.php" class="btn btn-secondary">View My Account</a>
                     </div>
                 </div>
