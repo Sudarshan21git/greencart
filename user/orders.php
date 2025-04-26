@@ -27,8 +27,29 @@ mysqli_stmt_execute($orders_stmt);
 $orders_result = mysqli_stmt_get_result($orders_stmt);
 $orders = [];
 while ($order = mysqli_fetch_assoc($orders_result)) {
+    $order_id = $order['order_id'];
+    
+    // Get order items with product details
+    $items_query = "SELECT oi.*, p.name, p.price, p.image 
+                    FROM order_items oi 
+                    JOIN products p ON oi.product_id = p.product_id 
+                    WHERE oi.order_id = ?";
+    $items_stmt = mysqli_prepare($conn, $items_query);
+    mysqli_stmt_bind_param($items_stmt, "i", $order_id);
+    mysqli_stmt_execute($items_stmt);
+    $items_result = mysqli_stmt_get_result($items_stmt);
+    
+    $order_items = [];
+    while ($item = mysqli_fetch_assoc($items_result)) {
+        $order_items[] = $item;
+    }
+    
+    $order['items'] = $order_items;
     $orders[] = $order;
+    
+    mysqli_stmt_close($items_stmt);
 }
+mysqli_stmt_close($orders_stmt);
 
 // Handle order cancellation
 $success_message = '';
@@ -42,24 +63,50 @@ if (isset($_GET['cancel']) && is_numeric($_GET['cancel'])) {
     $check_order_stmt = mysqli_prepare($conn, $check_order_query);
     mysqli_stmt_bind_param($check_order_stmt, "ii", $order_id, $user_id);
     mysqli_stmt_execute($check_order_stmt);
-    mysqli_stmt_store_result($check_order_stmt);
+    $order_result = mysqli_stmt_get_result($check_order_stmt);
+    $order_detail = mysqli_fetch_assoc($order_result);
     
-    if (mysqli_stmt_num_rows($check_order_stmt) > 0) {
+    if ($order_detail) {
         // Update order status to cancelled
         $cancel_query = "UPDATE orders SET status = 'cancelled' WHERE order_id = ?";
         $cancel_stmt = mysqli_prepare($conn, $cancel_query);
         mysqli_stmt_bind_param($cancel_stmt, "i", $order_id);
         
         if (mysqli_stmt_execute($cancel_stmt)) {
-            $success_message = "Order #$order_id has been cancelled successfully.";
+            $success_message = "Order #".$order_detail['order_number']." has been cancelled successfully.";
             
-            // Refresh orders list
+            // Refresh orders list with items
+            $orders = [];
+            $orders_query = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
+            $orders_stmt = mysqli_prepare($conn, $orders_query);
+            mysqli_stmt_bind_param($orders_stmt, "i", $user_id);
             mysqli_stmt_execute($orders_stmt);
             $orders_result = mysqli_stmt_get_result($orders_stmt);
-            $orders = [];
+            
             while ($order = mysqli_fetch_assoc($orders_result)) {
+                $order_id = $order['order_id'];
+                
+                // Get order items with product details
+                $items_query = "SELECT oi.*, p.name, p.price, p.image 
+                                FROM order_items oi 
+                                JOIN products p ON oi.product_id = p.product_id 
+                                WHERE oi.order_id = ?";
+                $items_stmt = mysqli_prepare($conn, $items_query);
+                mysqli_stmt_bind_param($items_stmt, "i", $order_id);
+                mysqli_stmt_execute($items_stmt);
+                $items_result = mysqli_stmt_get_result($items_stmt);
+                
+                $order_items = [];
+                while ($item = mysqli_fetch_assoc($items_result)) {
+                    $order_items[] = $item;
+                }
+                
+                $order['items'] = $order_items;
                 $orders[] = $order;
+                
+                mysqli_stmt_close($items_stmt);
             }
+            mysqli_stmt_close($orders_stmt);
         } else {
             $error_message = "Failed to cancel order. Please try again.";
         }
@@ -171,8 +218,27 @@ mysqli_close($conn);
                                         </div>
                                     </div>
                                     
+                                    <!-- Order Items -->
+                                    <div class="order-items">
+                                        <h4>Order Items</h4>
+                                        <?php foreach ($order['items'] as $item): ?>
+                                            <div class="order-item">
+                                                <div class="order-item-image">
+                                                    <img src="../img/<?php echo $item['image']; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                                                </div>
+                                                <div class="order-item-details">
+                                                    <h4><?php echo htmlspecialchars($item['name']); ?></h4>
+                                                    <div class="order-item-meta">
+                                                        <span>Quantity: <?php echo $item['quantity']; ?></span>
+                                                        <span>Price: Rs.<?php echo number_format($item['price'], 2); ?></span>
+                                                        <span>Total: Rs.<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    
                                     <div class="order-actions">
-                                        <a href="order-details.php?id=<?php echo $order['order_id']; ?>" class="btn btn-primary">View Details</a>
                                         <?php if ($order['status'] === 'pending' || $order['status'] === 'processing'): ?>
                                             <a href="orders.php?cancel=<?php echo $order['order_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</a>
                                         <?php endif; ?>
@@ -187,7 +253,7 @@ mysqli_close($conn);
                             </div>
                             <h3>No Orders Yet</h3>
                             <p>You haven't placed any orders yet. Start shopping to place your first order!</p>
-                            <a href="../shop.php" class="btn btn-primary">Start Shopping</a>
+                            <a href="shop.php" class="btn btn-primary">Start Shopping</a>
                         </div>
                     <?php endif; ?>
                 </div>
