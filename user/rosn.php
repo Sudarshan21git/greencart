@@ -19,7 +19,8 @@ if (!isset($_GET['id'])) {
 }
 
 $product_id = $_GET['id'];
-// Fetch product details from the database using the product ID
+
+// Fetch product details
 $qry = "SELECT * FROM products WHERE product_id = ?";
 $stmt = $conn->prepare($qry);
 $stmt->bind_param("i", $product_id);
@@ -32,6 +33,7 @@ if (!$product) {
     exit();
 }
 
+// Fetch category
 $category_id = $product['category_id'];
 $qry2 = "SELECT name FROM categories WHERE category_id = ?";
 $stmt2 = $conn->prepare($qry2);
@@ -43,6 +45,61 @@ $category = $result2->fetch_assoc();
 if (!$category) {
     header("Location: 404.html");
     exit();
+}
+
+// Get rating summary
+$ratingSummary = getProductRatingSummary($product_id);
+$averageRating = round($ratingSummary['average'] ?? 0, 1);
+$reviewCount = $ratingSummary['count'] ?? 0;
+
+// Get product reviews
+$reviews = getProductReviews($product_id, 5);
+
+// Rating functions
+function getProductRatingSummary($product_id) {
+    global $conn;
+    $query = "SELECT AVG(rating) as average, COUNT(*) as count 
+              FROM reviews 
+              WHERE product_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $product_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
+}
+
+function getProductReviews($product_id, $limit = 5) {
+    global $conn;
+    $query ="SELECT r.review_id, r.rating, r.message, r.created_at, 
+    CONCAT(u.first_name, ' ', u.last_name) as user_name
+FROM reviews r
+JOIN users u ON r.user_id = u.user_id
+WHERE r.product_id = ?
+ORDER BY r.created_at DESC
+LIMIT ?";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $product_id, $limit);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
+function renderStars($rating) {
+    $fullStars = floor($rating);
+    $hasHalfStar = ($rating - $fullStars) >= 0.5;
+    $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+    
+    $html = '';
+    for ($i = 0; $i < $fullStars; $i++) {
+        $html .= '<i class="fas fa-star text-warning"></i>';
+    }
+    if ($hasHalfStar) {
+        $html .= '<i class="fas fa-star-half-alt text-warning"></i>';
+    }
+    for ($i = 0; $i < $emptyStars; $i++) {
+        $html .= '<i class="far fa-star text-warning"></i>';
+    }
+    return $html;
 }
 
 // Fetch reviews for this product
@@ -91,6 +148,7 @@ if (isset($_SESSION['user_id'])) {
     $user_reviewed_result = $user_reviewed_stmt->get_result();
     $user_already_reviewed = $user_reviewed_result->num_rows > 0;
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,83 +157,177 @@ if (isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $product['name'] ?> - GreenCart</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="icon" type="image/png" href="../img/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .product-details-container {
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        .product-image {
+            max-height: 500px;
+            object-fit: contain;
+            width: 100%;
+        }
+        .product-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #28a745;
+            margin: 20px 0;
+        }
+        .stock-status {
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        .in-stock {
+            color: #28a745;
+        }
+        .low-stock {
+            color: #ffc107;
+        }
+        .out-of-stock {
+            color: #dc3545;
+        }
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            margin: 0 10px;
+        }
+        .reviews-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        .review-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .review-user {
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        .review-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .review-message {
+            line-height: 1.6;
+            color: #495057;
+        }
+        .rating-display {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .average-rating {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        .review-count {
+            color: #6c757d;
+        }
+    </style>
 </head>
 
 <body>
-    <section class="product-details">
-        <div class="container">
-            <div class="product-details-product-container">
-                <div class="product-details-product-images">
-                    <div class="product-details-main-image">
-                        <img src="../img/<?php echo $product['image'] ?>" alt="<?php echo $product['name'] ?>">
-                    </div>
+    
+
+    <div class="container product-details-container">
+        <div class="row">
+            <!-- Product Images -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <img src="../img/<?php echo $product['image'] ?>" class="card-img-top product-image" alt="<?php echo $product['name'] ?>">
                 </div>
-                <div class="product-details-product-info">
+            </div>
 
-                    <h1><?php echo $product['name'] ?></h1>
+            <!-- Product Info -->
+            <div class="col-md-6">
+                <h1 class="product-title"><?php echo $product['name'] ?></h1>
+                
+                <!-- Rating Display -->
+                <div class="rating-display">
+                    <div class="me-2">
+                        <?php echo renderStars($averageRating); ?>
+                    </div>
+                    <span class="average-rating"><?php echo $averageRating ?></span>
+                    <span class="review-count">(<?php echo $reviewCount ?> reviews)</span>
+                </div>
 
-                    <div class="product-details-product-rating">
-                        <?php
-                        // Display stars based on average rating
-                        for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $avg_rating) {
-                                echo '<span class="stars filled">★</span>';
-                            } else if ($i - 0.5 <= $avg_rating) {
-                                echo '<span class="stars half">★</span>';
-                            } else {
-                                echo '<span class="stars">☆</span>';
-                            }
-                        }
-                        ?><div class="reviews-average" style="font-size: 20px;"><?php echo $avg_rating; ?></div>
-                        <span class="reviews-count">(<?php echo $review_count; ?> reviews)</span>
+                <div class="price">Rs.<?php echo number_format($product['price']) ?></div>
+
+                <div class="product-description mb-4">
+                    <p><?php echo $product['description'] ?></p>
+                </div>
+
+                <!-- Stock Status -->
+                <?php if ($product['stock_quantity'] > 0): ?>
+                    <div class="stock-status <?php echo $product['stock_quantity'] <= 5 ? 'low-stock' : 'in-stock' ?>">
+                        <?php if ($product['stock_quantity'] <= 5): ?>
+                            <i class="fas fa-exclamation-circle"></i> Only <?php echo $product['stock_quantity'] ?> left in stock!
+                        <?php else: ?>
+                            <i class="fas fa-check-circle"></i> In Stock (<?php echo $product['stock_quantity'] ?> available)
+                        <?php endif; ?>
                     </div>
 
-                    <div class="product-details-product-price">Rs.<?php echo number_format($product['price'], 2) ?></div>
+                    <!-- Quantity Selector -->
+                    <div class="quantity-selector mb-4">
+    <button type="button" class="btn btn-outline-secondary quantity-btn decrease">-</button>
+    <input type="number" class="form-control quantity-input" value="1" min="1" max="<?php echo $product['stock_quantity'] ?>">
+    <button type="button" class="btn btn-outline-secondary quantity-btn increase" >+</button>
+</div>
 
-                    <div class="product-details-product-description">
-                        <p><?php echo $product['description'] ?></p>
+
+                    <div class="alert alert-warning stock-warning" id="stock-warning" style="display: none;">
+                        Maximum available: <?php echo $product['stock_quantity'] ?>
                     </div>
 
-                    <?php if ($product['stock_quantity'] > 0): ?>
-                        <div class="product-details-stock-status">
-                            <?php if ($product['stock_quantity'] <= 5): ?>
-                                <span class="in-stock" style="color: #ff9800;">Only <?php echo $product['stock_quantity'] ?> left in stock</span>
-                            <?php else: ?>
-                                <span class="in-stock">In Stock (<?php echo $product['stock_quantity'] ?>)</span>
-                            <?php endif; ?>
-                        </div>
+                    <button type="button" class="btn btn-success btn-lg btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
 
-                        <div class="quantity-selector">
-                            <button type="button" class="quantity-btn decrease">-</button>
-                            <input type="number" class="quantity-input" value="1" min="1" max="<?php echo $product['stock_quantity'] ?>">
-                            <button type="button" class="quantity-btn increase">+</button>
-                        </div>
-                        <div class="stock-warning" id="stock-warning">
-                            Maximum available: <?php echo $product['stock_quantity'] ?>
-                        </div><br>
-                        <button type="button" class="btn btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">Add to Cart</button>
+                <?php else: ?>
+                    <div class="stock-status out-of-stock mb-4">
+                        <i class="fas fa-times-circle"></i> Out of Stock
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-lg" disabled>
+                        <i class="fas fa-shopping-cart"></i> Out of Stock
+                    </button>
+                <?php endif; ?>
 
-                    <?php else: ?>
-                        <div class="product-details-stock-status">
-                            <span class="out-of-stock">Out of Stock</span>
-                        </div>
-                        <button type="button" class="btn btn-add-cart" disabled>Out of Stock</button>
-                    <?php endif; ?>
-
-                    <div class="product-meta">
-                        <div class="meta-item">
-                            <span class="meta-label">Category:</span>
-                            <a href="../shop.php?category=<?php echo $category_id; ?>"><?php echo $category['name']; ?></a>
-                        </div>
+                <!-- Product Meta -->
+                <div class="product-meta mt-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="fw-bold me-2">Category:</span>
+                        <a href="../shop.php?category=<?php echo $category_id; ?>" class="text-decoration-none">
+                            <?php echo $category['name']; ?>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    
+
     <!-- Reviews Section -->
     <section class="reviews-section">
         <div class="container">
@@ -295,11 +447,42 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
     </section>
+
+    </div>
     
     <div id="notification-container"></div>
     
     <?php include_once '../includes/footer.php'; ?>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/script.js"></script>
+    
+    <script>
+        // Quantity selector functionality
+        document.querySelectorAll('.quantity-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                let value = parseInt(input.value);
+                
+                if (this.classList.contains('decrease')) {
+                    if (value > 1) {
+                        input.value = value - 1;
+                    }
+                } else if (this.classList.contains('increase')) {
+                    const max = parseInt(input.max);
+                    if (value < max) {
+                        input.value = value + 1;
+                    } else {
+                        document.getElementById('stock-warning').style.display = 'block';
+                        setTimeout(() => {
+                            document.getElementById('stock-warning').style.display = 'none';
+                        }, 3000);
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
