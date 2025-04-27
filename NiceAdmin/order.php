@@ -3,6 +3,11 @@ ob_start();
 session_start();
 include('../database/database.php');
 
+// Check for low stock products
+$low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
+$low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
+$low_stock_count = mysqli_num_rows($low_stock_query);
+
 // Handle Order Status Update
 if (isset($_GET['approve']) && isset($_GET['order_id'])) {
     $order_id = $_GET['order_id'];
@@ -143,11 +148,14 @@ if (isset($_GET['approve']) && isset($_GET['order_id'])) {
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link collapsed" href="product.php">
-                <i class="bi bi-box-seam"></i>
+            <a class="nav-link collapsed " href="product.php">
+                <i class="bi-box-seam"></i>
                 <span>Product</span>
+                <?php if ($low_stock_count > 0): ?>
+                    <span class="badge bg-danger rounded-pill ms-auto"><?= $low_stock_count ?></span>
+                <?php endif; ?>
             </a>
-        </li>
+        </li>  
         <li class="nav-item">
             <a class="nav-link collapsed" href="contact.php">
                 <i class="bi bi-phone"></i>
