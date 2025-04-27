@@ -86,7 +86,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                     <h2>Your cart is empty</h2>
                     <p>Looks like you haven't added any plants to your cart yet.</p>
-                    <a href="../shop.php" class="btn btn-primary">Continue Shopping</a>
+                    <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
                 </div>
                 <?php else: ?>
                 <!-- Cart items (hidden when cart is empty) -->
