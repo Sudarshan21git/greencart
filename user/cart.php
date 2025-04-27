@@ -89,7 +89,7 @@ if (isset($_POST['remove-btn'])) {
                     <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
                 </div>
                 <?php else: ?>
-                <!-- Cart items (hidden when cart is empty) -->
+                <!-- Cart items (hidden when cart is empty) cart items-->
                 <div class="cart-content" id="cart-content">
                     <form method="POST" action="cart.php" id="cart-form">
                         <div class="cart-header">
