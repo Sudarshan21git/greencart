@@ -173,7 +173,7 @@ mysqli_close($conn);
                                     </div>
                                     
                                     <div class="review-actions">
-                                        <a href="../product.php?id=<?php echo $review['product_id']; ?>" class="btn btn-sm">View Product</a>
+                                        <a href="product-details.php?id=<?php echo $review['product_id']; ?>" class="btn btn-sm">View Product</a>
                                         <a href="edit-review.php?id=<?php echo $review['review_id']; ?>" class="btn btn-sm btn-outline">Edit Review</a>
                                         <a href="reviews.php?delete=<?php echo $review['review_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?')">Delete</a>
                                     </div>

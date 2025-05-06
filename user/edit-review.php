@@ -44,7 +44,6 @@ if (mysqli_num_rows($review_result) === 0) {
 }
 
 $review = mysqli_fetch_assoc($review_result);
-mysqli_stmt_close($review_stmt);
 
 // Handle form submission
 $success_message = '';
@@ -61,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_review'])) {
         $error_message = "Review text cannot be empty.";
     } else {
         // Update review
-        $update_query = "UPDATE reviews SET rating = ?, review_text = ?, updated_at = NOW() WHERE review_id = ? AND user_id = ?";
+        $update_query = "UPDATE reviews SET rating = ?, message = ? WHERE review_id = ? AND user_id = ?";
         $update_stmt = mysqli_prepare($conn, $update_query);
         mysqli_stmt_bind_param($update_stmt, "isii", $rating, $review_text, $review_id, $user_id);
         
@@ -172,7 +171,7 @@ mysqli_close($conn);
 
                             <div class="form-group">
                                 <label for="review_text">Review</label>
-                                <textarea id="review_text" name="review_text" rows="6" required><?php echo htmlspecialchars($review['review_text']); ?></textarea>
+                                <textarea id="review_text" name="review_text" rows="6" required><?php echo htmlspecialchars($review['message']); ?></textarea>
                             </div>
 
                             <div class="form-actions">
