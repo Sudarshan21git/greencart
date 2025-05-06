@@ -79,6 +79,19 @@ $total_result = $conn->query($total_products_query);
 $row = $total_result->fetch_assoc();
 $total_products = $row['total'];
 
+// Calculate average rating
+$avg_rating_query = "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count 
+                    FROM reviews 
+                    WHERE product_id = ?";
+$avg_rating_stmt = $conn->prepare($avg_rating_query);
+$avg_rating_stmt->bind_param("i", $product_id);
+$avg_rating_stmt->execute();
+$avg_rating_result = $avg_rating_stmt->get_result();
+$rating_data = $avg_rating_result->fetch_assoc();
+
+$avg_rating = $rating_data['avg_rating'] ? round($rating_data['avg_rating'], 1) : 0;
+$review_count = $rating_data['review_count'];
+
 // Calculate the total number of pages
 $total_pages = ceil($total_products / $products_per_page);
 
