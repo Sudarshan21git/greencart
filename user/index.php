@@ -56,7 +56,7 @@ if (isset($_SESSION['user_id']) && (!isset($_SESSION['is_admin']) || $_SESSION['
 if (count($recommended_products) < 2) {
     $featured_sql = "SELECT product_id, name, image, price, rating, 
                     (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
-                    FROM products WHERE featured = 1 LIMIT 4";
+                    FROM products WHERE is_featured = 1 LIMIT 4";
     $featured_result = $conn->query($featured_sql);
     
     if ($featured_result && $featured_result->num_rows > 0) {
@@ -108,7 +108,7 @@ $categories_result = mysqli_query($conn, $query);
             <div class="categories-grid">
                 <?php while ($row = mysqli_fetch_assoc($categories_result)) { ?>
                     <div class="category-card">
-                        <img src="img/<?php echo $row['image']; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
+                        <img src="../img/<?php echo $row['image']; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
                         <div class="category-content">
                             <h3><?php echo htmlspecialchars($row['name']); ?></h3>
                             <a href="category_products.php?category_id=<?php echo $row['category_id']; ?>" class="category-link">
