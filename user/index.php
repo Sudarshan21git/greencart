@@ -2,10 +2,74 @@
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+} 
+
+// Include database connection
+include "../database/database.php";
+
+// Initialize recommended products array
+$recommended_products = [];
+
+// Get recommendations if user is logged in
+if (isset($_SESSION['user_id']) && (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1)) {
+    $user_id = $_SESSION['user_id'];
+
+    // Get recommendations from Python script
+    $python_url = 'http://localhost:5000/recommendations';
+    $data = array('user_id' => $user_id);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $python_url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3); // 3 seconds timeout for connection
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5 seconds timeout for the request
+    $response = curl_exec($ch);
+    
+    // Check if the request was successful
+    if ($response !== false) {
+        $result = json_decode($response, true);  // true returns associative array
+        
+        if ($result && !empty($result)) {
+            $product_ids = array_keys($result);
+                        
+            if (!empty($product_ids)) {
+                $ids_str = implode(',', $product_ids);
+                $sql = "SELECT product_id, name, image, price, rating, 
+                       (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
+                       FROM products WHERE product_id IN ($ids_str)";
+                $result = $conn->query($sql);
+                
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $recommended_products[] = $row;
+                    }
+                }
+            }
+        }
+    }
+    curl_close($ch);
 }
-else if ($_SESSION['is_admin'] == 1) {
-    header("Location: 404.html");
+
+// If we have fewer than 2 recommended products, get featured products instead
+if (count($recommended_products) < 2) {
+    $featured_sql = "SELECT product_id, name, image, price, rating, 
+                    (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
+                    FROM products WHERE featured = 1 LIMIT 4";
+    $featured_result = $conn->query($featured_sql);
+    
+    if ($featured_result && $featured_result->num_rows > 0) {
+        $recommended_products = []; // Clear any existing recommendations
+        while ($row = $featured_result->fetch_assoc()) {
+            $recommended_products[] = $row;
+        }
+    }
 }
+
+// Get categories for the categories section
+$query = "SELECT * FROM categories";
+$categories_result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
@@ -24,9 +88,7 @@ else if ($_SESSION['is_admin'] == 1) {
 
 <body>
     <!-- Header -->
-    <?php
-    include_once "../includes/header.php";
-    ?>
+    <?php include_once "../includes/header.php"; ?>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -40,110 +102,51 @@ else if ($_SESSION['is_admin'] == 1) {
     </section>
 
     <!-- Categories Section -->
-    <?php
-include("../database/database.php");
-
-$query = "SELECT * FROM categories";
-$result = mysqli_query($conn, $query);
-?>
-
-<section class="categories">
-    <div class="container">
-        <h2 class="section-title">Shop by Category</h2>
-        <div class="categories-grid">
-            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                <div class="category-card">
-                    <img src="../img/<?php echo $row['image']; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
-                    <div class="category-content">
-                        <h3><?php echo htmlspecialchars($row['name']); ?></h3>
-                        <a href="category_products.php?category_id=<?php echo $row['category_id']; ?>" class="category-link">
-                            View Collection
-                        </a>
+    <section class="categories">
+        <div class="container">
+            <h2 class="section-title">Shop by Category</h2>
+            <div class="categories-grid">
+                <?php while ($row = mysqli_fetch_assoc($categories_result)) { ?>
+                    <div class="category-card">
+                        <img src="img/<?php echo $row['image']; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
+                        <div class="category-content">
+                            <h3><?php echo htmlspecialchars($row['name']); ?></h3>
+                            <a href="category_products.php?category_id=<?php echo $row['category_id']; ?>" class="category-link">
+                                View Collection
+                            </a>
+                        </div>
                     </div>
-                </div>
-            <?php } ?>
+                <?php } ?>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-
-    <!-- Featured Products -->
+    <!-- Recommended Products Section -->
     <section class="products">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Best Sellers</h2>
-                <a href="#" class="view-all">View All</a>
+                <h2 class="section-title"><?php echo (count($recommended_products) < 2) ? 'Featured Products' : 'Recommended for You'; ?></h2>
             </div>
             <div class="products-slider">
                 <div class="slider-container">
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Monstera" alt="Monstera Deliciosa">
-                        </div>
-                        <div class="product-info">
-                            <h3>Monstera Deliciosa</h3>
-                            <div class="product-rating">
-                                <span class="stars">★★★★★</span>
-                                <span class="reviews">(124)</span>
+                    <?php foreach ($recommended_products as $product): ?>
+                        <div class="product-card">
+                            <a href="product-details.php?id=<?= $product['product_id'] ?>">
+                            <div class="product-image">
+                                <img src="../img/<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>">
                             </div>
-                            <div class="product-price">$39.99</div>
-                            <button class="btn btn-add-cart">Add to Cart</button>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Snake+Plant" alt="Snake Plant">
-                        </div>
-                        <div class="product-info">
-                            <h3>Snake Plant</h3>
-                            <div class="product-rating">
-                                <span class="stars">★★★★☆</span>
-                                <span class="reviews">(86)</span>
+                            </a>
+                            <div class="product-info">
+                                <h3><?= htmlspecialchars($product['name']) ?></h3>
+                                <div class="product-rating">
+                                <span class="stars"><?= str_repeat('★', intval($product['rating'])) ?><?= str_repeat('☆', 5 - intval($product['rating'])) ?></span>
+                                <span class="reviews">(<?= $product['reviews'] ?>)</span>
+                                </div>
+                                <div class="product-price">Rs.<?= number_format($product['price'], 2) ?></div>
+                                <button class="btn btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">Add to Cart</button>
                             </div>
-                            <div class="product-price">$24.99</div>
-                            <button class="btn btn-add-cart">Add to Cart</button>
                         </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Peace+Lily" alt="Peace Lily">
-                        </div>
-                        <div class="product-info">
-                            <h3>Peace Lily</h3>
-                            <div class="product-rating">
-                                <span class="stars">★★★★★</span>
-                                <span class="reviews">(102)</span>
-                            </div>
-                            <div class="product-price">$29.99</div>
-                            <button class="btn btn-add-cart">Add to Cart</button>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://placehold.co/300x300/e2f5e2/1a4d1a?text=Fiddle+Leaf" alt="Fiddle Leaf Fig">
-                        </div>
-                        <div class="product-info">
-                            <h3>Fiddle Leaf Fig</h3>
-                            <div class="product-rating">
-                                <span class="stars">★★★★☆</span>
-                                <span class="reviews">(78)</span>
-                            </div>
-                            <div class="product-price">$49.99</div>
-                            <button class="btn btn-add-cart">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="slider-controls">
-                    <button class="slider-prev">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>
-                    </button>
-                    <button class="slider-next">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </button>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -237,12 +240,9 @@ $result = mysqli_query($conn, $query);
         </div>
     </section>
 
+    <!-- Footer -->
+    <?php include_once "../includes/footer.php"; ?>
 
-
-    <?php
-    include_once "../includes/footer.php";
-    ?>
-    <script src="../js/script.js"></script>
-    </body>
-
+</body>
+<script src="../js/script.js"></script>
 </html>

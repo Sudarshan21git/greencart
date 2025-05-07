@@ -39,9 +39,19 @@ def fetch_user_ratings():
 
 # Manually Compute Cosine Similarity Between Two Vectors
 def cosine_similarity_manual(vector_a, vector_b):
-    dot_product = sum(a * b for a, b in zip(vector_a, vector_b))
-    magnitude_a = math.sqrt(sum(a**2 for a in vector_a))
-    magnitude_b = math.sqrt(sum(b**2 for b in vector_b))
+    # Find common items
+    common_items = set(vector_a.keys()) & set(vector_b.keys())
+    
+    if not common_items:
+        return 0  # No common items, no similarity
+    
+    # Extract ratings for common items
+    ratings_a = [vector_a[item] for item in common_items]
+    ratings_b = [vector_b[item] for item in common_items]
+    
+    dot_product = sum(a * b for a, b in zip(ratings_a, ratings_b))
+    magnitude_a = math.sqrt(sum(a**2 for a in ratings_a))
+    magnitude_b = math.sqrt(sum(b**2 for b in ratings_b))
     
     if magnitude_a == 0 or magnitude_b == 0:
         return 0  # No similarity if one vector is all zeros
@@ -59,10 +69,8 @@ def compute_user_similarity_matrix(user_item_matrix):
             if user1 == user2:
                 similarity_matrix[user1][user2] = 1  # Perfect similarity with self
             else:
-                ratings_user1 = [user_item_matrix[user1].get(item, 0) for item in user_item_matrix[user1]]
-                ratings_user2 = [user_item_matrix[user2].get(item, 0) for item in user_item_matrix[user2]]
-                
-                similarity_matrix[user1][user2] = cosine_similarity_manual(ratings_user1, ratings_user2)
+                similarity = cosine_similarity_manual(user_item_matrix[user1], user_item_matrix[user2])
+                similarity_matrix[user1][user2] = similarity
     
     return similarity_matrix
 
@@ -78,18 +86,18 @@ def recommend_products(user_id, user_item_matrix, similarity_matrix, top_n=4):
     
     # Recommend products rated by similar users (without predicting ratings)
     for other_user, similarity in sim_scores.items():
-        if other_user == user_id:
+        if other_user == user_id or similarity <= 0:
             continue
         
         # Get items rated by similar user
         other_user_ratings = user_item_matrix[other_user]
         
         for item, rating in other_user_ratings.items():
-            if item not in user_ratings:  # Recommend only items that the user has not rated
+            if item not in user_ratings and rating >= 4:  # Only recommend items with good ratings
                 if item not in recommended_items:
                     recommended_items[item] = 0
                 # Add product to recommendations based on the similarity score
-                recommended_items[item] += similarity  # Use similarity as the weight
+                recommended_items[item] += similarity * rating  # Weight by both similarity and rating
     
     # Sort the recommended items by their weighted score
     sorted_recommendations = dict(sorted(recommended_items.items(), key=lambda x: x[1], reverse=True)[:top_n])
@@ -102,18 +110,22 @@ def recommend():
     if not user_id:
         return jsonify({"error": "No user ID provided"}), 400
     
-    user_id = int(user_id)  # Convert user_id to integer
-    
-    # Fetch data from the database
-    user_item_matrix = fetch_user_ratings()
-    
-    # Compute the similarity matrix
-    similarity_matrix = compute_user_similarity_matrix(user_item_matrix)
-    
-    # Get recommendations for the user
-    recommendations = recommend_products(user_id, user_item_matrix, similarity_matrix)
-    
-    return jsonify(recommendations)
+    try:
+        user_id = int(user_id)  # Convert user_id to integer
+        
+        # Fetch data from the database
+        user_item_matrix = fetch_user_ratings()
+        
+        # Compute the similarity matrix
+        similarity_matrix = compute_user_similarity_matrix(user_item_matrix)
+        
+        # Get recommendations for the user
+        recommendations = recommend_products(user_id, user_item_matrix, similarity_matrix)
+        
+        return jsonify(recommendations)
+    except Exception as e:
+        print(f"Error generating recommendations: {str(e)}")
+        return jsonify({}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
