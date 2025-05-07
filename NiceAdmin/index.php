@@ -10,7 +10,6 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
 ?>
 
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 
