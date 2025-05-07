@@ -7,10 +7,9 @@ include('../database/database.php');
 $low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
 $low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
 $low_stock_count = mysqli_num_rows($low_stock_query);
-
 // Handle Order Status Update
-if (isset($_GET['approve']) && isset($_GET['order_id'])) {
-    $order_id = $_GET['order_id'];
+if (isset($_POST['approve']) && isset($_POST['order_id'])) {
+    $order_id = $_POST['order_id'];
     $approve_query = "UPDATE orders SET status='approved' WHERE order_id=$order_id";
     if (mysqli_query($conn, $approve_query)) {
         $_SESSION['success'] = "Order approved.";
@@ -19,9 +18,10 @@ if (isset($_GET['approve']) && isset($_GET['order_id'])) {
     }
     header("Location: order.php");
     exit();
+}
 
-} elseif (isset($_GET['decline']) && isset($_GET['order_id'])) {
-    $order_id = $_GET['order_id'];
+if (isset($_POST['decline']) && isset($_POST['order_id'])) {
+    $order_id = $_POST['order_id'];
 
     // Restock products when declined
     $items_query = "SELECT product_id, quantity FROM order_items WHERE order_id = $order_id";
@@ -43,6 +43,23 @@ if (isset($_GET['approve']) && isset($_GET['order_id'])) {
     header("Location: order.php");
     exit();
 }
+
+//  Moved this block outside from above
+if (isset($_POST['deliver']) && isset($_POST['order_id'])) {
+    $order_id = $_POST['order_id'];
+    $deliver_query = "UPDATE orders SET status='delivered' WHERE order_id=$order_id";
+    if (mysqli_query($conn, $deliver_query)) {
+        $_SESSION['success'] = "Order marked as delivered.";
+    } else {
+        $_SESSION['error'] = "Failed to update delivery status.";
+    }
+    header("Location: order.php");
+    exit();
+}
+
+
+
+
 ?>
 
 
@@ -101,23 +118,67 @@ if (isset($_GET['approve']) && isset($_GET['order_id'])) {
             color: white;
         }
         .badge {
-            padding: 6px 10px;
-            font-size: 14px;
-            font-weight: normal;
-        }
-        .badge-approved {
-            background-color: #28a745;
-        }
-        .badge-declined {
-            background-color: #dc3545;
-        }
-        .badge-canceled {
-            background-color: #6c757d;
-        }
-        .badge-pending {
-            background-color: #ffc107;
-            color: #212529;
-        }
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 600; /* Bold text */
+    display: inline-block;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 90px; /* Fixed width for consistency */
+    text-transform: capitalize; /* First letter uppercase */
+}
+
+/* Approved (Green) */
+.badge-approved, .badge-approve {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Declined (Red) */
+.badge-declined, .badge-decline {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Pending (Yellow) */
+.badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Delivered (Blue) */
+.badge-delivered {
+    background-color:rgb(8, 107, 36);
+    color: white;
+}
+
+/* Completed (Teal) */
+.badge-completed {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* Canceled (Gray) */
+.badge-canceled, .badge-cancelled {
+    background-color: #6c757d;
+    color: white;
+}
+
+        .deliver-btn {
+    background-color: #28a745; /* standard success green */
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.deliver-btn:hover {
+    background-color: #218838;
+}
+
+
+
     </style>
 </head>
 <body>
@@ -214,6 +275,8 @@ if (isset($_GET['approve']) && isset($_GET['order_id'])) {
                     </thead>
                     <tbody>
 <?php
+// Inside your PHP code, when fetching orders from the database:
+
 $order_query = mysqli_query($conn, "SELECT * FROM orders ORDER BY created_at DESC");
 while ($order = mysqli_fetch_assoc($order_query)) {
     $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE user_id = {$order['user_id']}"));
@@ -235,25 +298,32 @@ while ($order = mysqli_fetch_assoc($order_query)) {
         <td>" . htmlspecialchars($order['payment_method']) . "</td>
         <td><span class='badge badge-" . strtolower($order['status']) . "'>" . ucfirst($order['status']) . "</span></td>
         <td>" . htmlspecialchars($order['created_at']) . "</td>
-        <td>";
-
-    // Action column
-    if ($order['status'] == 'pending') {
-        echo "
-            <form method='get' action='order.php'>
-                <input type='hidden' name='order_id' value='{$order['order_id']}'>
-                <button type='submit' name='approve' class='approve-btn'>Approve</button>
-                <button type='submit' name='decline' class='decline-btn'>Decline</button>
-            </form>";
-    } elseif ($order['status'] == 'approved') {
-        echo "<span class='badge badge-approved'>Approved</span>";
-    } elseif ($order['status'] == 'declined') {
-        echo "<span class='badge badge-declined'>Declined</span>";
-    } else {
-        echo "<span class='badge badge-canceled'>Canceled</span>";
-    }
-    echo "</td></tr>";
+<td>";
+// Action column logic based on order status
+if ($order['status'] == 'pending') {
+    echo "
+        <form method='post' action='order.php'>
+            <input type='hidden' name='order_id' value='{$order['order_id']}'>
+            <button type='submit' name='approve' class='approve-btn'>Approve</button>
+            <button type='submit' name='decline' class='decline-btn'>Decline</button>
+        </form>";
+} elseif ($order['status'] == 'approved') {
+    echo "
+        <form method='post' action='order.php'>
+            <input type='hidden' name='order_id' value='{$order['order_id']}'>
+            <button type='submit' name='deliver' class='deliver-btn'>Deliver</button>
+        </form>";
+} elseif ($order['status'] == 'delivered') {
+    echo "<span class='badge badge-completed'>Completed</span>";
+} elseif ($order['status'] == 'declined') {
+    echo "<span class='badge badge-declined'>Declined</span>";
+} else {
+    echo "<span class='badge badge-canceled'>Canceled</span>";
 }
+
+echo "</td></tr>";
+}
+
 ?>
 </tbody>
 
