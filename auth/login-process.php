@@ -154,6 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['lname'] = $row['last_name'];
                 $_SESSION['user_id'] = $row['user_id'];
                 $_SESSION['is_admin'] = $row['is_admin'];
+                $_SESSION['phone'] = $row['phone'];
 
                 // Redirect based on role
                 if ($row['is_admin'] == 1) {

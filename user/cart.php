@@ -81,8 +81,8 @@ $checkout_data = isset($_SESSION['checkout_data']) ? $_SESSION['checkout_data'] 
     'first_name' => isset($_SESSION['fname']) ? $_SESSION['fname'] : '',
     'last_name' => isset($_SESSION['lname']) ? $_SESSION['lname'] : '',
     'email' => isset($_SESSION['email']) ? $_SESSION['email'] : '',
-    'phone' => '',
-    'address' => '',
+    'phone' => isset($_SESSION['phone']) ? $_SESSION['phone'] : '',
+    'address' => isset($_SESSION['address']) ? $_SESSION['address'] : '',
     'payment_method' => 'esewa'
 ];
 
@@ -249,21 +249,21 @@ $checkout_data = isset($_SESSION['checkout_data']) ? $_SESSION['checkout_data'] 
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="first-name">First Name</label>
-                                <input type="text" id="first-name" name="first_name" value="<?php echo htmlspecialchars($checkout_data['first_name']); ?>" >
+                                <input type="text" id="first-name" name="first_name" value="<?php echo htmlspecialchars($checkout_data['first_name']); ?>" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="last-name">Last Name</label>
-                                <input type="text" id="last-name" name="last_name" value="<?php echo htmlspecialchars($checkout_data['last_name']); ?>" >
+                                <input type="text" id="last-name" name="last_name" value="<?php echo htmlspecialchars($checkout_data['last_name']); ?>" readonly>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($checkout_data['email']); ?>" >
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($checkout_data['email']); ?>" readonly>
                             <small class="error-message" id="email-error"></small>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($checkout_data['phone']); ?>" >
+                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($checkout_data['phone']); ?>" readonly>
                             <small class="error-message" id="phone-error"></small>
                         </div>
                         <div class="form-group">
@@ -296,7 +296,7 @@ $checkout_data = isset($_SESSION['checkout_data']) ? $_SESSION['checkout_data'] 
                         <?php foreach ($cart_items as $item): ?>
                         <div class="checkout-item">
                             <div class="checkout-item-info">
-                                <span class="checkout-item-quantity"><?php echo $item['quantity']; ?> ×</span>
+                                <span class="checkout-item-quantity"><?php echo htmlspecialchars($item['quantity']); ?> ×</span>
                                 <span class="checkout-item-name"><?php echo htmlspecialchars($item['name']); ?></span>
                             </div>
                             <span class="checkout-item-price">Rs.<?php echo number_format($item['price'] * $item['quantity']); ?></span>

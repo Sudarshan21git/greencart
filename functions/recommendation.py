@@ -37,7 +37,7 @@ def fetch_user_ratings():
     
     return user_item_matrix
 
-# Manually Compute Cosine Similarity Between Two Vectors
+#  Compute Cosine Similarity Between Two Vectors
 def cosine_similarity_manual(vector_a, vector_b):
     # Find common items
     common_items = set(vector_a.keys()) & set(vector_b.keys())
@@ -84,7 +84,7 @@ def recommend_products(user_id, user_item_matrix, similarity_matrix, top_n=4):
     
     recommended_items = {}
     
-    # Recommend products rated by similar users (without predicting ratings)
+    # Recommend products rated by similar users 
     for other_user, similarity in sim_scores.items():
         if other_user == user_id or similarity <= 0:
             continue
