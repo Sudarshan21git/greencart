@@ -212,9 +212,10 @@ mysqli_close($conn);
                                                 $icons = [
                                                     'pending' => '⏳',
                                                     'processing' => '🔄',
-                                                    'shipped' => '🚚',
-                                                    'delivered' => '✅',
-                                                    'cancelled' => '❌'
+                                                    'delivered' => '🚚',
+                                                    'approved' => '✅',
+                                                    'cancelled' => '❌',
+                                                    'declined' => '❌'
                                                 ];
                                                 echo $icons[$status] . ' ' . ucfirst($order['status']);
                                             ?>
