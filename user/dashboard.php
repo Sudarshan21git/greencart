@@ -167,39 +167,45 @@ mysqli_close($conn);
                     </div>
                     
                     <div class="dashboard-sections">
-                        <div class="dashboard-section">
-                            <div class="section-header">
-                                <h2>Recent Orders</h2>
-                                <a href="orders.php" class="view-all">View All</a>
-                            </div>
-                            
-                            <?php if (count($recent_orders) > 0): ?>
-                            <div class="dashboard-orders">
-                                <?php foreach ($recent_orders as $order): ?>
-                                <div class="dashboard-order">
-                                    <div class="order-header">
-                                        <div class="order-id">Order #<?php echo $order['order_number']; ?></div>
-                                        <div class="order-date"><?php echo date('M d, Y', strtotime($order['created_at'])); ?></div>
-                                    </div>
-                                    <div class="order-details">
-                                        <div class="order-status <?php echo strtolower($order['status']); ?>">
-                                            <?php echo ucfirst($order['status']); ?>
-                                        </div>
-                                        <div class="order-total">Rs.<?php echo number_format($order['total'], 2); ?></div>
-                                    </div>
-                                    <div class="order-actions">
-                                        <a href="order-details.php?id=<?php echo $order['order_id']; ?>" class="btn btn-sm">View Details</a>
-                                    </div>
-                                </div>
-                                <?php endforeach; ?>
-                            </div>
-                            <?php else: ?>
-                            <div class="empty-state">
-                                <p>You haven't placed any orders yet.</p>
-                                <a href="shop.php" class="btn btn-primary">Start Shopping</a>
-                            </div>
-                            <?php endif; ?>
-                        </div>
+                        <div class="dashboard-section orders-section">
+    <div class="section-header">
+        <h2>Recent Orders</h2>
+        <a href="orders.php" class="view-all">View All</a>
+    </div>
+    
+    <?php if (count($recent_orders) > 0): ?>
+    <div class="dashboard-orders">
+        <?php foreach ($recent_orders as $order): ?>
+        <div class="dashboard-order-card">
+            <div class="order-card-header">
+                <div class="order-number">
+                    <span class="value">#<?php echo $order['order_number']; ?></span>
+                </div>
+                <div class="order-status-badge <?php echo strtolower($order['status']); ?>">
+                    <?php echo ucfirst($order['status']); ?>
+                </div>
+            </div>
+            
+            <div class="order-card-body">
+                <div class="order-info-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span><?php echo date('F d, Y', strtotime($order['created_at'])); ?></span>
+                </div>
+                <div class="order-info-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span class="order-amount">Rs.<?php echo number_format($order['total'], 2); ?></span>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <div class="empty-state">
+        <p>You haven't placed any orders yet.</p>
+        <a href="../shop.php" class="btn btn-primary">Start Shopping</a>
+    </div>
+    <?php endif; ?>
+</div>
                         
                         <div class="dashboard-section">
                             <div class="section-header">

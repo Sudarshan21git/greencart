@@ -2,6 +2,30 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Initialize error variable and checkout visibility
+$error_message = '';
+$show_checkout = false;
+
+// Check for order errors from process-order.php
+if (isset($_SESSION['order_error'])) {
+    $error_message = $_SESSION['order_error'];
+    unset($_SESSION['order_error']);
+    $show_checkout = true;
+}
+
+// Check for validation errors
+if (isset($_SESSION['validation_error'])) {
+    $error_message = $_SESSION['validation_error'];
+    unset($_SESSION['validation_error']);
+    $show_checkout = true;
+}
+
+// Check if checkout section should be shown
+if (isset($_SESSION['show_checkout']) && $_SESSION['show_checkout']) {
+    $show_checkout = true;
+    unset($_SESSION['show_checkout']);
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
@@ -52,6 +76,16 @@ if (isset($_POST['remove-btn'])) {
    exit();
 }
 
+// Get saved checkout data if available
+$checkout_data = isset($_SESSION['checkout_data']) ? $_SESSION['checkout_data'] : [
+    'first_name' => isset($_SESSION['fname']) ? $_SESSION['fname'] : '',
+    'last_name' => isset($_SESSION['lname']) ? $_SESSION['lname'] : '',
+    'email' => isset($_SESSION['email']) ? $_SESSION['email'] : '',
+    'phone' => '',
+    'address' => '',
+    'payment_method' => 'esewa'
+];
+
 ?>  
 
 <!DOCTYPE html>
@@ -66,6 +100,49 @@ if (isset($_POST['remove-btn'])) {
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .stock-warning {
+            color: #f44336;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            max-width: 300px;
+        }
+        
+        .notification.success {
+            background-color: #4CAF50;
+        }
+        
+        .notification.error {
+            background-color: #f44336;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -86,7 +163,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                     <h2>Your cart is empty</h2>
                     <p>Looks like you haven't added any plants to your cart yet.</p>
-                    <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+                    <a href="../shop.php" class="btn btn-primary">Continue Shopping</a>
                 </div>
                 <?php else: ?>
                 <!-- Cart items (hidden when cart is empty) -->
@@ -160,46 +237,48 @@ if (isset($_POST['remove-btn'])) {
             </div>
         </div>
     </section>
-    <!-- Checkout Section (initially hidden) -->
-    <section class="checkout-section" id="checkout-section" style="display: none;">
+    <!-- Checkout Section (initially hidden unless there are errors) -->
+    <section class="checkout-section" id="checkout-section" style="display: <?php echo $show_checkout ? 'block' : 'none'; ?>;">
         <div class="container">
             <h1 class="section-title">Checkout</h1>
             
             <div class="checkout-container">
                 <div class="checkout-form-container">
                     <h2>Billing Details</h2>
-                    <form id="checkout-form" class="checkout-form" method="POST" action="process-order.php">
+                    <form id="checkout-form" class="checkout-form" method="POST" action="../functions/process-order.php" onsubmit="return validateCheckoutForm()">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="first-name">First Name</label>
-                                <input type="text" id="first-name" name="first_name" value="<?php echo isset($_SESSION['fname']) ? htmlspecialchars($_SESSION['fname']) : ''; ?>" required>
+                                <input type="text" id="first-name" name="first_name" value="<?php echo htmlspecialchars($checkout_data['first_name']); ?>" >
                             </div>
                             <div class="form-group">
                                 <label for="last-name">Last Name</label>
-                                <input type="text" id="last-name" name="last_name" value="<?php echo isset($_SESSION['lname']) ? htmlspecialchars($_SESSION['lname']) : ''; ?>" required>
+                                <input type="text" id="last-name" name="last_name" value="<?php echo htmlspecialchars($checkout_data['last_name']); ?>" >
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" value="<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>" required>
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($checkout_data['email']); ?>" >
+                            <small class="error-message" id="email-error"></small>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" required>
+                            <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($checkout_data['phone']); ?>" >
+                            <small class="error-message" id="phone-error"></small>
                         </div>
                         <div class="form-group">
                             <label for="address">Street Address</label>
-                            <input type="text" id="address" name="address" required>
+                            <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($checkout_data['address']); ?>" >
                         </div>
                         
                         <h2>Payment Information</h2>
                         <div class="payment-methods">
                             <div class="payment-method">
-                                <input type="radio" id="payment-esewa" name="payment_method" value="esewa" checked>
+                                <input type="radio" id="payment-esewa" name="payment_method" value="esewa" <?php echo ($checkout_data['payment_method'] === 'esewa' || empty($checkout_data['payment_method'])) ? 'checked' : ''; ?>>
                                 <label for="payment-esewa">Esewa</label>
                             </div>
                             <div class="payment-method">
-                                <input type="radio" id="payment-cod" name="payment_method" value="cod">
+                                <input type="radio" id="payment-cod" name="payment_method" value="cod" <?php echo ($checkout_data['payment_method'] === 'cod') ? 'checked' : ''; ?>>
                                 <label for="payment-cod">Cash on Delivery</label>
                             </div>
                         </div>
@@ -265,7 +344,7 @@ if (isset($_POST['remove-btn'])) {
                     </div>
                 </div>
                 <p>We'll send you another email when your order ships.</p>
-                <a href="../shop.php" class="btn btn-primary">Continue Shopping</a>
+                <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
             </div>
         </div>
     </section>
@@ -472,7 +551,154 @@ if (isset($_POST['remove-btn'])) {
                 document.querySelector('.cart-section').scrollIntoView({ behavior: 'smooth' });
             });
         }
+        
+        // Function to show error messages
+        function showNotification(message, type) {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Hide and remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+        }
+
+        // Display error message if it exists
+        <?php if (!empty($error_message)): ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            showNotification("<?php echo addslashes($error_message); ?>", 'error');
+    
+            // Make sure checkout section is visible if there's an error
+            document.getElementById('checkout-section').style.display = 'block';
+            document.getElementById('checkout-section').scrollIntoView({ behavior: 'smooth' });
+        });
+        <?php endif; ?>
     });
+    
+    // Form validation function
+    function validateCheckoutForm() {
+        let isValid = true;
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+        
+        // Reset error messages
+        document.getElementById('email-error').textContent = '';
+        document.getElementById('phone-error').textContent = '';
+        
+        // Check for empty fields
+        if (!firstName || !lastName || !email || !phone || !address) {
+            promptMessage('Please fill all the fields', false);
+            isValid = false;
+            return false;
+        }
+        
+        // Validate email (must be Gmail)
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('email-error').textContent = 'Invalid email format or not a Gmail address!';
+            promptMessage('Invalid email format or not a Gmail address!', false);
+            isValid = false;
+            return false;
+        }
+        
+        // Validate phone number (must start with 97 or 98 and be 10 digits)
+        const phoneRegex = /^(98|97)\d{8}$/;
+        if (!phoneRegex.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Enter a valid phone number!';
+            promptMessage('Enter a valid phone number!', false);
+            isValid = false;
+            return false;
+        }
+        
+        return isValid;
+    }
+
+    // Function to show alert message similar to contact.php
+    function promptMessage(msg, success = false) {
+        // Create a modal overlay
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100%";
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        overlay.style.display = "flex";
+        overlay.style.justifyContent = "center";
+        overlay.style.alignItems = "center";
+        overlay.style.zIndex = "1000";
+
+        // Create the modal content
+        const modal = document.createElement("div");
+        modal.style.backgroundColor = "white";
+        modal.style.padding = "20px";
+        modal.style.borderRadius = "8px";
+        modal.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.2)";
+        modal.style.width = "300px";
+        modal.style.maxWidth = "90%";
+        modal.style.textAlign = "center"; // Center text
+
+        // Create the title
+        const title = document.createElement("h3");
+        title.textContent = msg;
+        title.style.marginTop = "0";
+        title.style.marginBottom = "15px";
+        title.style.color = success ? "green" : "red";
+
+        // Create the buttons container
+        const buttonContainer = document.createElement("div");
+        buttonContainer.style.display = "flex";
+        buttonContainer.style.justifyContent = "space-between";
+        buttonContainer.style.width = "100%";
+        buttonContainer.style.gap = "10px"; // Adds some space between the buttons
+
+        // Create the 'Okay' button
+        const button = document.createElement("button");
+        button.textContent = "Okay";
+        button.style.backgroundColor = "#128C7E";
+        button.style.color = "white";
+        button.style.border = "none";
+        button.style.padding = "6px 12px"; // Smaller padding
+        button.style.borderRadius = "4px";
+        button.style.cursor = "pointer";
+        button.style.flex = "1"; // Take equal space with the other button
+
+        button.onclick = function() {
+            overlay.remove();
+        };
+
+        buttonContainer.appendChild(button); // Add to button container
+
+        // Add the title and buttons container to the modal
+        modal.appendChild(title);
+        modal.appendChild(buttonContainer);
+        overlay.appendChild(modal);
+
+        // Add the modal to the body
+        document.body.appendChild(overlay);
+    }
     </script>
 </body>
 </html>
