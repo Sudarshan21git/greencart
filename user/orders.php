@@ -294,7 +294,7 @@ mysqli_close($conn);
                                                                 <?php if ($item['has_review'] > 0): ?>
                                                                     <a href="reviews.php" class="btn btn-sm btn-outline">View Your Review</a>
                                                                 <?php else: ?>
-                                                                    <a href="../functions/submit-review.php?product_id=<?php echo $item['product_id']; ?>" class="btn btn-sm btn-primary">
+                                                                    <a href="product-details.php?id=<?php echo $item['product_id']; ?>" class="btn btn-sm btn-primary">
                                                                         <span class="btn-icon">⭐</span> Write a Review
                                                                     </a>
                                                                 <?php endif; ?>
