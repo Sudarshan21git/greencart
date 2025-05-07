@@ -120,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
         <li class="nav-item">
-            <a class="nav-link active" href="product.php">
+            <a class="nav-link " href="product.php">
                 <i class="bi-box-seam"></i>
                 <span>Product</span>
                 <?php if ($low_stock_count > 0): ?>

@@ -1,3 +1,15 @@
+<?php
+ob_start();
+session_start();
+include('../database/database.php');
+
+// Check for low stock products
+$low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
+$low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
+$low_stock_count = mysqli_num_rows($low_stock_query);
+?>
+
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,6 +46,16 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+<!-- style for the toast  -->
+ <style>
+      .toast-container {
+            position: fixed;
+            top:70px;
+            right: 100px;
+            z-index: 1100;
+        }
+ </style>
+
 </head>
 
 <body>
@@ -69,7 +91,15 @@
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
-        <li class="nav-item"><a class="nav-link collapsed" href="product.php"><i class="bi-box-seam"></i><span>Product</span></a></li>
+        <li class="nav-item">
+            <a class="nav-link collapsed " href="product.php">
+                <i class="bi-box-seam"></i>
+                <span>Product</span>
+                <?php if ($low_stock_count > 0): ?>
+                    <span class="badge bg-danger rounded-pill ms-auto"><?= $low_stock_count ?></span>
+                <?php endif; ?>
+            </a>
+        </li> 
         <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="order.php"><i class="bi bi-box "></i><span>Order</span></a></li>
@@ -189,7 +219,25 @@
 </footer><!-- End Footer -->
 
 <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
+<!-- Toast Notification for Low Stock -->
+<div class="toast-container">
+    <?php if (!empty($low_stock_products)): ?>
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+            <div class="toast-header bg-warning">
+                <strong class="me-auto">Low Stock Alert</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <p>The following products are running low on stock:</p>
+                <ul>
+                    <?php foreach ($low_stock_products as $product): ?>
+                        <li><?= htmlspecialchars($product['name']) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
 <!-- Vendor JS Files -->
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
@@ -197,6 +245,24 @@
 
 <!-- Template Main JS File -->
 <script src="assets/js/main.js"></script>
+<script>
+// Check for low stock and show alert
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (!empty($low_stock_products)): ?>
+        const productNames = <?php echo json_encode(array_column($low_stock_products, 'name')); ?>;
+        const message = "Warning! Low stock for products:\n" + productNames.join("\n");
+        
+        // Show browser alert
+        alert(message);
+        
+        // Initialize Bootstrap toasts
+        const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        const toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl);
+        });
+    <?php endif; ?>
+});
+</script>
 
 </body>
 
