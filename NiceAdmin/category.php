@@ -115,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
         <a href="index.php" class="logo d-flex align-items-center">
-            <img src="assets/img/logo.png" alt="">
+        <img src="../img/logo.png" alt="">
             <span class="d-none d-lg-block">GreenCart Admin</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -137,7 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
-        <li class="nav-item"><a class="nav-link active" href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
+        <li class="nav-item"><a class="nav-link " href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="product.php"><i class="bi-box-seam"></i><span>Product</span>
                 <?php if ($low_stock_count > 0): ?>
                     <span class="badge bg-danger rounded-pill ms-auto"><?= $low_stock_count ?></span>

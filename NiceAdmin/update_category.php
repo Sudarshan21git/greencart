@@ -103,7 +103,7 @@ if (isset($_GET['id'])) {
 
     <div class="d-flex align-items-center justify-content-between">
         <a href="index.jsp" class="logo d-flex align-items-center">
-            <img src="assets/img/logo.png" alt="">
+        <img src="../img/logo.png" alt="">
             <span class="d-none d-lg-block">GreenCart Admin</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
