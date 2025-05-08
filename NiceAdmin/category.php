@@ -1,3 +1,4 @@
+
 <?php
 include("../database/database.php");
 
@@ -8,6 +9,62 @@ if (!$conn) {
 $low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
 $low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
 $low_stock_count = mysqli_num_rows($low_stock_query);
+?>
+ <!-- backend -->
+                        
+
+
+                        <?php
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
+    $category_name = trim($_POST['category_name']);
+    $category_desc = trim($_POST['category_desc']);
+    $category_image = $_FILES['category_image']['name'];
+    $category_image_temp_name = $_FILES['category_image']['tmp_name'];
+    $category_image_folder = '../img/' . $category_image;
+
+    $errorMessage = "";
+
+    if (empty($category_name) || empty($category_desc)) {
+        $errorMessage = "Please fill in all fields!";
+    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $category_name)) {
+        $errorMessage = "Category must start with an alphabet and be at least 4 characters long.";
+    } elseif (strlen($category_desc) < 1 || strlen($category_desc) > 200 || !preg_match("/^[a-zA-Z]/", $category_desc)) {
+        $errorMessage = "Description must start with an alphabet and be between 1 and 200 characters.";
+    } else {
+        $stmt = $conn->prepare("SELECT * FROM categories WHERE name = ?");
+        $stmt->bind_param("s", $category_name);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 0) {
+            $stmt = $conn->prepare("INSERT INTO categories (name, `description`, image) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $category_name, $category_desc, $category_image);
+            $insert_success = $stmt->execute();
+
+            if ($insert_success) {
+                if (!empty($category_image)) {
+                    move_uploaded_file($category_image_temp_name, $category_image_folder);
+                }
+                header("Location:".$_SERVER['PHP_SELF']."?success=1");
+              
+                exit();
+            } else {
+                $errorMessage = "Error inserting category!";
+            }
+        } else {
+            $errorMessage = "Category already exists!";
+        }
+    }
+
+    if (!empty($errorMessage)) {
+        echo "<script>alert('$errorMessage');</script>";
+    }
+}
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>alert('Category inserted successfully!');</script>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -81,15 +138,10 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item"><a class="nav-link collapsed" href="index.php"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
         <li class="nav-item"><a class="nav-link " href="category.php"><i class="bi-tags"></i><span>Category</span></a></li>
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="product.php">
-                <i class="bi-box-seam"></i>
-                <span>Product</span>
+        <li class="nav-item"><a class="nav-link collapsed" href="product.php"><i class="bi-box-seam"></i><span>Product</span>
                 <?php if ($low_stock_count > 0): ?>
                     <span class="badge bg-danger rounded-pill ms-auto"><?= $low_stock_count ?></span>
-                <?php endif; ?>
-            </a>
-        </li> 
+                <?php endif; ?></a></li> 
         <li class="nav-item"><a class="nav-link collapsed" href="contact.php"><i class="bi bi-phone"></i><span>Contact</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="user.php"><i class="bi bi-person"></i><span>User</span></a></li>
         <li class="nav-item"><a class="nav-link collapsed" href="order.php"><i class="bi bi-box "></i><span>Order</span></a></li>
@@ -104,62 +156,6 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Category</h5>
-                        <!-- backend -->
-                        
-
-
-                        <?php
-
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
-    $category_name = trim($_POST['category_name']);
-    $category_desc = trim($_POST['category_desc']);
-    $category_image = $_FILES['category_image']['name'];
-    $category_image_temp_name = $_FILES['category_image']['tmp_name'];
-    $category_image_folder = '../img/' . $category_image;
-
-    $errorMessage = "";
-
-    if (empty($category_name) || empty($category_desc)) {
-        $errorMessage = "Please fill in all fields!";
-    } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $category_name)) {
-        $errorMessage = "Category must start with an alphabet and be at least 4 characters long.";
-    } elseif (strlen($category_desc) < 1 || strlen($category_desc) > 200 || !preg_match("/^[a-zA-Z]/", $category_desc)) {
-        $errorMessage = "Description must start with an alphabet and be between 1 and 200 characters.";
-    } else {
-        $stmt = $conn->prepare("SELECT * FROM categories WHERE name = ?");
-        $stmt->bind_param("s", $category_name);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows == 0) {
-            $stmt = $conn->prepare("INSERT INTO categories (name, `description`, image) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $category_name, $category_desc, $category_image);
-            $insert_success = $stmt->execute();
-
-            if ($insert_success) {
-                if (!empty($category_image)) {
-                    move_uploaded_file($category_image_temp_name, $category_image_folder);
-                }
-                header("Location: ".$_SERVER['PHP_SELF']."?success=1");
-                exit();
-            } else {
-                $errorMessage = "Error inserting category!";
-            }
-        } else {
-            $errorMessage = "Category already exists!";
-        }
-    }
-
-    if (!empty($errorMessage)) {
-        echo "<script>alert('$errorMessage');</script>";
-    }
-}
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo "<script>alert('Category inserted successfully!');</script>";
-}
-?>
-
 <!-- Category Form -->
 <form action="" class="add_category" method="post" enctype="multipart/form-data">
     <div class="mb-3">
