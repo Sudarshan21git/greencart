@@ -218,7 +218,7 @@ if (isset($_POST['deliver']) && isset($_POST['order_id'])) {
         <span>Product</span>
         <?php if ($low_stock_count > 0): ?>
             <span class="badge bg-danger rounded-pill ms-auto">
-                Low (<?= $low_stock_count ?>)
+             <?= $low_stock_count ?>
             </span>
         <?php endif; ?>
     </a>
