@@ -22,7 +22,7 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
+  <link href="../img/logo.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
@@ -38,14 +38,6 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
-  <!-- =======================================================
-  * Template Name: NiceAdmin
-  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-  * Updated: Apr 20 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
-<!-- style for the toast  -->
  <style>
       .toast-container {
             position: fixed;
@@ -209,10 +201,6 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
     &copy; Copyright <strong><span>GreenCart</span></strong>. All Rights Reserved
   </div>
   <div class="credits">
-    <!-- All the links in the footer should remain intact. -->
-    <!-- You can delete the links only if you purchased the pro version. -->
-    <!-- Licensing information: https://bootstrapmade.com/license/ -->
-    <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
     Designed by <a href="https://bootstrapmade.com/">GreenCart Team</a>
   </div>
 </footer><!-- End Footer -->

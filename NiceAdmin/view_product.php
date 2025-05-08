@@ -20,7 +20,7 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
     <title>Product Details - GreenCart Admin</title>
 
     <!-- Favicons -->
-    <link href="assets/img/favicon.png" rel="icon">
+    <link href="../img/logo.png" rel="icon">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Nunito|Poppins" rel="stylesheet">
 
     <!-- Vendor CSS Files -->
