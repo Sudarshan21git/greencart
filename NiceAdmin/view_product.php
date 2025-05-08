@@ -62,8 +62,7 @@ $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET[
 <!-- Header -->
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
-        <a href="index.php" class="logo d-flex align-items-center">
-        <img src="../img/logo.png" alt="">
+    <a href="" class="logo d-flex align-items-center">        <img src="../img/logo.png" alt="">
             <span class="d-none d-lg-block">GreenCart Admin</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
