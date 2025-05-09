@@ -11,6 +11,32 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
 // Initialize search query
 $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 ?>
+<!-- Delete Product Backend Code -->
+<?php
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $product_id = $_GET['delete'];
+
+    // Prevent double deletion
+    if (isset($_SESSION['delete_product']) && $_SESSION['delete_product'] == $product_id) {
+        $_SESSION['error'] = "Product has already been deleted.";
+        header("Location: view_product.php");
+        exit();
+    }
+
+    // Delete product from database
+    $delete_query = mysqli_query($conn, "DELETE FROM products WHERE product_id = $product_id");
+
+    if ($delete_query) {
+        $_SESSION['delete_product'] = $product_id;
+        $_SESSION['success'] = "Product deleted successfully!";
+    } else {
+        $_SESSION['error'] = "Failed to delete product.";
+    }
+
+    header("Location: view_product.php");
+    exit();
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -248,29 +274,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 </html>
 
-<!-- Delete Product Backend Code -->
-<?php
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $product_id = $_GET['delete'];
-
-    // Prevent double deletion
-    if (isset($_SESSION['delete_product']) && $_SESSION['delete_product'] == $product_id) {
-        $_SESSION['error'] = "Product has already been deleted.";
-        header("Location: view_product.php");
-        exit();
-    }
-
-    // Delete product from database
-    $delete_query = mysqli_query($conn, "DELETE FROM products WHERE product_id = $product_id");
-
-    if ($delete_query) {
-        $_SESSION['delete_product'] = $product_id;
-        $_SESSION['success'] = "Product deleted successfully!";
-    } else {
-        $_SESSION['error'] = "Failed to delete product.";
-    }
-
-    header("Location: view_product.php");
-    exit();
-}
-?>

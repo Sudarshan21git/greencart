@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
 
     $errorMessage = "";
 
-    if (empty($category_name) || empty($category_desc)) {
+    if (empty($category_name) || empty($category_desc)|| empty($category_image)) {
         $errorMessage = "Please fill in all fields!";
     } elseif (!preg_match("/^[a-zA-Z][a-zA-Z\s']{3,}$/", $category_name)) {
         $errorMessage = "Category must start with an alphabet and be at least 4 characters long.";
@@ -182,14 +182,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_category'])) {
                         <form action="" class="add_category" method="post" enctype="multipart/form-data">
                             <div class="mb-3">
                                 <label for="category_name" class="form-label">Category Name</label>
-                                <input type="text" id="category_name" name="category_name" class="form-control" placeholder="Enter the Category name" required>
+                                <input type="text" id="category_name" name="category_name" class="form-control" placeholder="Enter the Category name" >
                             </div>
                             <div class="mb-3">
                                 <label for="category_desc" class="form-label">Category Description</label>
-                                <textarea id="category_desc" name="category_desc" class="form-control" placeholder="Enter the Category description" rows="3" required></textarea>
+                                <textarea id="category_desc" name="category_desc" class="form-control" placeholder="Enter the Category description" rows="3" ></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="category_image" class="form-label">Category Image (Optional)</label>
+                                <label for="category_image" class="form-label">Category Image </label>
                                 <input type="file" id="category_image" name="category_image" class="form-control" accept="image/png, image/jpg, image/jpeg">
                             </div>
                             <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
