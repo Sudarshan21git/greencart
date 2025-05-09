@@ -2,7 +2,7 @@
 include("../database/database.php");
 
 $fetch_data = null;
-$success_message = "";
+$notification = ['message' => '', 'type' => '']; // Initialize notification array
 
 if (isset($_POST['update_category'])) {
     $update_category_id = $_POST['update_category_id'];
@@ -14,12 +14,21 @@ if (isset($_POST['update_category'])) {
     $nameCheckResult = mysqli_query($conn, $nameCheck);
 
     if ($nameCheckResult->num_rows > 0) {
-        echo "<div class='alert alert-danger'>Category with the same name already exists.</div>";
+        $notification = [
+            'message' => 'Category with the same name already exists.',
+            'type' => 'danger'
+        ];
     } else {
         if (!preg_match("/^[a-zA-Z][a-zA-Z\s']*$/", $update_category_name)) {
-            echo "<div class='alert alert-danger'>Category name must start with an alphabet and contain only letters, spaces, and apostrophes.</div>";
+            $notification = [
+                'message' => 'Category name must start with an alphabet and contain only letters, spaces, and apostrophes.',
+                'type' => 'danger'
+            ];
         } else if (strlen($update_category_desc) < 1 || strlen($update_category_desc) > 200 || !preg_match("/^[a-zA-Z]/", $update_category_desc)) {
-            echo "<div class='alert alert-danger'>Category description must start with an alphabet and be between 1 and 200 characters long.</div>";
+            $notification = [
+                'message' => 'Category description must start with an alphabet and be between 1 and 200 characters long.',
+                'type' => 'danger'
+            ];
         } else {
             // Check if a new image is uploaded
             if (!empty($_FILES['update_category_image']['name'])) {
@@ -28,22 +37,34 @@ if (isset($_POST['update_category'])) {
                 $image_folder = "../img/" . $image_name;
 
                 // Move new image to uploads folder
-                move_uploaded_file($image_tmp_name, $image_folder);
-
-                // Update query with new image
-                $update_query = "UPDATE categories SET name='$update_category_name', description='$update_category_desc', image='$image_name' WHERE category_id=$update_category_id";
+                if (move_uploaded_file($image_tmp_name, $image_folder)) {
+                    // Update query with new image
+                    $update_query = "UPDATE categories SET name='$update_category_name', description='$update_category_desc', image='$image_name' WHERE category_id=$update_category_id";
+                } else {
+                    $notification = [
+                        'message' => 'Failed to upload image.',
+                        'type' => 'danger'
+                    ];
+                }
             } else {
                 // Update query without changing image
                 $update_query = "UPDATE categories SET name='$update_category_name', description='$update_category_desc' WHERE category_id=$update_category_id";
             }
 
-            $update_result = mysqli_query($conn, $update_query);
+            if (!isset($notification['message'])) {
+                $update_result = mysqli_query($conn, $update_query);
 
-            if ($update_result) {
-                $success_message = "Category updated successfully.";
-                // Display the success message on the same page
-            } else {
-                echo "<div class='alert alert-danger'>Error updating category: " . mysqli_error($conn) . "</div>";
+                if ($update_result) {
+                    $notification = [
+                        'message' => 'Category updated successfully.',
+                        'type' => 'success'
+                    ];
+                } else {
+                    $notification = [
+                        'message' => 'Error updating category: ' . mysqli_error($conn),
+                        'type' => 'danger'
+                    ];
+                }
             }
         }
     }
@@ -56,7 +77,10 @@ if (isset($_GET['id'])) {
     if ($edit_query) {
         $fetch_data = mysqli_fetch_assoc($edit_query);
     } else {
-        echo "<div class='alert alert-danger'>Error: " . mysqli_error($conn) . "</div>";
+        $notification = [
+            'message' => 'Error: ' . mysqli_error($conn),
+            'type' => 'danger'
+        ];
     }
 }
 ?>
@@ -68,7 +92,7 @@ if (isset($_GET['id'])) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>update_category GreenCart Team</title>
+    <title>Update Category - GreenCart Team</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -87,23 +111,35 @@ if (isset($_GET['id'])) {
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
-    <!-- =======================================================
-    * Template Name: NiceAdmin
-    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-    * Updated: Apr 20 2024 with Bootstrap v5.3.3
-    * Author: BootstrapMade.com
-    * License: https://bootstrapmade.com/license/
-    ======================================================== -->
+    <style>
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
 </head>
 
 <body>
 
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
-
     <div class="d-flex align-items-center justify-content-between">
-        <a href="index.jsp" class="logo d-flex align-items-center">
-        <img src="../img/logo.png" alt="">
+        <a href="" class="logo d-flex align-items-center">
+            <img src="../img/logo.png" alt="">
             <span class="d-none d-lg-block">GreenCart Admin</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -111,22 +147,15 @@ if (isset($_GET['id'])) {
 
     <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
-
             <li class="nav-item dropdown pe-3">
-
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                     <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-                    <span class="d-none d-md-block  ps-2">Admin</span>
-                </a><!-- End Profile Iamge Icon -->
-
+                    <span class="d-none d-md-block ps-2">Admin</span>
+                </a>
             </li><!-- End Profile Nav -->
-
         </ul>
     </nav><!-- End Icons Navigation -->
-
 </header><!-- End Header -->
-
-<!-- ======= Sidebar ======= -->
 
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
@@ -146,6 +175,22 @@ if (isset($_GET['id'])) {
         <h1>Update Category</h1>
     </div>
 
+    <?php if (!empty($notification['message'])): ?>
+        <div class="notification">
+            <div class="alert alert-<?= $notification['type'] ?> alert-dismissible fade show" role="alert">
+                <?= $notification['message'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        
+        <script>
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                document.querySelector('.notification').remove();
+            }, 5000);
+        </script>
+    <?php endif; ?>
+
     <section class="section">
         <div class="row">
             <div class="col-lg-6 mx-auto">
@@ -154,44 +199,37 @@ if (isset($_GET['id'])) {
                         <h5 class="card-title text-center">Edit Category Details</h5>
 
                         <form action="" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="update_category_id" value="<?php echo isset($fetch_data['category_id']) ? $fetch_data['category_id'] : ''; ?>">
+                            <input type="hidden" name="update_category_id" value="<?= isset($fetch_data['category_id']) ? $fetch_data['category_id'] : '' ?>">
 
-    <div class="mb-3">
-        <label class="form-label">Category Name</label>
-        <input type="text" class="form-control" required name="update_category_name" value="<?php echo isset($fetch_data['name']) ? $fetch_data['name'] : ''; ?>">
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Category Name</label>
+                                <input type="text" class="form-control"  name="update_category_name" value="<?= isset($fetch_data['name']) ? $fetch_data['name'] : '' ?>">
+                            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Category Description</label>
-        <textarea class="form-control" required name="update_category_desc"><?php echo isset($fetch_data['description']) ? $fetch_data['description'] : ''; ?></textarea>
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Category Description</label>
+                                <textarea class="form-control"  name="update_category_desc"><?= isset($fetch_data['description']) ? $fetch_data['description'] : '' ?></textarea>
+                            </div>
 
-  <!-- Show Previous Image -->
-<div class="mb-3">
-    <label class="form-label">Previous Image</label><br>
-    <?php if (!empty($fetch_data['image'])): ?>
-        <img src="../img/<?php echo $fetch_data['image']; ?>" alt="Category Image" width="150">
-    <?php else: ?>
-        <p>No image available</p>
-    <?php endif; ?>
-</div>
+                            <div class="mb-3">
+                                <label class="form-label">Previous Image</label><br>
+                                <?php if (!empty($fetch_data['image'])): ?>
+                                    <img src="../img/<?= $fetch_data['image'] ?>" alt="Category Image" width="150">
+                                <?php else: ?>
+                                    <p>No image available</p>
+                                <?php endif; ?>
+                            </div>
 
+                            <div class="mb-3">
+                                <label class="form-label">Upload New Image</label>
+                                <input type="file" class="form-control" name="update_category_image">
+                            </div>
 
-    <!-- Upload New Image -->
-    <div class="mb-3">
-        <label class="form-label">Upload New Image</label>
-        <input type="file" class="form-control" name="update_category_image">
-    </div>
-
-    <div class="text-center">
-        <button type="submit" class="btn btn-success" name="update_category">Update</button>
-        <input type="reset" id="close-edit" class="btn btn-secondary" value="Cancel">
-
-
-    </div>
-</form>
-
-
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success" name="update_category">Update</button>
+                                <a href="category.php" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -199,6 +237,8 @@ if (isset($_GET['id'])) {
     </section>
 </main>
 
+<!-- Vendor JS Files -->
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
