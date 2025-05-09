@@ -190,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
                                 <label for="product_price" class="form-label">Price Rs. *</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rs.</span>
-                                    <input type="number" class="form-control" id="product_price" name="product_price" step="0.01" min="0" required>
+                                    <input type="text" class="form-control" id="product_price" name="product_price" step="0.01" min="0" required>
                                     <div class="invalid-feedback">
                                         Please enter a valid price.
                                     </div>
@@ -199,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
 
                             <div class="col-md-6">
                                 <label for="product_stock_quantity" class="form-label">Stock Quantity *</label>
-                                <input type="number" class="form-control" id="product_stock_quantity" name="product_stock_quantity" min="0" required>
+                                <input type="text" class="form-control" id="product_stock_quantity" name="product_stock_quantity" min="0" required>
                                 <div class="invalid-feedback">
                                     Please enter stock quantity.
                                 </div>
