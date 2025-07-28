@@ -192,7 +192,17 @@ $total_pages = ceil($total_products / $products_per_page);
                         <div class="product-info">
                             <h3><?= htmlspecialchars($product['name']); ?></h3>
                             <div class="product-rating">
-                                <span class="stars">★★★★★</span>
+                                <?php 
+                                switch(true) {
+                                    case ($product['rating']>=5): echo '<span class="stars">★★★★★</span>'; break;
+                                    case ($product['rating']>=4): echo '<span class="stars">★★★★☆</span>'; break;
+                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆</span>'; break;
+                                    case ($product['rating']>=2): echo '<span class="stars">★★☆</span>'; break;
+                                    case ($product['rating']>=1): echo '<span class="stars">★☆</span>'; break;
+                                    default: echo 'No rating';
+                                }
+                                ?>
+                                
                                 <span class="reviews">(<?= rand(50, 150); ?>)</span>
                             </div>
                             <div class="product-price">Rs.<?php echo number_format($product['price']); ?>
