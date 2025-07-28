@@ -74,6 +74,10 @@
   background-color: #fef2f2;
   color: #ef4444;
 }
+.order-status.declined {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
 
 .order-summary {
   padding: 20px;
