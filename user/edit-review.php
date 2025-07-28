@@ -162,10 +162,11 @@ mysqli_close($conn);
                             <div class="form-group">
                                 <label for="rating">Rating</label>
                                 <div class="rating-input">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <?php for ($i = 5; $i >= 1; $i--): ?>
                                         <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" <?php echo $review['rating'] == $i ? 'checked' : ''; ?>>
-                                        <label for="star<?php echo $i; ?>"><?php echo $i; ?> Star</label>
+                                     <label for="star<?php echo $i; ?>">★</label>
                                     <?php endfor; ?>
+
                                 </div>
                             </div>
 
