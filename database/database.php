@@ -3,7 +3,7 @@
 $host = "localhost";
 $dbname = "greencart";
 $username = "root";
-$password = "the123";
+$password = "";
 
 $conn = mysqli_connect($host,$username,$password,$dbname);
    
