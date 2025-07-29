@@ -109,9 +109,9 @@ if (isset($_SESSION['user_id'])) {
                         switch(true) {
                                     case ($product['rating']>=5): echo '<span class="stars">★★★★★</span>'; break;
                                     case ($product['rating']>=4): echo '<span class="stars">★★★★☆</span>'; break;
-                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆</span>'; break;
-                                    case ($product['rating']>=2): echo '<span class="stars">★★☆</span>'; break;
-                                    case ($product['rating']>=1): echo '<span class="stars">★☆</span>'; break;
+                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆☆</span>'; break;
+                                    case ($product['rating']>=2): echo '<span class="stars">★★☆☆☆</span>'; break;
+                                    case ($product['rating']>=1): echo '<span class="stars">★☆☆☆☆</span>'; break;
                                     default: echo 'No rating';
                                 }
                         ?>
@@ -174,16 +174,16 @@ if (isset($_SESSION['user_id'])) {
                 
                 <?php if ($reviews_result->num_rows > 0): ?>
                     <div class="reviews-summary">
-                    <div class="reviews-average"><?php echo $avg_rating; ?></div>
+                    <div class="reviews-average"><?php echo $product['rating']; ?></div>
                     <div>
                         <div class="reviews-stars">
                             <?php
                             switch(true) {
                                     case ($product['rating']>=5): echo '<span class="stars">★★★★★</span>'; break;
                                     case ($product['rating']>=4): echo '<span class="stars">★★★★☆</span>'; break;
-                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆</span>'; break;
-                                    case ($product['rating']>=2): echo '<span class="stars">★★☆</span>'; break;
-                                    case ($product['rating']>=1): echo '<span class="stars">★☆</span>'; break;
+                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆☆</span>'; break;
+                                    case ($product['rating']>=2): echo '<span class="stars">★★☆☆☆</span>'; break;
+                                    case ($product['rating']>=1): echo '<span class="stars">★☆☆☆☆</span>'; break;
                                     default: echo 'No rating';
                                 }
                             ?>
@@ -209,9 +209,9 @@ if (isset($_SESSION['user_id'])) {
                                         switch(true) {
                                     case ($review['rating']>=5): echo '<span class="star">★★★★★</span>'; break;
                                     case ($review['rating']>=4): echo '<span class="star">★★★★☆</span>'; break;
-                                    case ($review['rating']>=3): echo '<span class="star">★★★☆</span>'; break;
-                                    case ($review['rating']>=2): echo '<span class="star">★★☆</span>'; break;
-                                    case ($review['rating']>=1): echo '<span class="star">★☆</span>'; break;
+                                    case ($review['rating']>=3): echo '<span class="star">★★★☆☆</span>'; break;
+                                    case ($review['rating']>=2): echo '<span class="star">★★☆☆☆</span>'; break;
+                                    case ($review['rating']>=1): echo '<span class="star">★☆☆☆☆</span>'; break;
                                     default: echo 'No rating';
                                 }
                                         ?>

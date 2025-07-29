@@ -1,8 +1,7 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-}
-else if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
+} else if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
     header("Location: 404.html");
 }
 // Include the database connection
@@ -79,18 +78,6 @@ $total_result = $conn->query($total_products_query);
 $row = $total_result->fetch_assoc();
 $total_products = $row['total'];
 
-// Calculate average rating
-$avg_rating_query = "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count 
-                    FROM reviews 
-                    WHERE product_id = ?";
-$avg_rating_stmt = $conn->prepare($avg_rating_query);
-$avg_rating_stmt->bind_param("i", $product_id);
-$avg_rating_stmt->execute();
-$avg_rating_result = $avg_rating_stmt->get_result();
-$rating_data = $avg_rating_result->fetch_assoc();
-
-$avg_rating = $rating_data['avg_rating'] ? round($rating_data['avg_rating'], 1) : 0;
-$review_count = $rating_data['review_count'];
 
 // Calculate the total number of pages
 $total_pages = ceil($total_products / $products_per_page);
@@ -184,31 +171,42 @@ $total_pages = ceil($total_products / $products_per_page);
             <div class="products-grid">
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
-                    <a href="product-details.php?id=<?= $product['product_id']; ?>" class="product-link">
-                        <div class="product-image">
-                            <img src="../img/<?= htmlspecialchars($product['image']); ?>" alt="<?= htmlspecialchars($product['name']); ?>">
-                        </div>
+                        <a href="product-details.php?id=<?= $product['product_id']; ?>" class="product-link">
+                            <div class="product-image">
+                                <img src="../img/<?= htmlspecialchars($product['image']); ?>" alt="<?= htmlspecialchars($product['name']); ?>">
+                            </div>
                         </a>
                         <div class="product-info">
                             <h3><?= htmlspecialchars($product['name']); ?></h3>
                             <div class="product-rating">
-                                <?php 
-                                switch(true) {
-                                    case ($product['rating']>=5): echo '<span class="stars">★★★★★</span>'; break;
-                                    case ($product['rating']>=4): echo '<span class="stars">★★★★☆</span>'; break;
-                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆</span>'; break;
-                                    case ($product['rating']>=2): echo '<span class="stars">★★☆</span>'; break;
-                                    case ($product['rating']>=1): echo '<span class="stars">★☆</span>'; break;
-                                    default: echo 'No rating';
+                                <?php
+                                switch (true) {
+                                    case ($product['rating'] >= 5):
+                                        echo '<span class="stars">★★★★★</span>';
+                                        break;
+                                    case ($product['rating'] >= 4):
+                                        echo '<span class="stars">★★★★☆</span>';
+                                        break;
+                                    case ($product['rating'] >= 3):
+                                        echo '<span class="stars">★★★☆☆</span>';
+                                        break;
+                                    case ($product['rating'] >= 2):
+                                        echo '<span class="stars">★★☆☆☆</span>';
+                                        break;
+                                    case ($product['rating'] >= 1):
+                                        echo '<span class="stars">★☆☆☆☆</span>';
+                                        break;
+                                    default:
+                                        echo 'No rating';
                                 }
                                 ?>
-                                
-                                <span class="reviews">(<?= rand(50, 150); ?>)</span>
+
+                                <span class="reviews-count">(<?php echo $product['review_count']; ?> reviews)</span>
                             </div>
                             <div class="product-price">Rs.<?php echo number_format($product['price']); ?>
                             </div>
                             <button type="button" class="btn btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">Add to Cart</button>
-                            </div>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
