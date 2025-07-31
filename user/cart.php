@@ -263,7 +263,7 @@ $checkout_data = isset($_SESSION['checkout_data']) ? $_SESSION['checkout_data'] 
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
-                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($checkout_data['phone']); ?>" readonly>
+                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($checkout_data['phone']); ?>" >
                             <small class="error-message" id="phone-error"></small>
                         </div>
                         <div class="form-group">
