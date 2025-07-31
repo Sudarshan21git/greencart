@@ -26,16 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = mysqli_real_escape_string($conn, $_POST['address']);
     $payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
 
-    // Save form data in session for persistence
-    $_SESSION['checkout_data'] = [
-        'first_name' => $first_name,
-        'last_name' => $last_name,
-        'email' => $email,
-        'phone' => $phone,
-        'address' => $address,
-        'payment_method' => $payment_method
-    ];
-
     // Validation
     $error_message = "";
 
@@ -106,6 +96,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Generate order number
         $order_number = uniqid('ORD-');
+
+        // Save form data in session for persistence
+        $_SESSION['checkout_data'] = [
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'email' => $email,
+            'phone' => $phone,
+            'address' => $address,
+            'payment_method' => $payment_method,
+            'order_number' => $order_number,
+            'order_total' => $order_total,
+            'cart_id' => $cart_id
+        ];
+
+        if ($payment_method != "cod") {
+            header("Location: khaltiPayRequest.php");
+            exit();
+        }
 
         // Shipping address
         $shipping_address = $address;

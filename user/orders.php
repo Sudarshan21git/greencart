@@ -208,16 +208,16 @@ mysqli_close($conn);
                                         </div>
                                         <div class="order-status <?php echo strtolower($order['status']); ?>">
                                             <?php
-                                                $status = strtolower($order['status']);
-                                                $icons = [
-                                                    'pending' => '⏳',
-                                                    'processing' => '🔄',
-                                                    'delivered' => '🚚',
-                                                    'approved' => '✅',
-                                                    'cancelled' => '❌',
-                                                    'declined' => '❌'
-                                                ];
-                                                echo $icons[$status] . ' ' . ucfirst($order['status']);
+                                            $status = strtolower($order['status']);
+                                            $icons = [
+                                                'pending' => '⏳',
+                                                'processing' => '🔄',
+                                                'delivered' => '🚚',
+                                                'approved' => '✅',
+                                                'cancelled' => '❌',
+                                                'declined' => '❌'
+                                            ];
+                                            echo $icons[$status] . ' ' . ucfirst($order['status']);
                                             ?>
                                         </div>
                                     </div>
@@ -277,7 +277,7 @@ mysqli_close($conn);
                                                         </h4>
                                                         <div class="order-item-meta">
                                                             <span class="meta-item">
-                                                                <span class="meta-icon">🔢</span>
+                                                                <span class="meta-icon">📦</span>
                                                                 <span>Qty: <?php echo $item['quantity']; ?></span>
                                                             </span>
                                                             <span class="meta-item">
@@ -335,7 +335,7 @@ mysqli_close($conn);
                             </div>
                             <h3>No Orders Yet</h3>
                             <p>You haven't placed any orders yet. Start shopping to place your first order!</p>
-                            <a href="../shop.php" class="btn btn-primary">Start Shopping</a>
+                            <a href="shop.php" class="btn btn-primary">Start Shopping</a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -368,7 +368,7 @@ mysqli_close($conn);
                     const container = this.closest('.order-card').querySelector('.order-items-container');
                     const toggleIcon = this.querySelector('.toggle-icon');
                     const toggleText = this.querySelector('.toggle-text');
-                    
+
                     if (container.classList.contains('active')) {
                         container.classList.remove('active');
                         toggleIcon.textContent = '+';
@@ -384,15 +384,15 @@ mysqli_close($conn);
             // Filter orders
             const filterButtons = document.querySelectorAll('.filter-btn');
             const orderCards = document.querySelectorAll('.order-card');
-            
+
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const filter = this.getAttribute('data-filter');
-                    
+
                     // Update active button
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
-                    
+
                     // Filter orders
                     orderCards.forEach(card => {
                         if (filter === 'all' || card.getAttribute('data-status') === filter) {

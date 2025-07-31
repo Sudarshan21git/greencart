@@ -7,8 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
-}
-else if ($_SESSION['is_admin'] == 1) {
+} else if ($_SESSION['is_admin'] == 1) {
     header("Location: 404.html");
 }
 
@@ -39,6 +38,7 @@ unset($_SESSION['order_date']);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +46,7 @@ unset($_SESSION['order_date']);
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/cart-styles.css">
     <link rel="icon" type="image/png" href="../img/logo.png">
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -54,7 +54,7 @@ unset($_SESSION['order_date']);
             padding: 60px 0;
             background-color: #f9f9f9;
         }
-        
+
         .confirmation-container {
             background-color: white;
             border-radius: 8px;
@@ -64,17 +64,17 @@ unset($_SESSION['order_date']);
             max-width: 600px;
             margin: 0 auto;
         }
-        
+
         .confirmation-icon {
             color: #4CAF50;
             margin-bottom: 20px;
         }
-        
+
         .confirmation-container h2 {
             color: #333;
             margin-bottom: 20px;
         }
-        
+
         .order-details {
             margin: 30px 0;
             text-align: left;
@@ -82,7 +82,7 @@ unset($_SESSION['order_date']);
             padding: 20px;
             border-radius: 8px;
         }
-        
+
         .order-detail {
             display: flex;
             justify-content: space-between;
@@ -90,15 +90,15 @@ unset($_SESSION['order_date']);
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
-        
+
         .order-detail:last-child {
             border-bottom: none;
         }
-        
+
         .confirmation-container .btn {
             margin-top: 20px;
         }
-        
+
         .btn-group {
             display: flex;
             gap: 10px;
@@ -107,16 +107,20 @@ unset($_SESSION['order_date']);
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <?php include_once '../includes/header.php'; ?>
-    
+
     <!-- Confirmation Section -->
     <section class="confirmation-section">
         <div class="container">
             <div class="confirmation-container">
                 <div class="confirmation-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
                 </div>
                 <h2>Thank You for Your Order!</h2>
                 <p>Your order has been placed successfully.</p>
@@ -141,10 +145,10 @@ unset($_SESSION['order_date']);
             </div>
         </div>
     </section>
-    
+
     <!-- Footer -->
     <?php include_once '../includes/footer.php'; ?>
-    
     <script src="../js/script.js"></script>
 </body>
+
 </html>

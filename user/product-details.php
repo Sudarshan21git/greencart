@@ -56,19 +56,6 @@ $reviews_stmt->bind_param("i", $product_id);
 $reviews_stmt->execute();
 $reviews_result = $reviews_stmt->get_result();
 
-// Calculate average rating
-$avg_rating_query = "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count 
-                    FROM reviews 
-                    WHERE product_id = ?";
-$avg_rating_stmt = $conn->prepare($avg_rating_query);
-$avg_rating_stmt->bind_param("i", $product_id);
-$avg_rating_stmt->execute();
-$avg_rating_result = $avg_rating_stmt->get_result();
-$rating_data = $avg_rating_result->fetch_assoc();
-
-$avg_rating = $rating_data['avg_rating'] ? round($rating_data['avg_rating'], 1) : 0;
-$review_count = $rating_data['review_count'];
-
 // Check if user has purchased this product (to enable review submission)
 $user_purchased = false;
 if (isset($_SESSION['user_id'])) {
@@ -119,18 +106,16 @@ if (isset($_SESSION['user_id'])) {
 
                     <div class="product-details-product-rating">
                         <?php
-                        // Display stars based on average rating
-                        for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $avg_rating) {
-                                echo '<span class="stars filled">★</span>';
-                            } else if ($i - 0.5 <= $avg_rating) {
-                                echo '<span class="stars half">★</span>';
-                            } else {
-                                echo '<span class="stars">☆</span>';
-                            }
-                        }
-                        ?><div class="reviews-average" style="font-size: 20px;"><?php echo $avg_rating; ?></div>
-                        <span class="reviews-count">(<?php echo $review_count; ?> reviews)</span>
+                        switch(true) {
+                                    case ($product['rating']>=5): echo '<span class="stars">★★★★★</span>'; break;
+                                    case ($product['rating']>=4): echo '<span class="stars">★★★★☆</span>'; break;
+                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆☆</span>'; break;
+                                    case ($product['rating']>=2): echo '<span class="stars">★★☆☆☆</span>'; break;
+                                    case ($product['rating']>=1): echo '<span class="stars">★☆☆☆☆</span>'; break;
+                                    default: echo 'No rating';
+                                }
+                        ?>
+                        <span class="reviews-count">(<?php echo $product['review_count']; ?> reviews)</span>
                     </div>
 
                     <div class="product-details-product-price">Rs.<?php echo number_format($product['price'], 2) ?></div>
@@ -189,23 +174,21 @@ if (isset($_SESSION['user_id'])) {
                 
                 <?php if ($reviews_result->num_rows > 0): ?>
                     <div class="reviews-summary">
-                    <div class="reviews-average"><?php echo $avg_rating; ?></div>
+                    <div class="reviews-average"><?php echo $product['rating']; ?></div>
                     <div>
                         <div class="reviews-stars">
                             <?php
-                            // Display stars based on average rating
-                            for ($i = 1; $i <= 5; $i++) {
-                                if ($i <= $avg_rating) {
-                                    echo '<span class="stars">★</span>';
-                                } else if ($i - 0.5 <= $avg_rating) {
-                                    echo '<span class="stars half">★</span>';
-                                } else {
-                                    echo '<span class="stars">☆</span>';
+                            switch(true) {
+                                    case ($product['rating']>=5): echo '<span class="stars">★★★★★</span>'; break;
+                                    case ($product['rating']>=4): echo '<span class="stars">★★★★☆</span>'; break;
+                                    case ($product['rating']>=3): echo '<span class="stars">★★★☆☆</span>'; break;
+                                    case ($product['rating']>=2): echo '<span class="stars">★★☆☆☆</span>'; break;
+                                    case ($product['rating']>=1): echo '<span class="stars">★☆☆☆☆</span>'; break;
+                                    default: echo 'No rating';
                                 }
-                            }
                             ?>
                         </div>
-                        <div class="reviews-count">Based on <?php echo $review_count; ?> reviews</div>
+                        <div class="reviews-count">Based on <?php echo $product['review_count']; ?> reviews</div>
                     </div>
                 </div>
                     <div class="reviews-list">
@@ -223,13 +206,14 @@ if (isset($_SESSION['user_id'])) {
                                     </div>
                                     <div class="review-rating">
                                         <?php
-                                        for ($i = 1; $i <= 5; $i++) {
-                                            if ($i <= $review['rating']) {
-                                                echo '<span class="star">★</span>';
-                                            } else {
-                                                echo '<span class="star">☆</span>';
-                                            }
-                                        }
+                                        switch(true) {
+                                    case ($review['rating']>=5): echo '<span class="star">★★★★★</span>'; break;
+                                    case ($review['rating']>=4): echo '<span class="star">★★★★☆</span>'; break;
+                                    case ($review['rating']>=3): echo '<span class="star">★★★☆☆</span>'; break;
+                                    case ($review['rating']>=2): echo '<span class="star">★★☆☆☆</span>'; break;
+                                    case ($review['rating']>=1): echo '<span class="star">★☆☆☆☆</span>'; break;
+                                    default: echo 'No rating';
+                                }
                                         ?>
                                     </div>
                                 </div>

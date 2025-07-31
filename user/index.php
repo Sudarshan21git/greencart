@@ -2,7 +2,7 @@
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-} 
+}
 
 // Include database connection
 include "../database/database.php";
@@ -26,21 +26,21 @@ if (isset($_SESSION['user_id']) && (!isset($_SESSION['is_admin']) || $_SESSION['
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3); // 3 seconds timeout for connection
     curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5 seconds timeout for the request
     $response = curl_exec($ch);
-    
+
     // Check if the request was successful
     if ($response !== false) {
         $result = json_decode($response, true);  // true returns associative array
-        
+
         if ($result && !empty($result)) {
             $product_ids = array_keys($result);
-                        
+
             if (!empty($product_ids)) {
                 $ids_str = implode(',', $product_ids);
-                $sql = "SELECT product_id, name, image, price, rating, 
+                $sql = "SELECT product_id, name, image, price, rating, review_count, 
                        (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
                        FROM products WHERE product_id IN ($ids_str)";
                 $result = $conn->query($sql);
-                
+
                 if ($result && $result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         $recommended_products[] = $row;
@@ -54,11 +54,11 @@ if (isset($_SESSION['user_id']) && (!isset($_SESSION['is_admin']) || $_SESSION['
 
 // If we have fewer than 2 recommended products, get featured products instead
 if (count($recommended_products) < 2) {
-    $featured_sql = "SELECT product_id, name, image, price, rating, 
+    $featured_sql = "SELECT product_id, name, image, price, rating, review_count,
                     (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
                     FROM products WHERE is_featured = 1 LIMIT 4";
     $featured_result = $conn->query($featured_sql);
-    
+
     if ($featured_result && $featured_result->num_rows > 0) {
         $recommended_products = []; // Clear any existing recommendations
         while ($row = $featured_result->fetch_assoc()) {
@@ -132,15 +132,35 @@ $categories_result = mysqli_query($conn, $query);
                     <?php foreach ($recommended_products as $product): ?>
                         <div class="product-card">
                             <a href="product-details.php?id=<?= $product['product_id'] ?>">
-                            <div class="product-image">
-                                <img src="../img/<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>">
-                            </div>
+                                <div class="product-image">
+                                    <img src="../img/<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>">
+                                </div>
                             </a>
                             <div class="product-info">
                                 <h3><?= htmlspecialchars($product['name']) ?></h3>
                                 <div class="product-rating">
-                                <span class="stars"><?= str_repeat('★', intval($product['rating'])) ?><?= str_repeat('☆', 5 - intval($product['rating'])) ?></span>
-                                <span class="reviews">(<?= $product['reviews'] ?>)</span>
+                                    <?php
+                                    switch (true) {
+                                        case ($product['rating'] >= 5):
+                                            echo '<span class="stars">★★★★★</span>';
+                                            break;
+                                        case ($product['rating'] >= 4):
+                                            echo '<span class="stars">★★★★☆</span>';
+                                            break;
+                                        case ($product['rating'] >= 3):
+                                            echo '<span class="stars">★★★☆☆</span>';
+                                            break;
+                                        case ($product['rating'] >= 2):
+                                            echo '<span class="stars">★★☆☆☆</span>';
+                                            break;
+                                        case ($product['rating'] >= 1):
+                                            echo '<span class="stars">★☆☆☆☆</span>';
+                                            break;
+                                        default:
+                                            echo 'No rating';
+                                    }
+                                    ?>
+                                    <span class="reviews-count">(<?php echo $product['review_count']; ?> reviews)</span>
                                 </div>
                                 <div class="product-price">Rs.<?= number_format($product['price'], 2) ?></div>
                                 <button class="btn btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">Add to Cart</button>
@@ -245,4 +265,5 @@ $categories_result = mysqli_query($conn, $query);
 
 </body>
 <script src="../js/script.js"></script>
+
 </html>
