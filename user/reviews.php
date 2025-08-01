@@ -8,8 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
-}
-else if ($_SESSION['is_admin'] == 1) {
+} else if ($_SESSION['is_admin'] == 1) {
     header("Location: 404.html");
 }
 
@@ -33,7 +32,6 @@ $reviews = [];
 while ($review = mysqli_fetch_assoc($reviews_result)) {
     $reviews[] = $review;
 }
-mysqli_stmt_close($reviews_stmt);
 
 // Handle review deletion
 $success_message = '';
@@ -41,23 +39,23 @@ $error_message = '';
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $review_id = (int)$_GET['delete'];
-    
+
     // Check if review belongs to user
     $check_review_query = "SELECT * FROM reviews WHERE review_id = ? AND user_id = ?";
     $check_review_stmt = mysqli_prepare($conn, $check_review_query);
     mysqli_stmt_bind_param($check_review_stmt, "ii", $review_id, $user_id);
     mysqli_stmt_execute($check_review_stmt);
     mysqli_stmt_store_result($check_review_stmt);
-    
+
     if (mysqli_stmt_num_rows($check_review_stmt) > 0) {
         // Delete review
         $delete_query = "DELETE FROM reviews WHERE review_id = ?";
         $delete_stmt = mysqli_prepare($conn, $delete_query);
         mysqli_stmt_bind_param($delete_stmt, "i", $review_id);
-        
+
         if (mysqli_stmt_execute($delete_stmt)) {
             $success_message = "Review deleted successfully.";
-            
+
             // Refresh reviews list
             mysqli_stmt_execute($reviews_stmt);
             $reviews_result = mysqli_stmt_get_result($reviews_stmt);
@@ -68,12 +66,12 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         } else {
             $error_message = "Failed to delete review. Please try again.";
         }
-        
+
         mysqli_stmt_close($delete_stmt);
     } else {
         $error_message = "Review not found or you don't have permission to delete it.";
     }
-    
+
     mysqli_stmt_close($check_review_stmt);
 }
 
@@ -158,10 +156,10 @@ mysqli_close($conn);
                                             <div class="review-date"><?php echo date('F d, Y', strtotime($review['created_at'])); ?></div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="review-content">
                                         <div class="review-rating">
-                                            <?php 
+                                            <?php
                                             for ($i = 1; $i <= 5; $i++) {
                                                 echo $i <= $review['rating'] ? '★' : '☆';
                                             }
@@ -171,7 +169,7 @@ mysqli_close($conn);
                                             <?php echo htmlspecialchars($review['message']); ?>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="review-actions">
                                         <a href="product-details.php?id=<?php echo $review['product_id']; ?>" class="btn btn-sm">View Product</a>
                                         <a href="edit-review.php?id=<?php echo $review['review_id']; ?>" class="btn btn-sm btn-outline">Edit Review</a>
@@ -183,7 +181,9 @@ mysqli_close($conn);
                     <?php else: ?>
                         <div class="empty-state">
                             <div class="empty-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
                             </div>
                             <h3>No Reviews Yet</h3>
                             <p>You haven't written any reviews yet. Share your thoughts on products you've purchased!</p>
@@ -215,4 +215,5 @@ mysqli_close($conn);
         });
     </script>
 </body>
+
 </html>
