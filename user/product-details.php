@@ -78,6 +78,66 @@ if (isset($_SESSION['user_id'])) {
     $user_reviewed_result = $user_reviewed_stmt->get_result();
     $user_already_reviewed = $user_reviewed_result->num_rows > 0;
 }
+
+// Initialize recommended products array
+$recommended_products = [];
+
+// Get recommendations if user is logged in
+if (isset($_SESSION['user_id']) && (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1)) {
+    $user_id = $_SESSION['user_id'];
+
+    // Get recommendations from Python script
+    $python_url = 'http://localhost:5000/recommendations';
+    $data = array('user_id' => $user_id);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $python_url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3); // 3 seconds timeout for connection
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5 seconds timeout for the request
+    $response = curl_exec($ch);
+
+    // Check if the request was successful
+    if ($response !== false) {
+        $result = json_decode($response, true);  // true returns associative array
+
+        if ($result && !empty($result)) {
+            $product_ids = array_keys($result);
+
+            if (!empty($product_ids)) {
+                $ids_str = implode(',', $product_ids);
+                $sql = "SELECT product_id, name, image, price, rating, review_count, 
+                       (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
+                       FROM products WHERE product_id IN ($ids_str)";
+                $result = $conn->query($sql);
+
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $recommended_products[] = $row;
+                    }
+                }
+            }
+        }
+    }
+    curl_close($ch);
+}
+// If we have fewer than 2 recommended products, get featured products instead
+if (count($recommended_products) < 2) {
+    $featured_sql = "SELECT product_id, name, image, price, rating, review_count,
+                    (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.product_id) as reviews 
+                    FROM products WHERE is_featured = 1 LIMIT 4";
+    $featured_result = $conn->query($featured_sql);
+
+    if ($featured_result && $featured_result->num_rows > 0) {
+        $recommended_products = []; // Clear any existing recommendations
+        while ($row = $featured_result->fetch_assoc()) {
+            $recommended_products[] = $row;
+        }
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -158,6 +218,57 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
             </div>
+                <!-- Recommended Products Section -->
+    <section class="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" style="font-size: 30px;"><?php echo (count($recommended_products) < 2) ? 'Featured Products' : 'Recommended for You'; ?></h2>
+            </div>
+            <div class="products-slider">
+                <div class="slider-container">
+                    <?php foreach ($recommended_products as $product): ?>
+                        <div class="product-card">
+                            <a href="product-details.php?id=<?= $product['product_id'] ?>">
+                                <div class="product-image">
+                                    <img src="../img/<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>">
+                                </div>
+                            </a>
+                            <div class="product-info">
+                                <h3><?= htmlspecialchars($product['name']) ?></h3>
+                                <div class="product-rating">
+                                    <?php
+                                    switch (true) {
+                                        case ($product['rating'] >= 5):
+                                            echo '<span class="stars">★★★★★</span>';
+                                            break;
+                                        case ($product['rating'] >= 4):
+                                            echo '<span class="stars">★★★★☆</span>';
+                                            break;
+                                        case ($product['rating'] >= 3):
+                                            echo '<span class="stars">★★★☆☆</span>';
+                                            break;
+                                        case ($product['rating'] >= 2):
+                                            echo '<span class="stars">★★☆☆☆</span>';
+                                            break;
+                                        case ($product['rating'] >= 1):
+                                            echo '<span class="stars">★☆☆☆☆</span>';
+                                            break;
+                                        default:
+                                            echo 'No rating';
+                                    }
+                                    ?>
+                                    <span class="reviews-count">(<?php echo $product['review_count']; ?> reviews)</span>
+                                </div>
+                                <div class="product-price">Rs.<?= number_format($product['price'], 2) ?></div>
+                                <button class="btn btn-add-cart" data-productid="<?php echo $product['product_id'] ?>">Add to Cart</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+
         </div>
     </section>
     
@@ -239,25 +350,25 @@ if (isset($_SESSION['user_id'])) {
                         <form action="../functions/submit-review.php" method="POST">
                             <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
                             
-                            <div class="form-group">
-                                <label>Your Rating</label>
+                            <div class="form-group" style="display:flex; justify-content:space-between">
+                                <label style="font-size: 18px;">Your Rating</label>
                                 <div class="rating-input">
                                     <input type="radio" name="rating" id="star5" value="5" required>
-                                    <label for="star5">★</label>
+                                    <label for="star5" style="font-size: 28px;">★</label>
                                     <input type="radio" name="rating" id="star4" value="4">
-                                    <label for="star4">★</label>
+                                    <label for="star4" style="font-size: 28px;">★</label>
                                     <input type="radio" name="rating" id="star3" value="3">
-                                    <label for="star3">★</label>
+                                    <label for="star3" style="font-size: 28px;">★</label>
                                     <input type="radio" name="rating" id="star2" value="2">
-                                    <label for="star2">★</label>
+                                    <label for="star2" style="font-size: 28px;">★</label>
                                     <input type="radio" name="rating" id="star1" value="1">
-                                    <label for="star1">★</label>
+                                    <label for="star1" style="font-size: 28px;">★</label>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="review-comment">Your Review</label>
-                                <textarea id="review-comment" name="comment" required placeholder="Share your experience with this product..."></textarea>
+                                <label for="review-comment" style="font-size: 20px;">Your Review</label>
+                                <textarea id="review-comment" name="comment" required placeholder="Share your experience with this product..." style="font-size: 18px;"></textarea>
                             </div>
                             
                             <button type="submit" class="btn btn-primary">Submit Review</button>

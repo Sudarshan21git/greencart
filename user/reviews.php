@@ -155,9 +155,6 @@ mysqli_close($conn);
                                             <h3><?php echo $review['product_name']; ?></h3>
                                             <div class="review-date"><?php echo date('F d, Y', strtotime($review['created_at'])); ?></div>
                                         </div>
-                                    </div>
-
-                                    <div class="review-content">
                                         <div class="review-rating">
                                             <?php
                                             for ($i = 1; $i <= 5; $i++) {
@@ -165,6 +162,10 @@ mysqli_close($conn);
                                             }
                                             ?>
                                         </div>
+                                    </div>
+
+                                    <div class="review-content">
+                                       
                                         <div class="review-text">
                                             <?php echo htmlspecialchars($review['message']); ?>
                                         </div>

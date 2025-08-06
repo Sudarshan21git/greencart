@@ -1,0 +1,137 @@
+.confirmation-section {
+    padding: 60px 0;
+    background-color: #f9f9f9;
+}
+
+.confirmation-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.confirmation-icon {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.confirmation-container h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.order-details {
+    margin: 30px 0;
+    text-align: left;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.order-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-detail:last-child {
+    border-bottom: none;
+}
+
+.product-details {
+    margin: 30px 0;
+    text-align: left;
+}
+
+.product-details h3 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.product-price {
+    color: #666;
+    font-size: 14px;
+}
+
+.product-quantity {
+    color: #666;
+    font-size: 14px;
+}
+
+.product-total {
+    font-weight: 600;
+    color: #4CAF50;
+    font-size: 16px;
+}
+
+.confirmation-container .btn {
+    margin-top: 20px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.download-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: #45a049;
+    color: white;
+    text-decoration: none;
+}
+
+.confirmation-container {
+    position: relative;
+}

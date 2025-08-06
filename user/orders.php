@@ -317,9 +317,9 @@ mysqli_close($conn);
                                                 <span class="btn-icon">⭐</span> Manage Reviews
                                             </a>
                                         <?php endif; ?>
-                                        <button class="btn btn-outline btn-reorder">
-                                            <span class="btn-icon">🔄</span> Reorder
-                                        </button>
+                                        <a href="../functions/generate-bill.php?order_id=<?php echo $order['order_id']; ?>" class="btn btn-outline" target="_blank">
+                                            <span class="btn-icon">📄</span> Download Bill
+                                        </a>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -404,13 +404,7 @@ mysqli_close($conn);
                 });
             });
 
-            // Reorder functionality (placeholder)
-            const reorderButtons = document.querySelectorAll('.btn-reorder');
-            reorderButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    alert('Reorder functionality will be implemented soon!');
-                });
-            });
+
         });
     </script>
 </body>

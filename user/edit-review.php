@@ -162,11 +162,16 @@ mysqli_close($conn);
                             <div class="form-group">
                                 <label for="rating">Rating</label>
                                 <div class="rating-input">
-                                    <?php for ($i = 5; $i >= 1; $i--): ?>
-                                        <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" <?php echo $review['rating'] == $i ? 'checked' : ''; ?>>
-                                     <label for="star<?php echo $i; ?>">★</label>
-                                    <?php endfor; ?>
-
+                                    <input type="radio" name="rating" id="star5" value="5" <?php echo $review['rating'] == 5 ? 'checked' : ''; ?>>
+                                    <label for="star5">★</label>
+                                    <input type="radio" name="rating" id="star4" value="4" <?php echo $review['rating'] == 4 ? 'checked' : ''; ?>>
+                                    <label for="star4">★</label>
+                                    <input type="radio" name="rating" id="star3" value="3" <?php echo $review['rating'] == 3 ? 'checked' : ''; ?>>
+                                    <label for="star3">★</label>
+                                    <input type="radio" name="rating" id="star2" value="2" <?php echo $review['rating'] == 2 ? 'checked' : ''; ?>>
+                                    <label for="star2">★</label>
+                                    <input type="radio" name="rating" id="star1" value="1" <?php echo $review['rating'] == 1 ? 'checked' : ''; ?>>
+                                    <label for="star1">★</label>
                                 </div>
                             </div>
 
@@ -204,29 +209,15 @@ mysqli_close($conn);
                 }, 5000);
             }
             
-            // Star rating functionality
+            // Simple star rating functionality
             const ratingInputs = document.querySelectorAll('.rating-input input');
             const ratingLabels = document.querySelectorAll('.rating-input label');
             
+            // Handle input changes
             ratingInputs.forEach((input, index) => {
                 input.addEventListener('change', function() {
-                    // Reset all stars
-                    ratingLabels.forEach((label, i) => {
-                        if (i <= index) {
-                            label.classList.add('active');
-                        } else {
-                            label.classList.remove('active');
-                        }
-                    });
+                    // The CSS will handle the visual changes automatically
                 });
-            });
-            
-            // Initialize stars based on current rating
-            const currentRating = <?php echo $review['rating']; ?>;
-            ratingLabels.forEach((label, i) => {
-                if (i < currentRating) {
-                    label.classList.add('active');
-                }
             });
         });
     </script>

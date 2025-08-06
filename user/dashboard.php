@@ -20,7 +20,7 @@ include '../database/database.php';
 $user_id = $_SESSION['user_id'];
 
 // Get recent orders
-$orders_query = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
+$orders_query = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 3";
 $orders_stmt = mysqli_prepare($conn, $orders_query);
 mysqli_stmt_bind_param($orders_stmt, "i", $user_id);
 mysqli_stmt_execute($orders_stmt);
@@ -45,7 +45,7 @@ $reviews_query = "SELECT r.*, p.name as product_name, p.image as product_image
                  FROM reviews r 
                  JOIN products p ON r.product_id = p.product_id 
                  WHERE r.user_id = ? 
-                 ORDER BY r.created_at DESC LIMIT 3";
+                 ORDER BY r.created_at DESC LIMIT 5";
 $reviews_stmt = mysqli_prepare($conn, $reviews_query);
 mysqli_stmt_bind_param($reviews_stmt, "i", $user_id);
 mysqli_stmt_execute($reviews_stmt);
@@ -176,7 +176,7 @@ mysqli_close($conn);
     <?php if (count($recent_orders) > 0): ?>
     <div class="dashboard-orders">
         <?php foreach ($recent_orders as $order): ?>
-        <div class="dashboard-order-card">
+        <a href="orders.php" class="dashboard-order-card clickable">
             <div class="order-card-header">
                 <div class="order-number">
                     <span class="value">#<?php echo $order['order_number']; ?></span>
@@ -196,7 +196,7 @@ mysqli_close($conn);
                     <span class="order-amount">Rs.<?php echo number_format($order['total'], 2); ?></span>
                 </div>
             </div>
-        </div>
+        </a>
         <?php endforeach; ?>
     </div>
     <?php else: ?>
@@ -216,7 +216,7 @@ mysqli_close($conn);
                             <?php if (count($recent_reviews) > 0): ?>
                             <div class="dashboard-reviews">
                                 <?php foreach ($recent_reviews as $review): ?>
-                                <div class="dashboard-review">
+                                <a href="reviews.php" class="dashboard-review clickable">
                                     <div class="review-product">
                                         <img src="../img/<?php echo $review['product_image']; ?>" alt="<?php echo $review['product_name']; ?>">
                                         <span><?php echo $review['product_name']; ?></span>
@@ -229,7 +229,7 @@ mysqli_close($conn);
                                         ?>
                                     </div>
                                     <div class="review-date"><?php echo date('M d, Y', strtotime($review['created_at'])); ?></div>
-                                </div>
+                                </a>
                                 <?php endforeach; ?>
                             </div>
                             <?php else: ?>
