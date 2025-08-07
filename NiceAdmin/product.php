@@ -26,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
     $product_image = $_FILES['product_image']['name'];
     $product_image_temp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = '../img/' . $product_image;
+    $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
     if (empty($product_name) || empty($product_price) || empty($product_stock_quantity) || empty($product_desc) || empty($product_image) || empty($category_id)) {
         $errorMessage = "Please fill in all fields!";
@@ -44,9 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
         $result = $stmt->get_result();
 
         if ($result->num_rows == 0) {
-            $sql="INSERT INTO products (category_id, name, description, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?, ?)";
+            $sql="INSERT INTO products (category_id, name, description, price, stock_quantity, image, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issdis", $category_id, $product_name, $product_desc, $product_price, $product_stock_quantity, $product_image);
+            $stmt->bind_param("issdisi", $category_id, $product_name, $product_desc, $product_price, $product_stock_quantity, $product_image, $is_featured);
             $insert_success = $stmt->execute();
 
             if ($insert_success) {
@@ -231,6 +232,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
                                 <label for="product_image" class="form-label">Product Image</label>
                                 <input class="form-control" type="file" id="product_image" name="product_image" accept="image/png, image/jpg, image/jpeg">
                           
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured">
+                                    <label class="form-check-label" for="is_featured">
+                                        Featured Product
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">Check this box to mark the product as featured</small>
                             </div>
 
                             <div class="col-12">

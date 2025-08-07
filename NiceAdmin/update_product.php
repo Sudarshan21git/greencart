@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
     $update_product_price = trim($_POST['update_product_price']);
     $update_product_stock_quantity = trim($_POST['update_product_stock_quantity']);
     $update_category_id = trim($_POST['update_product_category']);
+    $update_is_featured = isset($_POST['update_is_featured']) ? 1 : 0;
     
     // Handling image upload
     $update_product_image = $_FILES['update_product_image']['name'];
@@ -57,14 +58,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
         if ($result->num_rows == 0) {
             // Update query with placeholders
             if (!empty($update_product_image)) {
-                $update_query = "UPDATE products SET category_id=?, name=?, description=?, price=?, stock_quantity=?, image=? WHERE product_id=?";
+                $update_query = "UPDATE products SET category_id=?, name=?, description=?, price=?, stock_quantity=?, image=?, is_featured=? WHERE product_id=?";
                 $stmt = $conn->prepare($update_query);
-                $stmt->bind_param("issdisi", $update_category_id, $update_product_name, $update_product_desc, $update_product_price, $update_product_stock_quantity, $update_product_image, $update_product_id);
+                $stmt->bind_param("issdisii", $update_category_id, $update_product_name, $update_product_desc, $update_product_price, $update_product_stock_quantity, $update_product_image, $update_is_featured, $update_product_id);
             } else {
                 // If no new image is uploaded, do not update the image column
-                $update_query = "UPDATE products SET category_id=?, name=?, description=?, price=?, stock_quantity=? WHERE product_id=?";
+                $update_query = "UPDATE products SET category_id=?, name=?, description=?, price=?, stock_quantity=?, is_featured=? WHERE product_id=?";
                 $stmt = $conn->prepare($update_query);
-                $stmt->bind_param("issdii", $update_category_id, $update_product_name, $update_product_desc, $update_product_price, $update_product_stock_quantity, $update_product_id);
+                $stmt->bind_param("issdiii", $update_category_id, $update_product_name, $update_product_desc, $update_product_price, $update_product_stock_quantity, $update_is_featured, $update_product_id);
             }
 
             if ($stmt->execute()) {
@@ -205,6 +206,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
               <div class="mb-3">
                 <label for="product_image" class="form-label">Product Image</label>
                 <input type="file" id="product_image" name="update_product_image" class="form-control">
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="update_is_featured" name="update_is_featured" <?php echo (isset($fetch_data['is_featured']) && $fetch_data['is_featured'] == 1) ? 'checked' : ''; ?>>
+                  <label class="form-check-label" for="update_is_featured">
+                    Featured Product
+                  </label>
+                </div>
+                <small class="form-text text-muted">Check this box to mark the product as featured</small>
               </div>
 
               <div class="text-center">

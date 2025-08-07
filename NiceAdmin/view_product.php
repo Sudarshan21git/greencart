@@ -158,6 +158,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                     <th>Price</th>
                                     <th>Stock</th>
                                     <th style="width: 150px;">Description</th>
+                                    <th>Featured</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -168,7 +169,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                 }
 
                                 $query = "
-                                    SELECT p.product_id, p.name AS product_name, p.description AS product_desc, p.price, p.stock_quantity, p.image, c.name AS category_name
+                                    SELECT p.product_id, p.name AS product_name, p.description AS product_desc, p.price, p.stock_quantity, p.image, p.is_featured, c.name AS category_name
                                     FROM products p
                                     LEFT JOIN categories c ON p.category_id = c.category_id
                                 ";
@@ -194,6 +195,13 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                         }
                                         echo "</td>";
                                         echo "<td style='font-size: 14px;'>{$row['product_desc']}</td>";
+                                        echo "<td>";
+                                        if ($row['is_featured'] == 1) {
+                                            echo "<span class='badge bg-success'><i class='bi bi-star-fill'></i> Featured</span>";
+                                        } else {
+                                            echo "<span class='badge bg-secondary'><i class='bi bi-star'></i> Regular</span>";
+                                        }
+                                        echo "</td>";
                                         echo "<td>
                                             <a href='view_product.php?delete=" . urlencode($row['product_id']) . "' class='btn btn-danger btn-sm me-1' onclick=\"return confirm('Are you sure you want to delete this product?')\"><i class='bi bi-trash'></i></a>
                                             <a href='update_product.php?edit=" . urlencode($row['product_id']) . "' class='btn btn-primary btn-sm'><i class='bi bi-pencil'></i></a>
@@ -202,7 +210,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                         $serial_number++;
                                     }
                                 } else {
-                                    echo "<tr><td colspan='8'>No products found.</td></tr>";
+                                    echo "<tr><td colspan='9'>No products found.</td></tr>";
                                 }
                                 ?>
                             </tbody>

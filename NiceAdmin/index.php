@@ -7,6 +7,52 @@ include('../database/database.php');
 $low_stock_query = mysqli_query($conn, "SELECT name FROM products WHERE stock_quantity < 5");
 $low_stock_products = mysqli_fetch_all($low_stock_query, MYSQLI_ASSOC);
 $low_stock_count = mysqli_num_rows($low_stock_query);
+
+// Fetch dashboard statistics
+// Total customers (users who are not admin)
+$total_customers_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE is_admin = 0");
+$total_customers = mysqli_fetch_assoc($total_customers_query)['total'];
+
+// Total orders
+$total_orders_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM orders");
+$total_orders = mysqli_fetch_assoc($total_orders_query)['total'];
+
+// Total revenue (sum of all order totals)
+$total_revenue_query = mysqli_query($conn, "SELECT SUM(total) as total FROM orders WHERE status != 'cancelled'");
+$total_revenue_result = mysqli_fetch_assoc($total_revenue_query);
+$total_revenue = $total_revenue_result['total'] ? $total_revenue_result['total'] : 0;
+
+// Today's orders
+$today_orders_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM orders WHERE DATE(created_at) = CURDATE()");
+$today_orders = mysqli_fetch_assoc($today_orders_query)['total'];
+
+// Today's revenue
+$today_revenue_query = mysqli_query($conn, "SELECT SUM(total) as total FROM orders WHERE DATE(created_at) = CURDATE() AND status != 'cancelled'");
+$today_revenue_result = mysqli_fetch_assoc($today_revenue_query);
+$today_revenue = $today_revenue_result['total'] ? $today_revenue_result['total'] : 0;
+
+// Recent orders (last 5 orders)
+$recent_orders_query = mysqli_query($conn, "
+    SELECT o.order_id, o.total, o.status, o.created_at, 
+           CONCAT(u.first_name, ' ', u.last_name) as customer_name
+    FROM orders o 
+    JOIN users u ON o.user_id = u.user_id 
+    ORDER BY o.created_at DESC 
+    LIMIT 5
+");
+$recent_orders = mysqli_fetch_all($recent_orders_query, MYSQLI_ASSOC);
+
+// Calculate percentage changes (simplified - you can make this more sophisticated)
+$yesterday_orders_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM orders WHERE DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)");
+$yesterday_orders = mysqli_fetch_assoc($yesterday_orders_query)['total'];
+
+$yesterday_revenue_query = mysqli_query($conn, "SELECT SUM(total) as total FROM orders WHERE DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND status != 'cancelled'");
+$yesterday_revenue_result = mysqli_fetch_assoc($yesterday_revenue_query);
+$yesterday_revenue = $yesterday_revenue_result['total'] ? $yesterday_revenue_result['total'] : 0;
+
+// Calculate percentage changes
+$orders_percentage = $yesterday_orders > 0 ? (($today_orders - $yesterday_orders) / $yesterday_orders) * 100 : 0;
+$revenue_percentage = $yesterday_revenue > 0 ? (($today_revenue - $yesterday_revenue) / $yesterday_revenue) * 100 : 0;
 ?>
 
 
@@ -113,16 +159,22 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
             <div class="card info-card sales-card">
 
               <div class="card-body">
-                <h5 class="card-title">Sales <span>| Today</span></h5>
+                <h5 class="card-title">Orders <span>| Today</span></h5>
 
                 <div class="d-flex align-items-center">
                   <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                     <i class="bi bi-cart"></i>
                   </div>
                   <div class="ps-3">
-                    <h6>145</h6>
-                    <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span>
-
+                    <h6><?= $today_orders ?></h6>
+                    <?php if ($orders_percentage >= 0): ?>
+                      <span class="text-success small pt-1 fw-bold"><?= number_format($orders_percentage, 1) ?>%</span>
+                    <?php else: ?>
+                      <span class="text-danger small pt-1 fw-bold"><?= number_format(abs($orders_percentage), 1) ?>%</span>
+                    <?php endif; ?>
+                    <span class="text-muted small pt-2 ps-1">
+                      <?= $orders_percentage >= 0 ? 'increase' : 'decrease' ?>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -135,16 +187,22 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
             <div class="card info-card revenue-card">
 
               <div class="card-body">
-                <h5 class="card-title">Revenue <span>| This Month</span></h5>
+                <h5 class="card-title">Revenue <span>| Today</span></h5>
 
                 <div class="d-flex align-items-center">
                   <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                     <i class="bi bi-currency-dollar"></i>
                   </div>
                   <div class="ps-3">
-                    <h6>$3,264</h6>
-                    <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
-
+                    <h6>Rs. <?= number_format($today_revenue, 2) ?></h6>
+                    <?php if ($revenue_percentage >= 0): ?>
+                      <span class="text-success small pt-1 fw-bold"><?= number_format($revenue_percentage, 1) ?>%</span>
+                    <?php else: ?>
+                      <span class="text-danger small pt-1 fw-bold"><?= number_format(abs($revenue_percentage), 1) ?>%</span>
+                    <?php endif; ?>
+                    <span class="text-muted small pt-2 ps-1">
+                      <?= $revenue_percentage >= 0 ? 'increase' : 'decrease' ?>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -158,16 +216,15 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
             <div class="card info-card customers-card">
 
               <div class="card-body">
-                <h5 class="card-title">Customers <span>| This Year</span></h5>
+                <h5 class="card-title">Total Customers</h5>
 
                 <div class="d-flex align-items-center">
                   <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                     <i class="bi bi-people"></i>
                   </div>
                   <div class="ps-3">
-                    <h6>1244</h6>
-                    <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-
+                    <h6><?= $total_customers ?></h6>
+                    <span class="text-muted small pt-2">Registered customers</span>
                   </div>
                 </div>
 
@@ -181,7 +238,49 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
             <div class="card recent-sales overflow-auto">
 
               <div class="card-body">
-                <h5 class="card-title">Recent Sales <span>| Today</span></h5>
+                <h5 class="card-title">Recent Orders <span>| Latest 5</span></h5>
+
+                <table class="table table-borderless datatable">
+                  <thead>
+                    <tr>
+                      <th scope="col">Order ID</th>
+                      <th scope="col">Customer</th>
+                      <th scope="col">Amount</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php if (!empty($recent_orders)): ?>
+                      <?php foreach ($recent_orders as $order): ?>
+                        <tr>
+                          <td>#<?= $order['order_id'] ?></td>
+                          <td><?= htmlspecialchars($order['customer_name']) ?></td>
+                          <td>Rs. <?= number_format($order['total'], 2) ?></td>
+                          <td>
+                            <?php 
+                            $status_class = '';
+                            switch($order['status']) {
+                              case 'pending': $status_class = 'badge bg-warning'; break;
+                              case 'processing': $status_class = 'badge bg-info'; break;
+                              case 'shipped': $status_class = 'badge bg-primary'; break;
+                              case 'delivered': $status_class = 'badge bg-success'; break;
+                              case 'cancelled': $status_class = 'badge bg-danger'; break;
+                              default: $status_class = 'badge bg-secondary';
+                            }
+                            ?>
+                            <span class="<?= $status_class ?>"><?= ucfirst($order['status']) ?></span>
+                          </td>
+                          <td><?= date('M d, Y', strtotime($order['created_at'])) ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <tr>
+                        <td colspan="5" class="text-center">No recent orders found</td>
+                      </tr>
+                    <?php endif; ?>
+                  </tbody>
+                </table>
 
               </div>
 
@@ -190,6 +289,74 @@ $low_stock_count = mysqli_num_rows($low_stock_query);
 
         </div>
       </div><!-- End Left side columns -->
+
+      <!-- Right side columns -->
+      <div class="col-lg-4">
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Summary <span>| Overview</span></h5>
+
+            <div class="activity">
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <div class="activity-item">
+                    <i class="bi bi-circle-fill activity-badge text-success align-self-start"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="activity-content">
+                    <strong>Total Orders:</strong> <?= $total_orders ?>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <div class="activity-item">
+                    <i class="bi bi-circle-fill activity-badge text-info align-self-start"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="activity-content">
+                    <strong>Total Revenue:</strong> Rs. <?= number_format($total_revenue, 2) ?>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <div class="activity-item">
+                    <i class="bi bi-circle-fill activity-badge text-warning align-self-start"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="activity-content">
+                    <strong>Today's Orders:</strong> <?= $today_orders ?>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <div class="activity-item">
+                    <i class="bi bi-circle-fill activity-badge text-primary align-self-start"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="activity-content">
+                    <strong>Today's Revenue:</strong> Rs. <?= number_format($today_revenue, 2) ?>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div><!-- End Recent Activity -->
+
+      </div><!-- End Right side columns -->
 
     </div>
   </section>
