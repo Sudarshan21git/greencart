@@ -8,8 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
-}
-else if ($_SESSION['is_admin'] == 1) {
+} else if ($_SESSION['is_admin'] == 1) {
     header("Location: 404.html");
 }
 
@@ -137,27 +136,37 @@ mysqli_close($conn);
                     <div class="dashboard-stats">
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                </svg>
                             </div>
                             <div class="stat-info">
                                 <h3>Orders</h3>
                                 <p class="stat-value"><?php echo $order_count; ?></p>
                             </div>
                         </div>
-                        
+
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
                             </div>
                             <div class="stat-info">
                                 <h3>Reviews</h3>
                                 <p class="stat-value"><?php echo $review_count; ?></p>
                             </div>
                         </div>
-                        
+
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
                             </div>
                             <div class="stat-info">
                                 <h3>Cart</h3>
@@ -165,78 +174,86 @@ mysqli_close($conn);
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="dashboard-sections">
                         <div class="dashboard-section orders-section">
-    <div class="section-header">
-        <h2>Recent Orders</h2>
-        <a href="orders.php" class="view-all">View All</a>
-    </div>
-    
-    <?php if (count($recent_orders) > 0): ?>
-    <div class="dashboard-orders">
-        <?php foreach ($recent_orders as $order): ?>
-        <a href="orders.php" class="dashboard-order-card clickable">
-            <div class="order-card-header">
-                <div class="order-number">
-                    <span class="value">#<?php echo $order['order_number']; ?></span>
-                </div>
-                <div class="order-status-badge <?php echo strtolower($order['status']); ?>">
-                    <?php echo ucfirst($order['status']); ?>
-                </div>
-            </div>
-            
-            <div class="order-card-body">
-                <div class="order-info-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <span><?php echo date('F d, Y', strtotime($order['created_at'])); ?></span>
-                </div>
-                <div class="order-info-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    <span class="order-amount">Rs.<?php echo number_format($order['total'], 2); ?></span>
-                </div>
-            </div>
-        </a>
-        <?php endforeach; ?>
-    </div>
-    <?php else: ?>
-    <div class="empty-state">
-        <p>You haven't placed any orders yet.</p>
-        <a href="../shop.php" class="btn btn-primary">Start Shopping</a>
-    </div>
-    <?php endif; ?>
-</div>
-                        
+                            <div class="section-header">
+                                <h2>Recent Orders</h2>
+                                <a href="orders.php" class="view-all">View All</a>
+                            </div>
+
+                            <?php if (count($recent_orders) > 0): ?>
+                                <div class="dashboard-orders">
+                                    <?php foreach ($recent_orders as $order): ?>
+                                        <a href="orders.php" class="dashboard-order-card clickable">
+                                            <div class="order-card-header">
+                                                <div class="order-number">
+                                                    <span class="value">#<?php echo $order['order_number']; ?></span>
+                                                </div>
+                                                <div class="order-status-badge <?php echo strtolower($order['status']); ?>">
+                                                    <?php echo ucfirst($order['status']); ?>
+                                                </div>
+                                            </div>
+
+                                            <div class="order-card-body">
+                                                <div class="order-info-item">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                    </svg>
+                                                    <span><?php echo date('F d, Y', strtotime($order['created_at'])); ?></span>
+                                                </div>
+                                                <div class="order-info-item">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                                    </svg>
+                                                    <span class="order-amount">Rs.<?php echo number_format($order['total'], 2); ?></span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="empty-state">
+                                    <p>You haven't placed any orders yet.</p>
+                                    <a href="shop.php" class="btn btn-primary">Start Shopping</a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
                         <div class="dashboard-section">
                             <div class="section-header">
                                 <h2>Recent Reviews</h2>
                                 <a href="reviews.php" class="view-all">View All</a>
                             </div>
-                            
+
                             <?php if (count($recent_reviews) > 0): ?>
-                            <div class="dashboard-reviews">
-                                <?php foreach ($recent_reviews as $review): ?>
-                                <a href="reviews.php" class="dashboard-review clickable">
-                                    <div class="review-product">
-                                        <img src="../img/<?php echo $review['product_image']; ?>" alt="<?php echo $review['product_name']; ?>">
-                                        <span><?php echo $review['product_name']; ?></span>
-                                    </div>
-                                    <div class="review-rating">
-                                        <?php 
-                                        for ($i = 1; $i <= 5; $i++) {
-                                            echo $i <= $review['rating'] ? '★' : '☆';
-                                        }
-                                        ?>
-                                    </div>
-                                    <div class="review-date"><?php echo date('M d, Y', strtotime($review['created_at'])); ?></div>
-                                </a>
-                                <?php endforeach; ?>
-                            </div>
+                                <div class="dashboard-reviews">
+                                    <?php foreach ($recent_reviews as $review): ?>
+                                        <a href="reviews.php" class="dashboard-review clickable">
+                                            <div class="review-product">
+                                                <img src="../img/<?php echo $review['product_image']; ?>" alt="<?php echo $review['product_name']; ?>">
+                                                <span><?php echo $review['product_name']; ?></span>
+                                            </div>
+                                            <div class="review-rating">
+                                                <?php
+                                                for ($i = 1; $i <= 5; $i++) {
+                                                    echo $i <= $review['rating'] ? '★' : '☆';
+                                                }
+                                                ?>
+                                            </div>
+                                            <div class="review-date"><?php echo date('M d, Y', strtotime($review['created_at'])); ?></div>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php else: ?>
-                            <div class="empty-state">
-                                <p>You haven't written any reviews yet.</p>
-                                <a href="../shop.php" class="btn btn-primary">Shop Products</a>
-                            </div>
+                                <div class="empty-state">
+                                    <p>You haven't written any reviews yet.</p>
+                                    <a href="shop.php" class="btn btn-primary">Shop Products</a>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -249,4 +266,5 @@ mysqli_close($conn);
     <?php include_once "../includes/footer.php"; ?>
     <script src="../js/script.js"></script>
 </body>
+
 </html>

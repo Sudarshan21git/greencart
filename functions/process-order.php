@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = mysqli_real_escape_string($conn, $_POST['phone']);
     $address = mysqli_real_escape_string($conn, $_POST['address']);
     $payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
-
+    $_SESSION['payment_method'] = $payment_method;
     // Validation
     $error_message = "";
 
@@ -110,90 +110,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'cart_id' => $cart_id
         ];
 
-if ($payment_method == "khalti") {
-    header("Location: khaltiPayRequest.php");
-    exit();
-} elseif ($payment_method == "esewa") {
-    header("Location: esewaPayRequest.php");
-    exit();
-} elseif ($payment_method == "cod") {
-    
-} else {
-    // Invalid method (just in case)
-    die("Invalid payment method selected.");
-}
+        if ($payment_method == "khalti") {
+            header("Location: khaltiPayRequest.php");
+            exit();
+        } elseif ($payment_method == "esewa") {
+            header("Location: esewaPayRequest.php");
+            exit();
+        } elseif ($payment_method == "cod") {
+            // Shipping address
+            $shipping_address = $address;
 
-        // Shipping address
-        $shipping_address = $address;
-
-        // Create order
-        $order_query = "INSERT INTO orders (user_id, order_number, status, subtotal, total, payment_method, shipping_address, created_at) 
+            // Create order
+            $order_query = "INSERT INTO orders (user_id, order_number, status, subtotal, total, payment_method, shipping_address, created_at) 
                         VALUES ($userId, '$order_number', 'pending', $order_total, $order_total, '$payment_method', '$shipping_address', NOW())";
 
-        if (mysqli_query($conn, $order_query)) {
-            $order_id = mysqli_insert_id($conn);
+            if (mysqli_query($conn, $order_query)) {
+                $order_id = mysqli_insert_id($conn);
 
-            // Move items from cart to order items
-            $items_query = "INSERT INTO order_items (order_id, product_id, quantity, price) 
+                // Move items from cart to order items
+                $items_query = "INSERT INTO order_items (order_id, product_id, quantity, price) 
                             SELECT $order_id, ci.product_id, ci.quantity, p.price 
                             FROM cart_items ci 
                             JOIN products p ON ci.product_id = p.product_id 
                             WHERE ci.cart_id = $cart_id";
 
-            if (mysqli_query($conn, $items_query)) {
-                // Decrease stock for each product
-                $update_stock_query = "UPDATE products p
+                if (mysqli_query($conn, $items_query)) {
+                    // Decrease stock for each product
+                    $update_stock_query = "UPDATE products p
                 JOIN cart_items ci ON p.product_id = ci.product_id
                 SET p.stock_quantity = p.stock_quantity - ci.quantity
                 WHERE ci.cart_id = $cart_id";
 
-                mysqli_query($conn, $update_stock_query);
+                    mysqli_query($conn, $update_stock_query);
 
 
-                // Clear cart items
-                mysqli_query($conn, "DELETE FROM cart_items WHERE cart_id = $cart_id");
+                    // Clear cart items
+                    mysqli_query($conn, "DELETE FROM cart_items WHERE cart_id = $cart_id");
 
-                // Create new cart
-                mysqli_query($conn, "INSERT INTO cart (user_id, created_at) VALUES ($userId, NOW())");
+                    // Create new cart
+                    mysqli_query($conn, "INSERT INTO cart (user_id, created_at) VALUES ($userId, NOW())");
 
-                // Store order info in session for confirmation page
-                $_SESSION['order_id'] = $order_id;
-                $_SESSION['order_number'] = $order_number;
-                $_SESSION['order_total'] = $order_total;
-                $_SESSION['order_date'] = date('Y-m-d H:i:s');
+                    // Store order info in session for confirmation page
+                    $_SESSION['order_id'] = $order_id;
+                    $_SESSION['order_number'] = $order_number;
+                    $_SESSION['order_total'] = $order_total;
+                    $_SESSION['order_date'] = date('Y-m-d H:i:s');
 
-                // Clear checkout data after successful order
-                unset($_SESSION['checkout_data']);
-                unset($_SESSION['show_checkout']);
+                    // Clear checkout data after successful order
+                    unset($_SESSION['show_checkout']);
 
-                // Redirect to confirmation page
-                header("Location: ../functions/order-confirmation.php");
-                exit();
+                    // Redirect to confirmation page
+                    header("Location: ../functions/order-confirmation.php");
+                    exit();
+                } else {
+                    $error = "Error creating order items: " . mysqli_error($conn);
+                }
             } else {
-                $error = "Error creating order items: " . mysqli_error($conn);
+                $error = "Error creating order: " . mysqli_error($conn);
             }
         } else {
-            $error = "Error creating order: " . mysqli_error($conn);
+            $error = "Cart not found.";
         }
-    } else {
-        $error = "Cart not found.";
-    }
 
-    // Handle errors
-    $_SESSION['order_error'] = $error;
-    $_SESSION['show_checkout'] = true;
+        // Handle errors
+        $_SESSION['order_error'] = $error;
+        $_SESSION['show_checkout'] = true;
 
-    // Redirect with JavaScript alert
-    echo "<script>
+        // Redirect with JavaScript alert
+        echo "<script>
         function redirectWithAlert() {
             alert('" . addslashes($error) . "');
             window.location.href = '../user/cart.php';
         }
         redirectWithAlert();
     </script>";
-    exit();
-}
+        exit();
+    }
 
-// Redirect to cart if not a POST request
-header("Location: ../user/cart.php");
-exit();
+    // Redirect to cart if not a POST request
+    header("Location: ../user/cart.php");
+    exit();
+} else {
+    // Invalid method (just in case)
+    die("Invalid payment method selected.");
+}
