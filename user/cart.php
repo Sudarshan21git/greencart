@@ -293,16 +293,25 @@ $checkout_data = isset($_SESSION['checkout_data']) ? $_SESSION['checkout_data'] 
                         </div>
 
                         <h2>Payment Information</h2>
-                        <div class="payment-methods">
-                            <div class="payment-method">
-                                <input type="radio" id="payment-khalti" name="payment_method" value="khalti" <?php echo ($checkout_data['payment_method'] === 'khalti' || empty($checkout_data['payment_method'])) ? 'checked' : ''; ?>>
-                                <label for="payment-khalti">Khalti</label>
-                            </div>
-                            <div class="payment-method">
-                                <input type="radio" id="payment-cod" name="payment_method" value="cod" <?php echo ($checkout_data['payment_method'] === 'cod') ? 'checked' : ''; ?>>
-                                <label for="payment-cod">Cash on Delivery</label>
-                            </div>
-                        </div>
+                       <div class="payment-methods">
+    <div class="payment-method">
+        <input type="radio" id="payment-khalti" name="payment_method" value="khalti" 
+            <?php echo ($checkout_data['payment_method'] === 'khalti' || empty($checkout_data['payment_method'])) ? 'checked' : ''; ?>>
+        <label for="payment-khalti">Khalti</label>
+    </div>
+
+    <div class="payment-method">
+        <input type="radio" id="payment-esewa" name="payment_method" value="esewa" 
+            <?php echo ($checkout_data['payment_method'] === 'esewa') ? 'checked' : ''; ?>>
+        <label for="payment-esewa">ESewa</label>
+    </div>
+
+    <div class="payment-method">
+        <input type="radio" id="payment-cod" name="payment_method" value="cod" 
+            <?php echo ($checkout_data['payment_method'] === 'cod') ? 'checked' : ''; ?>>
+        <label for="payment-cod">Cash on Delivery</label>
+    </div>
+</div>
 
                         <div class="checkout-actions">
                             <button type="button" class="btn btn-secondary" id="back-to-cart">Back to Cart</button>

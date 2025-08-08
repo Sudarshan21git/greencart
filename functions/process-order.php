@@ -110,10 +110,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'cart_id' => $cart_id
         ];
 
-        if ($payment_method != "cod") {
-            header("Location: khaltiPayRequest.php");
-            exit();
-        }
+if ($payment_method == "khalti") {
+    header("Location: khaltiPayRequest.php");
+    exit();
+} elseif ($payment_method == "esewa") {
+    header("Location: esewaPayRequest.php");
+    exit();
+} elseif ($payment_method == "cod") {
+    
+} else {
+    // Invalid method (just in case)
+    die("Invalid payment method selected.");
+}
 
         // Shipping address
         $shipping_address = $address;
